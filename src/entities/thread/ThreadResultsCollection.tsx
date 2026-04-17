@@ -30,11 +30,12 @@ function ThreadResultsCollectionImpl({
 
   return (
     <div className={layoutMode === 'list' ? listClassName : gridClassName}>
-      {threads.map((thread) =>
+      {threads.map((thread, index) =>
         layoutMode === 'list' ? (
           <ThreadListItem
             key={thread.thread_id}
             thread={thread}
+            index={index}
             onTagClick={onTagClick}
             searchQuery={searchQuery}
             onAuthorClick={onAuthorClick}
@@ -44,6 +45,7 @@ function ThreadResultsCollectionImpl({
           <ThreadCard
             key={thread.thread_id}
             thread={thread}
+            index={index}
             onTagClick={onTagClick}
             searchQuery={searchQuery}
             onAuthorClick={onAuthorClick}

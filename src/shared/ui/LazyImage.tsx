@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useImageModeSetting } from '@/shared/hooks/useSettings';
 import { reportBrokenThreadThumbnail, subscribeThreadThumbnailRepair } from '@/features/threads/lib/thumbnailRepairQueue';
+import { optimizeDiscordImageUrl } from '@/shared/lib/imageOptimization';
 
 interface LazyImageProps {
   src: string;
-  alt: string;
+  alt?: string;
   className?: string;
   placeholder?: string;
   threadId?: string;
   channelId?: string;
+  index?: number;
 }
 
 export function LazyImage({
@@ -18,6 +20,7 @@ export function LazyImage({
   placeholder,
   threadId,
   channelId,
+  index = 0,
 }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
@@ -35,7 +38,7 @@ export function LazyImage({
         }
       },
       {
-        rootMargin: '50px',
+        rootMargin: '500px',
       }
     );
 
@@ -49,7 +52,9 @@ export function LazyImage({
   const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    setCurrentSrc(src);
+    // 对 Discord 图片源应用高清优化（主打 WebP 无损转换）
+    const optimized = optimizeDiscordImageUrl(src, 800);
+    setCurrentSrc(optimized);
     setIsLoaded(false);
   }, [src]);
 
@@ -92,8 +97,11 @@ export function LazyImage({
               ref={imageRef}
               src={currentSrc}
               alt={alt}
-              className={`h-full w-full object-cover transition-all duration-[800ms] ease-in-out ${isLoaded ? 'scale-100 opacity-100 blur-0' : 'scale-[1.01] opacity-0 blur-[2px]'
+              className={`h-full w-full object-cover transition-all duration-1000 ease-in-out ${isLoaded ? 'scale-100 opacity-100 blur-0' : 'scale-[1.01] opacity-0 blur-[2px]'
                 }`}
+              style={{
+                transitionDelay: isLoaded ? `${(index % 24) * 60}ms` : '0ms',
+              }}
               onLoad={() => {
                 // 使用 decode() 确保图片不仅加载完，且已完成解码可以立即显示
                 imageRef.current?.decode()

@@ -21,9 +21,10 @@ interface ThreadCardProps {
   searchQuery?: string;
   onAuthorClick?: (author: { id: string; name: string }) => void;
   onPreview?: (thread: Thread) => void;
+  index?: number;
 }
 
-function ThreadCardImpl({ thread, onTagClick, searchQuery, onAuthorClick, onPreview }: ThreadCardProps) {
+function ThreadCardImpl({ thread, onTagClick, searchQuery, onAuthorClick, onPreview, index = 0 }: ThreadCardProps) {
   const navigate = useNavigate();
   const fontSize = useFontSizeSetting();
   const fontSizes = fontSizeMap[fontSize];
@@ -97,7 +98,10 @@ function ThreadCardImpl({ thread, onTagClick, searchQuery, onAuthorClick, onPrev
 
   return (
     <article
-      className="group flex h-full w-full cursor-pointer flex-col"
+      className="group flex h-full w-full cursor-pointer flex-col animate-in fade-in slide-in-from-bottom-2 duration-700 fill-mode-both"
+      style={{ 
+        animationDelay: `${(index % 24) * 40}ms`,
+      }}
       onClick={() => onPreview?.(thread)}
     >
       <div className="flex flex-col gap-2 px-1 pb-3 pt-1 text-[var(--od-text-primary)]">
@@ -176,6 +180,7 @@ function ThreadCardImpl({ thread, onTagClick, searchQuery, onAuthorClick, onPrev
             className="h-full w-full"
             threadId={thread.thread_id}
             channelId={thread.channel_id}
+            index={index}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-[color-mix(in_srgb,var(--od-surface-raised)_15%,transparent)]">

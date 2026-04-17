@@ -21,9 +21,10 @@ interface ThreadListItemProps {
   searchQuery?: string;
   onAuthorClick?: (author: { id: string; name: string }) => void;
   onPreview?: (thread: Thread) => void;
+  index?: number;
 }
 
-function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, onPreview }: ThreadListItemProps) {
+function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, onPreview, index = 0 }: ThreadListItemProps) {
   const navigate = useNavigate();
   const fontSize = useFontSizeSetting();
   const imageMode = useImageModeSetting();
@@ -67,7 +68,10 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
 
   return (
     <article
-      className="group relative w-full cursor-pointer py-3 text-[var(--od-text-primary)] transition-colors duration-200"
+      className="group relative w-full cursor-pointer py-3 text-[var(--od-text-primary)] transition-colors duration-200 animate-in fade-in slide-in-from-bottom-2 duration-700 fill-mode-both"
+      style={{
+        animationDelay: `${(index % 24) * 40}ms`,
+      }}
       onClick={() => onPreview?.(thread)}
     >
       <div className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,color-mix(in_srgb,var(--od-divider-strong)_60%,transparent),transparent)]" />
@@ -183,18 +187,19 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
 
               {thumbnails.length === 2 && (
                 <>
-                  {thumbnails.map((src, index) => (
+                  {thumbnails.map((src, idx) => (
                     <div
-                      key={`${thread.thread_id}-${src}-${index}`}
+                      key={`${thread.thread_id}-${src}-${idx}`}
                       className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]"
                     >
-                      <LazyImage
-                        src={src}
-                        alt={`${thread.title} 缩略图 ${index + 1}`}
-                        className="h-full w-full object-cover"
-                        threadId={thread.thread_id}
-                        channelId={thread.channel_id}
-                      />
+                    <LazyImage
+                      src={src}
+                      alt={`${thread.title} 缩略图 ${idx + 1}`}
+                      className="h-full w-full object-cover"
+                      threadId={thread.thread_id}
+                      channelId={thread.channel_id}
+                      index={index}
+                    />
                     </div>
                   ))}
                 </>
@@ -218,6 +223,7 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
                       className="h-full w-full object-cover"
                       threadId={thread.thread_id}
                       channelId={thread.channel_id}
+                      index={index}
                     />
                   </div>
                   <div className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]">
@@ -234,27 +240,28 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
 
               {thumbnails.length === 4 && (
                 <>
-                  {thumbnails.map((src, index) => (
+                  {thumbnails.map((src, idx) => (
                     <div
-                      key={`${thread.thread_id}-${src}-${index}`}
+                      key={`${thread.thread_id}-${src}-${idx}`}
                       className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]"
                     >
-                      <LazyImage
-                        src={src}
-                        alt={`${thread.title} 缩略图 ${index + 1}`}
-                        className="h-full w-full object-cover"
-                        threadId={thread.thread_id}
-                        channelId={thread.channel_id}
-                      />
-                      {index === 3 && (thread.thumbnail_urls?.length || 0) > thumbnails.length && (
-                        <div className="absolute inset-0 flex items-end justify-end bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.42))] p-2 text-white">
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium tracking-[0.08em]">
-                            <Images className="h-3 w-3" />
-                            +{(thread.thumbnail_urls?.length || 0) - thumbnails.length}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    <LazyImage
+                      src={src}
+                      alt={`${thread.title} 缩略图 ${idx + 1}`}
+                      className="h-full w-full object-cover"
+                      threadId={thread.thread_id}
+                      channelId={thread.channel_id}
+                      index={index}
+                    />
+                    {idx === 3 && (thread.thumbnail_urls?.length || 0) > thumbnails.length && (
+                      <div className="absolute inset-0 flex items-end justify-end bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.42))] p-2 text-white">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-medium tracking-[0.08em]">
+                          <Images className="h-3 w-3" />
+                          +{(thread.thumbnail_urls?.length || 0) - thumbnails.length}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   ))}
                 </>
               )}
