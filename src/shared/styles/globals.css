@@ -1,0 +1,14 @@
+@import './tokens.css';
+@import './base.css';
+@import './typography.css';
+@import './primitives.css';
+@import './surfaces.css';
+@import './settings.css';
+@import './markdown.css';
+@import './discovery.css';
+@import './feedback.css';
+@import './utilities.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
