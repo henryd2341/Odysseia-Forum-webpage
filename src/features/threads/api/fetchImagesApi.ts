@@ -1,8 +1,8 @@
 import { apiClient } from '@/shared/api/client';
 
 export interface FetchImageItem {
-    thread_id: number;
-    channel_id?: number;
+    thread_id: string;
+    channel_id?: string;
 }
 
 export interface FetchImageRequest {

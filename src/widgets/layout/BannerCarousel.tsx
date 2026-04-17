@@ -54,7 +54,7 @@ export function BannerCarousel({ banners, autoPlayInterval = 5000, onBannerClick
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6">
             <h2 className="mb-2 text-2xl font-bold text-white line-clamp-1">
-              欢迎来到 Odysseia ✨
+              欢迎来到类脑Odysseia索引页
             </h2>
             <p className="text-sm text-gray-200 line-clamp-2">
               今天的头图位还空着呢，不过没关系，先往下逛逛看吧。

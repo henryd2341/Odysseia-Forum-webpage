@@ -24,10 +24,10 @@ function toThreadId(value: string | number): string {
   return String(value).trim();
 }
 
-function toChannelId(value?: string | number): number | undefined {
+function toChannelId(value?: string | number): string | undefined {
   if (value === undefined || value === null || value === '') return undefined;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : undefined;
+  const str = String(value).trim();
+  return str.length > 0 ? str : undefined;
 }
 
 function patchThreadThumbnailsInData(data: unknown, threadId: string, urls: string[]): unknown {
@@ -136,7 +136,7 @@ export function reportBrokenThreadThumbnail(payload: BrokenThumbnailPayload) {
   if (pending.has(threadId)) return;
 
   pending.set(threadId, {
-    thread_id: Number(threadId),
+    thread_id: threadId,
     channel_id: toChannelId(payload.channelId),
   });
 
