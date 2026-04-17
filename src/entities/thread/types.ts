@@ -10,7 +10,7 @@ export type Author = components["schemas"]["AuthorDetail-Output"];
 /**
  * 帖子核心实体 (扩展了后端 OpenAPI 定义以支持前端状态)
  */
-export type Thread = components["schemas"]["ThreadDetail-Output"] & {
+export type Thread = components["schemas"]["ThreadDetail"] & {
   id?: string;           // 兼容旧版代码使用的 id (即 thread_id)
   is_following?: boolean; // 兼容旧版关注状态 (后端目前使用 collected_flag)
   has_update?: boolean;   // 兼容旧版未读更新状态
