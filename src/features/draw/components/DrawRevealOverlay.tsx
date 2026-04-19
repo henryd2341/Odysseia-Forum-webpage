@@ -30,56 +30,75 @@ function CardImage({ src, layoutId, isActive }: { src: string; layoutId: string;
   const [isLowRes, setIsLowRes] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   
+  const hasImage = !!src && src.trim() !== "";
+  
   // Use a stable source for the transition to avoid reloading flicker
-  const [displaySrc, setDisplaySrc] = useState(optimizeDiscordImageUrl(src, 600));
+  const [displaySrc, setDisplaySrc] = useState(hasImage ? optimizeDiscordImageUrl(src, 600) : "");
   
   useEffect(() => {
+    if (!hasImage) {
+      setIsLoaded(true);
+      return;
+    }
     const nextSrc = optimizeDiscordImageUrl(src, isActive ? 1600 : 600);
     // Only update if it's a major change or if we were not loaded
     if (!isLoaded || isActive) {
       setDisplaySrc(nextSrc);
     }
-  }, [src, isActive]);
+  }, [src, isActive, hasImage]);
 
   useEffect(() => {
-    // Don't reset isLoaded if we're just upgrading quality of the same image
-    // but do reset if the underlying source thread changes
+    if (!hasImage) {
+      setIsLoaded(true);
+      return;
+    }
     setIsLoaded(false);
     setIsLowRes(false);
-  }, [src]);
+  }, [src, hasImage]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden bg-[var(--od-surface-raised)]">
+      {/* Fallback for no image */}
+      {!hasImage && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a]">
+          <div className="h-20 w-20 opacity-10 filter grayscale">
+            {/* Minimalist fallback icon/logo could go here */}
+            <RefreshCw className="h-full w-full animate-pulse" />
+          </div>
+        </div>
+      )}
+
       {/* Skeleton / Placeholder - only show if absolutely not loaded */}
-      {!isLoaded && (
+      {hasImage && !isLoaded && (
         <div className="absolute inset-0 bg-gradient-to-r from-[var(--od-surface-raised)] via-[var(--od-interactive-hover)] to-[var(--od-surface-raised)] bg-[length:200%_100%] animate-pulse" />
       )}
 
-      <motion.img
-        ref={imgRef}
-        layoutId={layoutId}
-        src={displaySrc}
-        onLoad={() => {
-          const img = imgRef.current;
-          if (img) {
-            if (isActive && img.naturalWidth < 1100 && img.naturalWidth > 0) {
-              setIsLowRes(true);
+      {hasImage && (
+        <motion.img
+          ref={imgRef}
+          layoutId={layoutId}
+          src={displaySrc}
+          onLoad={() => {
+            const img = imgRef.current;
+            if (img) {
+              if (isActive && img.naturalWidth < 1100 && img.naturalWidth > 0) {
+                setIsLowRes(true);
+              }
+              img.decode()
+                .then(() => setIsLoaded(true))
+                .catch(() => setIsLoaded(true));
             }
-            img.decode()
-              .then(() => setIsLoaded(true))
-              .catch(() => setIsLoaded(true));
-          }
-        }}
-        animate={{ 
-          opacity: isLoaded ? 1 : 0,
-          filter: isLowRes ? "blur(12px) brightness(0.7)" : "blur(0px) brightness(1)",
-          scale: isLowRes ? 1.05 : 1
-        }}
-        transition={{ duration: 0.4 }} // Faster fade-in to support expansion
-        className="od-draw-card-image"
-        style={{ perspective: 1000 }}
-      />
-      
+          }}
+          animate={{ 
+            opacity: isLoaded ? 1 : 0,
+            filter: isLowRes ? "blur(12px) brightness(0.7)" : "blur(0px) brightness(1)",
+            scale: isLowRes ? 1.05 : 1
+          }}
+          transition={{ duration: 0.4 }}
+          className="od-draw-card-image"
+          style={{ perspective: 1000 }}
+        />
+      )}
     </div>
   );
 }

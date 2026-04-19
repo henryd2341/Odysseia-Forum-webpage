@@ -166,9 +166,7 @@ export const plazaApi = {
     const normalizedChannelIds = (params.channel_ids || [])
       .flatMap((id) => String(id).split(","))
       .map((id) => id.trim())
-      .filter(Boolean)
-      .map((id) => Number.parseInt(id, 10))
-      .filter((id) => Number.isFinite(id));
+      .filter(Boolean);
 
     const response = await apiClient.get<Thread[]>("/discovery/random", {
       params: {
@@ -179,6 +177,10 @@ export const plazaApi = {
         include_tags: params.include_tags || undefined,
         exclude_tags: params.exclude_tags || undefined,
         tag_logic: params.tag_logic ?? "and",
+      },
+      // Ensure arrays are serialized as channel_ids=1&channel_ids=2
+      paramsSerializer: {
+        indexes: null, 
       },
     });
     return response.data;
