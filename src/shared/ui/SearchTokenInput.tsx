@@ -1,6 +1,19 @@
-import { parseSearchQuery, removeToken, SearchToken, tokensToQuery } from '@/shared/lib/searchTokenizer';
-import { Tag as TagIcon, User, X } from 'lucide-react';
-import { ChangeEvent, CompositionEvent, KeyboardEvent, type MutableRefObject, useEffect, useRef, useState } from 'react';
+import {
+  parseSearchQuery,
+  removeToken,
+  SearchToken,
+  tokensToQuery,
+} from "@/shared/lib/searchTokenizer";
+import { Tag as TagIcon, User, X } from "lucide-react";
+import {
+  ChangeEvent,
+  CompositionEvent,
+  KeyboardEvent,
+  type MutableRefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 interface SearchTokenInputProps {
   value: string;
@@ -20,19 +33,21 @@ export function SearchTokenInput({
   onFocus,
   onBlur,
   externalInputRef,
-  placeholder = '搜索...',
-  className = '',
+  placeholder = "搜索...",
+  className = "",
 }: SearchTokenInputProps) {
   const [tokens, setTokens] = useState<SearchToken[]>([]);
-  const [inputValue, setInputValue] = useState('');
-  const [editingTokenIndex, setEditingTokenIndex] = useState<number | null>(null);
-  const [editingValue, setEditingValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
+  const [editingTokenIndex, setEditingTokenIndex] = useState<number | null>(
+    null,
+  );
+  const [editingValue, setEditingValue] = useState("");
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const editInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
   const isComposingRef = useRef(false);
-  const compositionValueRef = useRef('');
+  const compositionValueRef = useRef("");
 
   // 解析 value 到 tokens
   useEffect(() => {
@@ -40,24 +55,26 @@ export function SearchTokenInput({
     setTokens(parsed);
 
     // 如果只有文本 token，显示在输入框中
-    if (parsed.length === 1 && parsed[0].type === 'text') {
+    if (parsed.length === 1 && parsed[0].type === "text") {
       setInputValue(parsed[0].value);
     } else if (parsed.length === 0) {
-      setInputValue('');
+      setInputValue("");
     } else {
       // 提取非文本 token 后的文本部分
       const lastToken = parsed[parsed.length - 1];
-      if (lastToken.type === 'text') {
+      if (lastToken.type === "text") {
         setInputValue(lastToken.value);
       } else {
-        setInputValue('');
+        setInputValue("");
       }
     }
   }, [value]);
 
   // 监听 tokens 变化，如果有空的 token (来自模板)，自动聚焦到输入框
   useEffect(() => {
-    const emptyTokenIndex = tokens.findIndex(t => t.type !== 'text' && !t.value);
+    const emptyTokenIndex = tokens.findIndex(
+      (t) => t.type !== "text" && !t.value,
+    );
     if (emptyTokenIndex !== -1) {
       // 如果有空 token，我们实际上不需要做特殊处理，因为渲染逻辑会把它变成 input
       // 但我们需要确保 inputRef 聚焦
@@ -74,7 +91,7 @@ export function SearchTokenInput({
 
   // 点击 Token：进入编辑模式，在 token 位置显示输入框
   const handleTokenClick = (token: SearchToken) => {
-    const nonTextTokens = tokens.filter(t => t.type !== 'text');
+    const nonTextTokens = tokens.filter((t) => t.type !== "text");
     const tokenIndex = nonTextTokens.indexOf(token);
 
     setEditingTokenIndex(tokenIndex);
@@ -95,26 +112,31 @@ export function SearchTokenInput({
       handleRemoveToken(token);
     } else {
       // 更新 token 值
-      const newQuery = value.replace(token.raw, `$${token.type}:${newValue}$`);
+      const tokenPrefix = token.mode === "exclude" ? "-" : "";
+      const newQuery = value.replace(
+        token.raw,
+        `${tokenPrefix}$${token.type}:${newValue}$`,
+      );
       onChange(newQuery);
     }
     setEditingTokenIndex(null);
-    setEditingValue('');
+    setEditingValue("");
   };
 
   // 取消编辑
   const handleCancelEdit = () => {
     setEditingTokenIndex(null);
-    setEditingValue('');
+    setEditingValue("");
   };
 
   const commitInputValue = (nextValue: string) => {
     setInputValue(nextValue);
 
-    const nonTextTokens = tokens.filter(t => t.type !== 'text');
-    const newQuery = nonTextTokens.length > 0
-      ? `${tokensToQuery(nonTextTokens)} ${nextValue}`.trim()
-      : nextValue;
+    const nonTextTokens = tokens.filter((t) => t.type !== "text");
+    const newQuery =
+      nonTextTokens.length > 0
+        ? `${tokensToQuery(nonTextTokens)} ${nextValue}`.trim()
+        : nextValue;
 
     onChange(newQuery);
   };
@@ -129,7 +151,7 @@ export function SearchTokenInput({
       return;
     }
 
-    compositionValueRef.current = '';
+    compositionValueRef.current = "";
     commitInputValue(newValue);
   };
 
@@ -140,7 +162,7 @@ export function SearchTokenInput({
   const handleCompositionEnd = (e: CompositionEvent<HTMLInputElement>) => {
     isComposingRef.current = false;
     const finalizedValue = e.currentTarget.value;
-    compositionValueRef.current = '';
+    compositionValueRef.current = "";
     commitInputValue(finalizedValue);
   };
 
@@ -150,7 +172,7 @@ export function SearchTokenInput({
     }
 
     // Enter 键触发搜索
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       onSearch?.();
       inputRef.current?.blur();
@@ -158,33 +180,41 @@ export function SearchTokenInput({
     }
 
     // Backspace 删除最后一个 token
-    if (e.key === 'Backspace' && inputValue === '' && tokens.length > 0) {
-      const lastNonTextToken = [...tokens].reverse().find(t => t.type !== 'text');
+    if (e.key === "Backspace" && inputValue === "" && tokens.length > 0) {
+      const lastNonTextToken = [...tokens]
+        .reverse()
+        .find((t) => t.type !== "text");
       if (lastNonTextToken) {
         handleRemoveToken(lastNonTextToken);
       }
     }
   };
 
-  const getTokenIcon = (type: SearchToken['type']) => {
+  const getTokenIcon = (type: SearchToken["type"]) => {
     switch (type) {
-      case 'tag':
+      case "tag":
         return <TagIcon className="h-3 w-3" />;
-      case 'author':
+      case "author":
         return <User className="h-3 w-3" />;
       default:
         return null;
     }
   };
 
-  const getTokenColor = (type: SearchToken['type']) => {
-    switch (type) {
-      case 'tag':
-        return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
-      case 'author':
-        return 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20';
+  const getTokenColor = (token: SearchToken) => {
+    if (token.mode === "exclude") {
+      return "border-rose-500/25 bg-rose-500/12 text-rose-300";
+    }
+
+    switch (token.type) {
+      case "tag":
+        return "border-sky-500/25 bg-sky-500/12 text-sky-300";
+      case "author":
+        return "border-violet-500/25 bg-violet-500/12 text-violet-300";
+      case "channel":
+        return "border-amber-500/25 bg-amber-500/12 text-amber-300";
       default:
-        return 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20';
+        return "border-[var(--od-shell-line)] bg-[var(--od-surface-soft)] text-[var(--od-text-secondary)]";
     }
   };
 
@@ -196,15 +226,16 @@ export function SearchTokenInput({
     >
       {/* 显示 token chips */}
       {tokens
-        .filter(token => token.type !== 'text')
+        .filter((token) => token.type !== "text")
         .map((token, index) => {
           const isEditing = editingTokenIndex === index;
 
           return (
             <div
               key={`${token.type}-${token.value}-${index}`}
-              className={`flex max-w-[42%] shrink-0 items-center gap-1.5 rounded-full border px-2 py-1 text-xs font-medium transition-all duration-200 ${isEditing ? 'ring-2 ring-[var(--od-accent)]' : 'hover:scale-105'
-                } ${getTokenColor(token.type)}`}
+              className={`flex max-w-[42%] shrink-0 items-center gap-1.5 rounded-full border px-2 py-1 text-xs font-medium transition-all duration-200 ${
+                isEditing ? "ring-2 ring-[var(--od-accent)]" : "hover:scale-105"
+              } ${getTokenColor(token)}`}
             >
               {getTokenIcon(token.type)}
 
@@ -217,17 +248,19 @@ export function SearchTokenInput({
                   value={editingValue}
                   onChange={(e) => setEditingValue(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       handleFinishEdit(token, editingValue);
-                    } else if (e.key === 'Escape') {
+                    } else if (e.key === "Escape") {
                       e.preventDefault();
                       handleCancelEdit();
                     }
                   }}
                   onBlur={() => handleFinishEdit(token, editingValue)}
                   className="min-w-[48px] max-w-[96px] bg-transparent outline-none"
-                  style={{ width: `${Math.max(60, editingValue.length * 8)}px` }}
+                  style={{
+                    width: `${Math.max(60, editingValue.length * 8)}px`,
+                  }}
                 />
               ) : (
                 <span
@@ -238,7 +271,7 @@ export function SearchTokenInput({
                   }}
                   title="点击修改"
                 >
-                  {token.value || '(空)'}
+                  {token.value || "(空)"}
                 </span>
               )}
 
@@ -250,7 +283,7 @@ export function SearchTokenInput({
                     handleRemoveToken(token);
                   }}
                   className="rounded-full p-0.5 transition-colors hover:bg-black/10 dark:hover:bg-white/10"
-                  aria-label={`移除 ${token.type}: ${token.value}`}
+                  aria-label={`移除${token.mode === "exclude" ? "排除" : "包含"} ${token.type}: ${token.value}`}
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -275,7 +308,7 @@ export function SearchTokenInput({
         onCompositionEnd={handleCompositionEnd}
         onFocus={onFocus}
         onBlur={onBlur}
-        placeholder={tokens.length === 0 ? placeholder : ''}
+        placeholder={tokens.length === 0 ? placeholder : ""}
         className="min-w-0 flex-1 bg-transparent text-[var(--od-text-primary)] placeholder:text-[var(--od-text-tertiary)] focus:outline-none"
       />
     </div>

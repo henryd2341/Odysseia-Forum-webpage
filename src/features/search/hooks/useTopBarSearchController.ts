@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { NavigateFunction } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { NavigateFunction } from "react-router-dom";
 
 import {
   addSearchHistory,
@@ -7,22 +7,56 @@ import {
   getSearchHistory,
   removeSearchHistory,
   type SearchHistoryItem,
-} from '@/shared/lib/searchHistory';
+} from "@/shared/lib/searchHistory";
 import {
   addToken,
   parseSearchQuery,
   removeToken,
   type SearchToken,
-} from '@/shared/lib/searchTokenizer';
-import type { SearchParams } from '@/features/search/hooks/useSearchParams';
+} from "@/shared/lib/searchTokenizer";
+import type { SearchParams } from "@/features/search/hooks/useSearchParams";
+
+const SEARCH_DRAFT_QUERY_KEY = "odysseia_search_draft_query";
+const SEARCH_DRAFT_CHANNEL_KEY = "odysseia_search_draft_channel";
+
+function getPersistedDraftQuery() {
+  if (typeof window === "undefined") return "";
+  return window.sessionStorage.getItem(SEARCH_DRAFT_QUERY_KEY) || "";
+}
+
+function getPersistedDraftChannel() {
+  if (typeof window === "undefined") return "";
+  return window.sessionStorage.getItem(SEARCH_DRAFT_CHANNEL_KEY) || "";
+}
+
+function setPersistedDraftQuery(value: string) {
+  if (typeof window === "undefined") return;
+  if (!value.trim()) {
+    window.sessionStorage.removeItem(SEARCH_DRAFT_QUERY_KEY);
+    return;
+  }
+  window.sessionStorage.setItem(SEARCH_DRAFT_QUERY_KEY, value.trim());
+}
+
+function setPersistedDraftChannel(value: string | null | undefined) {
+  if (typeof window === "undefined") return;
+  if (!value) {
+    window.sessionStorage.removeItem(SEARCH_DRAFT_CHANNEL_KEY);
+    return;
+  }
+  window.sessionStorage.setItem(SEARCH_DRAFT_CHANNEL_KEY, value);
+}
 
 function tokenSignature(query: string) {
-  return parseSearchQuery(query || '')
-    .filter((token) => token.type !== 'text')
-    .map((token) => `${token.mode || 'include'}:${token.type}:${token.value.trim()}`)
+  return parseSearchQuery(query || "")
+    .filter((token) => token.type !== "text")
+    .map(
+      (token) =>
+        `${token.mode || "include"}:${token.type}:${token.value.trim()}`,
+    )
     .filter(Boolean)
     .sort()
-    .join('|');
+    .join("|");
 }
 
 interface UseTopBarSearchControllerOptions {
@@ -38,12 +72,13 @@ export function useTopBarSearchController({
   params,
   setParams,
 }: UseTopBarSearchControllerOptions) {
-  const [searchInput, setSearchInput] = useState(params.query);
-  const [debouncedQuery, setDebouncedQuery] = useState(params.query.trim());
+  const initialQuery = params.query || getPersistedDraftQuery();
+  const [searchInput, setSearchInput] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery.trim());
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [includeAuthorDraft, setIncludeAuthorDraft] = useState('');
-  const [excludeAuthorDraft, setExcludeAuthorDraft] = useState('');
+  const [includeAuthorDraft, setIncludeAuthorDraft] = useState("");
+  const [excludeAuthorDraft, setExcludeAuthorDraft] = useState("");
   const [historyItems, setHistoryItems] = useState(() => getSearchHistory());
 
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -55,8 +90,14 @@ export function useTopBarSearchController({
   }, []);
 
   useEffect(() => {
-    setSearchInput(params.query);
+    const nextQuery = params.query || getPersistedDraftQuery();
+    setSearchInput(nextQuery);
+    setPersistedDraftQuery(nextQuery);
   }, [params.query]);
+
+  useEffect(() => {
+    setPersistedDraftChannel(params.channel);
+  }, [params.channel]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -73,21 +114,35 @@ export function useTopBarSearchController({
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target as Node)
+      ) {
         closePanels();
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [closePanels]);
 
   const executeSearch = useCallback(
     (nextQuery: string) => {
       const trimmed = nextQuery.trim();
       setSearchInput(trimmed);
+      setPersistedDraftQuery(trimmed);
 
       if (!isSearchPage) {
-        navigate(trimmed ? `/search?q=${encodeURIComponent(trimmed)}` : '/search');
+        const nextParams = new URLSearchParams();
+        const draftChannel = getPersistedDraftChannel();
+        if (trimmed) nextParams.set("q", trimmed);
+        if (params.channel) {
+          nextParams.set("channel", params.channel);
+        } else if (draftChannel) {
+          nextParams.set("channel", draftChannel);
+        }
+        navigate(
+          `/search${nextParams.toString() ? `?${nextParams.toString()}` : ""}`,
+        );
       } else {
         setParams({ query: trimmed });
       }
@@ -105,19 +160,41 @@ export function useTopBarSearchController({
       }
       closePanels();
     },
-    [closePanels, isSearchPage, navigate, params.channel, params.excludeTags, params.includeTags, params.sortMethod, params.tagLogic, setParams],
+    [
+      closePanels,
+      isSearchPage,
+      navigate,
+      params.channel,
+      params.excludeTags,
+      params.includeTags,
+      params.sortMethod,
+      params.tagLogic,
+      setParams,
+    ],
   );
 
   const applyInputChange = useCallback(
     (nextQuery: string) => {
       setSearchInput(nextQuery);
+      setPersistedDraftQuery(nextQuery);
 
-      const tokenChanged = tokenSignature(nextQuery) !== tokenSignature(params.query || '');
+      const tokenChanged =
+        tokenSignature(nextQuery) !== tokenSignature(params.query || "");
       if (!tokenChanged) return;
 
       const trimmed = nextQuery.trim();
       if (!isSearchPage) {
-        navigate(trimmed ? `/search?q=${encodeURIComponent(trimmed)}` : '/search');
+        const nextParams = new URLSearchParams();
+        const draftChannel = getPersistedDraftChannel();
+        if (trimmed) nextParams.set("q", trimmed);
+        if (params.channel) {
+          nextParams.set("channel", params.channel);
+        } else if (draftChannel) {
+          nextParams.set("channel", draftChannel);
+        }
+        navigate(
+          `/search${nextParams.toString() ? `?${nextParams.toString()}` : ""}`,
+        );
       } else {
         setParams({ query: trimmed });
       }
@@ -132,20 +209,32 @@ export function useTopBarSearchController({
   const applyHistoryItem = useCallback(
     (item: SearchHistoryItem) => {
       setSearchInput(item.query);
+      setPersistedDraftQuery(item.query);
 
       if (!isSearchPage) {
         const nextParams = new URLSearchParams();
-        if (item.query.trim()) nextParams.set('q', item.query.trim());
-        if (item.channel) nextParams.set('channel', item.channel);
-        if (item.sortMethod && item.sortMethod !== 'last_active_desc') nextParams.set('sort', item.sortMethod);
-        if (item.tagLogic && item.tagLogic !== 'and') nextParams.set('tag_logic', item.tagLogic);
-        navigate(`/search${nextParams.toString() ? `?${nextParams.toString()}` : ''}`);
+        if (item.query.trim()) nextParams.set("q", item.query.trim());
+        if (item.channel) {
+          nextParams.set("channel", item.channel);
+        } else {
+          const draftChannel = getPersistedDraftChannel();
+          if (draftChannel) nextParams.set("channel", draftChannel);
+        }
+        if (item.sortMethod && item.sortMethod !== "last_active_desc")
+          nextParams.set("sort", item.sortMethod);
+        if (item.tagLogic && item.tagLogic !== "and")
+          nextParams.set("tag_logic", item.tagLogic);
+        navigate(
+          `/search${nextParams.toString() ? `?${nextParams.toString()}` : ""}`,
+        );
       } else {
         setParams({
           query: item.query,
           channel: item.channel || null,
-          sortMethod: (item.sortMethod as SearchParams['sortMethod']) || 'last_active_desc',
-          tagLogic: item.tagLogic || 'and',
+          sortMethod:
+            (item.sortMethod as SearchParams["sortMethod"]) ||
+            "last_active_desc",
+          tagLogic: item.tagLogic || "and",
         });
       }
 
@@ -170,19 +259,29 @@ export function useTopBarSearchController({
     setShowFilters(false);
   }, []);
 
-  const allQueryTokens = useMemo(() => parseSearchQuery(searchInput), [searchInput]);
+  const allQueryTokens = useMemo(
+    () => parseSearchQuery(searchInput),
+    [searchInput],
+  );
   const includeAuthorTokens = useMemo(
-    () => allQueryTokens.filter((token) => token.type === 'author' && token.mode === 'include'),
+    () =>
+      allQueryTokens.filter(
+        (token) => token.type === "author" && token.mode === "include",
+      ),
     [allQueryTokens],
   );
   const excludeAuthorTokens = useMemo(
-    () => allQueryTokens.filter((token) => token.type === 'author' && token.mode === 'exclude'),
+    () =>
+      allQueryTokens.filter(
+        (token) => token.type === "author" && token.mode === "exclude",
+      ),
     [allQueryTokens],
   );
 
   const updateQuery = useCallback(
     (nextQuery: string) => {
       setSearchInput(nextQuery);
+      setPersistedDraftQuery(nextQuery);
       setParams({ query: nextQuery });
     },
     [setParams],
@@ -190,44 +289,47 @@ export function useTopBarSearchController({
 
   const updateQueryFromTokenMutation = useCallback(
     (mutator: (tokens: SearchToken[]) => string) => {
-      updateQuery(mutator(parseSearchQuery(params.query || '')));
+      updateQuery(mutator(parseSearchQuery(params.query || "")));
     },
     [params.query, updateQuery],
   );
 
   const removeAuthorToken = useCallback(
     (token: SearchToken) => {
-      updateQuery(removeToken(params.query || '', token).trim());
+      updateQuery(removeToken(params.query || "", token).trim());
     },
     [params.query, updateQuery],
   );
 
   const submitAuthorDraft = useCallback(
-    (mode: 'include' | 'exclude') => {
-      const draft = (mode === 'include' ? includeAuthorDraft : excludeAuthorDraft).trim();
+    (mode: "include" | "exclude") => {
+      const draft = (
+        mode === "include" ? includeAuthorDraft : excludeAuthorDraft
+      ).trim();
       if (!draft) return;
 
-      updateQuery(addToken(params.query || '', 'author', draft, mode).trim());
+      updateQuery(addToken(params.query || "", "author", draft, mode).trim());
 
-      if (mode === 'include') {
-        setIncludeAuthorDraft('');
+      if (mode === "include") {
+        setIncludeAuthorDraft("");
       } else {
-        setExcludeAuthorDraft('');
+        setExcludeAuthorDraft("");
       }
     },
     [excludeAuthorDraft, includeAuthorDraft, params.query, updateQuery],
   );
 
   const clearFilters = useCallback(() => {
-    setSearchInput('');
-    setIncludeAuthorDraft('');
-    setExcludeAuthorDraft('');
+    setSearchInput("");
+    setPersistedDraftQuery("");
+    setIncludeAuthorDraft("");
+    setExcludeAuthorDraft("");
     setParams({
-      query: '',
-      sortMethod: 'last_active_desc',
-      timeFrom: '',
-      timeTo: '',
-      tagLogic: 'and',
+      query: "",
+      sortMethod: "last_active_desc",
+      timeFrom: "",
+      timeTo: "",
+      tagLogic: "and",
     });
   }, [setParams]);
 

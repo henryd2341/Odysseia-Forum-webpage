@@ -7,23 +7,30 @@ export function ScrollToTop() {
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
+    const container = document.getElementById('main-scroll-container');
+    if (!container) return;
+
     const toggleVisibility = () => {
       // 滚动超过 300px 时显示按钮
-      if (window.pageYOffset > 300) {
+      if (container.scrollTop > 300) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
       }
     };
 
-    window.addEventListener('scroll', toggleVisibility);
-    return () => window.removeEventListener('scroll', toggleVisibility);
+    container.addEventListener('scroll', toggleVisibility);
+    return () => container.removeEventListener('scroll', toggleVisibility);
   }, []);
 
   const scrollToTop = () => {
+    const container = document.getElementById('main-scroll-container');
+    if (!container) return;
+
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 600);
-    window.scrollTo({
+    
+    container.scrollTo({
       top: 0,
       behavior: 'smooth',
     });

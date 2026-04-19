@@ -10,6 +10,7 @@ import { useMascotStore } from '@/features/mascot/store/mascotStore';
 import { useUserPreferences } from '@/features/preferences/hooks/useUserPreferences';
 import { GUILD_ID } from '@/shared/config/channelCategories.private';
 import { useLayoutMode } from '@/shared/hooks/useSettings';
+import { useChannels } from '@/shared/hooks/useChannels';
 import { addToken } from '@/shared/lib/searchTokenizer';
 import { FluidDivider } from '@/shared/ui/FluidDivider';
 import { Compass, Dices, LayoutGrid, Rows3, Search, SlidersHorizontal } from 'lucide-react';
@@ -30,6 +31,7 @@ export function SearchPage() {
   });
 
   const { preferences } = useUserPreferences({ guildId: GUILD_ID });
+  const { data: channelsData } = useChannels();
   const { openPreview } = usePreviewThread();
   const reactToSearch = useMascotStore((state) => state.reactToSearch);
 
@@ -87,6 +89,7 @@ export function SearchPage() {
   };
 
   const gridClass = useCardGridClass();
+  const selectedChannelName = channelsData?.channels.find((channel) => channel.id === selectedChannel)?.name || null;
 
   useEffect(() => {
     if (isLoading) return;
@@ -128,6 +131,12 @@ export function SearchPage() {
                   <>
                     <span className="opacity-30">•</span>
                     <span>已加载 {results.length} 条</span>
+                  </>
+                )}
+                {selectedChannelName && (
+                  <>
+                    <span className="opacity-30">•</span>
+                    <span>频道 {selectedChannelName}</span>
                   </>
                 )}
                 {isPreferenceFilteredBrowse && (

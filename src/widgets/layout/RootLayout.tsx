@@ -4,6 +4,7 @@ import { AppSidebar } from '@/widgets/layout/AppSidebar';
 import { TopBar } from '@/widgets/layout/TopBar';
 import { MobileTabBar } from '@/widgets/layout/MobileTabBar';
 import { MascotBar } from '@/features/mascot/components/MascotBar';
+import { ScrollToTop } from '@/shared/ui/ScrollToTop';
 import { GlobalThreadPreview } from '@/widgets/thread-preview/GlobalThreadPreview';
 import { useSidebarCollapsedSetting, useSettings } from '@/shared/hooks/useSettings';
 import { useEffect, useState } from 'react';
@@ -83,6 +84,7 @@ export function RootLayout() {
       {/* ── 全局辅助层 ── */}
       <GlobalThreadPreview />
       <MascotBar />
+      <ScrollToTop />
     </div>
   );
 }

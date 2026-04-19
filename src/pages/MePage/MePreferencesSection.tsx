@@ -1,8 +1,8 @@
-import { Save, Search } from 'lucide-react';
+import { Save, Search } from "lucide-react";
 
-import { PreferenceTagSelector } from '@/features/preferences/components/PreferenceTagSelector';
-import type { PreferencesFormValue } from '@/features/preferences/lib/preferencesMapper';
-import { FluidDivider } from '@/shared/ui/FluidDivider';
+import { PreferenceTagSelector } from "@/features/preferences/components/PreferenceTagSelector";
+import type { PreferencesFormValue } from "@/features/preferences/lib/preferencesMapper";
+import { FluidDivider } from "@/shared/ui/FluidDivider";
 
 interface ChannelOption {
   id: string;
@@ -19,7 +19,9 @@ interface MePreferencesSectionProps {
   isSyncing: boolean;
   onSave: () => void;
   onToggleChannel: (channelId: string) => void;
-  onUpdateForm: (updater: (prev: PreferencesFormValue) => PreferencesFormValue) => void;
+  onUpdateForm: (
+    updater: (prev: PreferencesFormValue) => PreferencesFormValue,
+  ) => void;
 }
 
 export function MePreferencesSection({
@@ -37,9 +39,20 @@ export function MePreferencesSection({
   return (
     <section className="px-1">
       <FluidDivider label="Preferences" className="mb-8" />
-      <div className="mb-6 flex items-center justify-center gap-2 text-center">
-        <Search className="h-4 w-4 text-[var(--od-accent)]" />
-        <h2 className="od-text-title">发现偏好</h2>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Search className="h-4 w-4 text-[var(--od-accent)]" />
+          <h2 className="od-text-title">发现偏好</h2>
+        </div>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={isSaving}
+          className="od-inline-action od-inline-action-primary disabled:opacity-60"
+        >
+          <Save className="h-4 w-4" />
+          {isSaving ? "保存中..." : "保存偏好"}
+        </button>
       </div>
 
       {isLoading ? (
@@ -47,7 +60,9 @@ export function MePreferencesSection({
       ) : (
         <div className="space-y-8">
           <div className="space-y-3">
-            <p className="text-sm font-medium text-[var(--od-text-primary)]">偏好频道</p>
+            <p className="text-sm font-medium text-[var(--od-text-primary)]">
+              偏好频道
+            </p>
             <p className="text-sm leading-6 text-[var(--od-text-secondary)]">
               这些频道会在探索和搜索建议里优先生效，这样你就不会看到你不感兴趣的频道内容被推荐啦。
             </p>
@@ -61,8 +76,8 @@ export function MePreferencesSection({
                     onClick={() => onToggleChannel(channel.id)}
                     className={`rounded-2xl border px-4 py-3 text-left text-sm transition-colors ${
                       active
-                        ? 'border-[var(--od-accent)]/40 bg-[var(--od-accent)]/8 text-[var(--od-text-primary)] font-od-medium'
-                        : 'border-[var(--od-shell-line)] bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] text-[var(--od-text-secondary)] font-od-normal'
+                        ? "border-[var(--od-accent)]/40 bg-[var(--od-accent)]/8 text-[var(--od-text-primary)] font-od-medium"
+                        : "border-[var(--od-shell-line)] bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] text-[var(--od-text-secondary)] font-od-normal"
                     }`}
                   >
                     {channel.name}
@@ -74,11 +89,17 @@ export function MePreferencesSection({
 
           <div className="grid gap-6 sm:grid-cols-2">
             <label className="block space-y-2">
-              <span className="block text-sm font-medium text-[var(--od-text-secondary)]">默认排序</span>
+              <span className="block text-sm font-medium text-[var(--od-text-secondary)]">
+                默认排序
+              </span>
               <select
                 value={form.sortMethod}
                 onChange={(e) => {
-                  onUpdateForm((prev) => ({ ...prev, sortMethod: e.target.value as PreferencesFormValue['sortMethod'] }));
+                  onUpdateForm((prev) => ({
+                    ...prev,
+                    sortMethod: e.target
+                      .value as PreferencesFormValue["sortMethod"],
+                  }));
                 }}
                 className="w-full rounded-2xl border border-[var(--od-shell-line)] bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] px-4 py-3 text-sm text-[var(--od-text-primary)]"
               >
@@ -91,14 +112,19 @@ export function MePreferencesSection({
             </label>
 
             <label className="block space-y-2">
-              <span className="block text-sm font-medium text-[var(--od-text-secondary)]">每页条数</span>
+              <span className="block text-sm font-medium text-[var(--od-text-secondary)]">
+                每页条数
+              </span>
               <input
                 type="number"
                 min={1}
                 max={100}
                 value={form.resultsPerPage}
                 onChange={(e) => {
-                  onUpdateForm((prev) => ({ ...prev, resultsPerPage: Number(e.target.value) || 24 }));
+                  onUpdateForm((prev) => ({
+                    ...prev,
+                    resultsPerPage: Number(e.target.value) || 24,
+                  }));
                 }}
                 className="w-full rounded-2xl border border-[var(--od-shell-line)] bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] px-4 py-3 text-sm text-[var(--od-text-primary)]"
               />
@@ -109,42 +135,78 @@ export function MePreferencesSection({
             <PreferenceTagSelector
               label="包含标签"
               placeholder="还没有设置正选标签"
-              selectedTags={form.includeTagsText.split(',').map((item) => item.trim()).filter(Boolean)}
-              availableTags={availablePreferenceTags.filter((tag) => !form.excludeTagsText.split(',').map((item) => item.trim()).filter(Boolean).includes(tag))}
+              selectedTags={form.includeTagsText
+                .split(",")
+                .map((item) => item.trim())
+                .filter(Boolean)}
+              availableTags={availablePreferenceTags.filter(
+                (tag) =>
+                  !form.excludeTagsText
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter(Boolean)
+                    .includes(tag),
+              )}
               tone="include"
               onChange={(tags) => {
-                onUpdateForm((prev) => ({ ...prev, includeTagsText: tags.join(', ') }));
+                onUpdateForm((prev) => ({
+                  ...prev,
+                  includeTagsText: tags.join(", "),
+                }));
               }}
             />
             <PreferenceTagSelector
               label="排除标签"
               placeholder="还没有设置反选标签"
-              selectedTags={form.excludeTagsText.split(',').map((item) => item.trim()).filter(Boolean)}
-              availableTags={availablePreferenceTags.filter((tag) => !form.includeTagsText.split(',').map((item) => item.trim()).filter(Boolean).includes(tag))}
+              selectedTags={form.excludeTagsText
+                .split(",")
+                .map((item) => item.trim())
+                .filter(Boolean)}
+              availableTags={availablePreferenceTags.filter(
+                (tag) =>
+                  !form.includeTagsText
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter(Boolean)
+                    .includes(tag),
+              )}
               tone="exclude"
               onChange={(tags) => {
-                onUpdateForm((prev) => ({ ...prev, excludeTagsText: tags.join(', ') }));
+                onUpdateForm((prev) => ({
+                  ...prev,
+                  excludeTagsText: tags.join(", "),
+                }));
               }}
             />
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <label className="block space-y-2">
-              <span className="block text-sm font-medium text-[var(--od-text-secondary)]">关键词包含</span>
+              <span className="block text-sm font-medium text-[var(--od-text-secondary)]">
+                关键词包含
+              </span>
               <textarea
                 value={form.includeKeywordsText}
                 onChange={(e) => {
-                  onUpdateForm((prev) => ({ ...prev, includeKeywordsText: e.target.value }));
+                  onUpdateForm((prev) => ({
+                    ...prev,
+                    includeKeywordsText: e.target.value,
+                  }));
                 }}
                 className="min-h-[110px] w-full rounded-2xl border border-[var(--od-shell-line)] bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] px-4 py-3 text-sm text-[var(--od-text-primary)]"
               />
             </label>
             <label className="block space-y-2">
-              <span className="block text-sm font-medium text-[var(--od-text-secondary)]">关键词排除</span>
+              <span className="block text-sm font-medium text-[var(--od-text-secondary)]">
+                关键词排除
+              </span>
               <textarea
                 value={form.excludeKeywordsText}
                 onChange={(e) => {
-                  onUpdateForm((prev) => ({ ...prev, excludeKeywordsText: e.target.value }));
+                  onUpdateForm((prev) => ({
+                    ...prev,
+                    excludeKeywordsText: e.target.value,
+                  }));
                 }}
                 className="min-h-[110px] w-full rounded-2xl border border-[var(--od-shell-line)] bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] px-4 py-3 text-sm text-[var(--od-text-primary)]"
               />
@@ -157,17 +219,9 @@ export function MePreferencesSection({
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[color-mix(in_srgb,var(--od-text-secondary)_14%,transparent)] pt-5">
             <p className="od-text-meta">
-              当前状态：{isSyncing ? '同步中' : isDirty ? '有未保存修改' : '已同步'}
+              当前状态：
+              {isSyncing ? "同步中" : isDirty ? "有未保存修改" : "已同步"}
             </p>
-            <button
-              type="button"
-              onClick={onSave}
-              disabled={isSaving}
-              className="od-inline-action od-inline-action-primary disabled:opacity-60"
-            >
-              <Save className="h-4 w-4" />
-              {isSaving ? '保存中...' : '保存偏好'}
-            </button>
           </div>
         </div>
       )}
