@@ -1,7 +1,7 @@
-import { BookOpen, Eye, Globe, Lock, Pencil, Star, Trash2 } from 'lucide-react';
+import type { Booklist } from '@/entities/booklist/types';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import type { Booklist } from '@/entities/booklist/types';
+import { BookOpen, Eye, Globe, Lock, Pencil, Star, Trash2 } from 'lucide-react';
 
 interface BooklistCardProps {
   booklist: Booklist;
@@ -43,6 +43,10 @@ export function BooklistCard({
       tabIndex={0}
       onKeyDown={handleKeyDown}
       className="group flex cursor-pointer flex-col gap-4 border-b border-[color-mix(in_srgb,var(--od-text-secondary)_14%,transparent)] pb-5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--od-accent)] rounded-xl p-2"
+      style={{ WebkitTapHighlightColor: 'transparent' }}
+      onMouseDown={(e) => {
+        if (!(e.target as HTMLElement).closest('button, a')) e.preventDefault();
+      }}
       onClick={() => onOpen(booklist.id)}
     >
       {/* 拦截 Tab 焦点进入内部元素，并对辅助技术隐藏内部细节 */}

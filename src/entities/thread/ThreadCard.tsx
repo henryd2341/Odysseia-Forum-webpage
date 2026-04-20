@@ -140,6 +140,10 @@ function ThreadCardImpl({
         className="group flex h-full w-full cursor-pointer flex-col animate-in fade-in slide-in-from-bottom-2 duration-700 fill-mode-both focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--od-accent)] rounded-[1.45rem]"
         style={{
           animationDelay: `${(index % 24) * 40}ms`,
+          WebkitTapHighlightColor: 'transparent',
+        }}
+        onMouseDown={(e) => {
+          if (!(e.target as HTMLElement).closest('button, a')) e.preventDefault();
         }}
         onClick={() => onPreview?.(thread)}
       >
