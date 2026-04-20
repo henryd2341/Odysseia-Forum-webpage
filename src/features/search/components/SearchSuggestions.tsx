@@ -373,137 +373,133 @@ export function SearchSuggestions({
           暂无联想结果，继续输入更多关键词试试。
         </div>
       ) : (
-        <div className="max-h-[420px] overflow-y-auto p-2">
-          {groups.sectionedGroups.map((group, groupIndex) => (
-            <div
-              key={group.title}
-              className={`${groupIndex > 0 ? "mt-2 border-t border-[var(--od-border)] pt-2" : ""}`}
-            >
-              <div className="mb-2 flex items-center justify-between px-1">
-                <div className="flex items-center gap-1.5 text-od-xs font-od-bold text-[var(--od-text-tertiary)]">
-                  <group.icon className="h-3.5 w-3.5" />
-                  {group.title}
-                </div>
-                {group.title === "历史搜索" && history.length > 0 && (
-                  <button
-                    onClick={() => onClearHistory?.()}
-                    className="text-od-xs text-[var(--od-text-tertiary)] transition-colors hover:text-[var(--od-error)]"
-                  >
-                    清空
-                  </button>
-                )}
+<div id="search-suggestions-listbox" role="listbox" className="max-h-[420px] overflow-y-auto p-2">
+        {groups.sectionedGroups.map((group, groupIndex) => (
+          <div
+            key={group.title}
+            className={`${groupIndex > 0 ? "mt-2 border-t border-[var(--od-border)] pt-2" : ""}`}
+          >
+            <div className="mb-2 flex items-center justify-between px-1">
+              <div className="flex items-center gap-1.5 text-od-xs font-od-bold text-[var(--od-text-tertiary)]">
+                <group.icon className="h-3.5 w-3.5" />
+                {group.title}
               </div>
-              <ul className="space-y-1">
-                {group.items.map((item) => {
-                  const globalIndex = groups.flatItems.findIndex(
-                    (candidate) => candidate.key === item.key,
-                  );
-                  const isSelected = selectedIndex === globalIndex;
-
-                  return (
-                    <li key={item.key}>
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => handleSelect(item)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            handleSelect(item);
-                          }
-                        }}
-                        className={`group flex w-full cursor-pointer items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left transition-colors ${
-                          isSelected
-                            ? "bg-[var(--od-accent)]/20 text-[var(--od-text-primary)]"
-                            : "text-[var(--od-text-secondary)] hover:bg-[var(--od-bg-tertiary)]"
-                        }`}
-                      >
-                        {item.type === "thread" || item.type === "booklist" ? (
-                          <div className="flex min-w-0 items-start gap-2">
-                            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-md bg-[var(--od-bg-tertiary)]">
-                              {item.thumbnailUrl ? (
-                                <LazyImage
-                                  src={item.thumbnailUrl}
-                                  alt={item.display}
-                                  className="h-full w-full"
-                                />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center text-[var(--od-text-tertiary)]">
-                                  {item.type === "booklist" ? (
-                                    <BookOpen className="h-4 w-4" />
-                                  ) : (
-                                    <FileText className="h-4 w-4" />
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <div className="truncate text-sm font-semibold text-[var(--od-text-primary)]">
-                                {item.display}
-                              </div>
-                              {item.snippet && (
-                                <p className="line-clamp-2 text-xs text-[var(--od-text-tertiary)]">
-                                  {item.snippet}
-                                </p>
-                              )}
-                              {item.type === "thread" && item.authorName && (
-                                <p className="mt-0.5 text-[11px] text-[var(--od-text-tertiary)]">
-                                  @{item.authorName}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex min-w-0 items-center gap-2 overflow-hidden">
-                            {item.type === "author" && item.avatar ? (
-                              <LazyImage
-                                src={item.avatar}
-                                alt={item.display}
-                                className="h-5 w-5 flex-shrink-0 rounded-full"
-                              />
-                            ) : (
-                              <item.icon
-                                className={`h-4 w-4 flex-shrink-0 ${
-                                  isSelected
-                                    ? "text-[var(--od-accent)]"
-                                    : "text-[var(--od-text-tertiary)]"
-                                }`}
-                              />
-                            )}
-                            <span className="truncate text-sm font-medium">
-                              {item.display}
-                            </span>
-                            {item.type === "history" &&
-                              describeSearchHistoryContext(
-                                item.historyItem,
-                              ) && (
-                                <span className="truncate text-[11px] text-[var(--od-text-tertiary)]">
-                                  {describeSearchHistoryContext(
-                                    item.historyItem,
-                                  )}
-                                </span>
-                              )}
-                          </div>
-                        )}
-
-                        {item.type === "history" && (
-                          <button
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              onRemoveHistory?.(item.historyItem);
-                            }}
-                            className="rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[var(--od-card-hover)]"
-                          >
-                            <X className="h-3.5 w-3.5 text-[var(--od-text-tertiary)]" />
-                          </button>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+              {group.title === "历史搜索" && history.length > 0 && (
+                <button
+                  onClick={() => onClearHistory?.()}
+                  className="text-od-xs text-[var(--od-text-tertiary)] transition-colors hover:text-[var(--od-error)]"
+                >
+                  清空
+                </button>
+              )}
             </div>
-          ))}
-        </div>
+            <div role="group" aria-label={group.title} className="space-y-1">
+              {group.items.map((item) => {
+                const globalIndex = groups.flatItems.findIndex(
+                  (candidate) => candidate.key === item.key,
+                );
+                const isSelected = selectedIndex === globalIndex;
+
+                return (
+                  <div
+                    key={item.key}
+                    role="option"
+                    aria-selected={isSelected}
+                    tabIndex={0}
+                    onClick={() => handleSelect(item)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        handleSelect(item);
+                      }
+                    }}
+                    className={`group flex w-full cursor-pointer items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left transition-colors ${
+                      isSelected
+                        ? "bg-[var(--od-accent)]/20 text-[var(--od-text-primary)]"
+                        : "text-[var(--od-text-secondary)] hover:bg-[var(--od-bg-tertiary)]"
+                    }`}
+                  >
+                    {item.type === "thread" || item.type === "booklist" ? (
+                      <div className="flex min-w-0 items-start gap-2">
+                        <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-md bg-[var(--od-bg-tertiary)]">
+                          {item.thumbnailUrl ? (
+                            <LazyImage
+                              src={item.thumbnailUrl}
+                              alt={item.display}
+                              className="h-full w-full"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-[var(--od-text-tertiary)]">
+                              {item.type === "booklist" ? (
+                                <BookOpen className="h-4 w-4" />
+                              ) : (
+                                <FileText className="h-4 w-4" />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-semibold text-[var(--od-text-primary)]">
+                            {item.display}
+                          </div>
+                          {item.snippet && (
+                            <p className="line-clamp-2 text-xs text-[var(--od-text-tertiary)]">
+                              {item.snippet}
+                            </p>
+                          )}
+                          {item.type === "thread" && item.authorName && (
+                            <p className="mt-0.5 text-[11px] text-[var(--od-text-tertiary)]">
+                              @{item.authorName}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex min-w-0 items-center gap-2 overflow-hidden">
+                        {item.type === "author" && item.avatar ? (
+                          <LazyImage
+                            src={item.avatar}
+                            alt={item.display}
+                            className="h-5 w-5 flex-shrink-0 rounded-full"
+                          />
+                        ) : (
+                          <item.icon
+                            className={`h-4 w-4 flex-shrink-0 ${
+                              isSelected
+                                ? "text-[var(--od-accent)]"
+                                : "text-[var(--od-text-tertiary)]"
+                            }`}
+                          />
+                        )}
+                        <span className="truncate text-sm font-medium">
+                          {item.display}
+                        </span>
+                        {item.type === "history" &&
+                          describeSearchHistoryContext(item.historyItem) && (
+                            <span className="truncate text-[11px] text-[var(--od-text-tertiary)]">
+                              {describeSearchHistoryContext(item.historyItem)}
+                            </span>
+                          )}
+                      </div>
+                    )}
+
+                    {item.type === "history" && (
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onRemoveHistory?.(item.historyItem);
+                        }}
+                        className="rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[var(--od-card-hover)]"
+                      >
+                        <X className="h-3.5 w-3.5 text-[var(--od-text-tertiary)]" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
       )}
 
       <div className="flex items-center justify-between border-t border-[var(--od-border)] bg-[var(--od-bg-tertiary)]/50 p-od-sm text-od-xs text-[var(--od-text-tertiary)]">
