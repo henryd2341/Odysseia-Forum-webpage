@@ -16,8 +16,8 @@ interface BooklistListRequest {
   keywords?: string;
   sortMethod?: number;
   sortOrder?: "asc" | "desc";
-  ownerId?: number;
-  includedThreadId?: number;
+  ownerId?: string;
+  includedThreadId?: string;
 }
 
 interface MyBooklistListRequest {
@@ -135,13 +135,16 @@ export const booklistsApi = {
 
   listItems: async (
     booklistId: number | string,
-    pageIndex = 0,
-    pageSize = 24,
+    params: { limit?: number; offset?: number; exclude_thread_ids?: string[] } = {}
   ): Promise<PaginatedResponse<BooklistItem>> => {
     const response = await apiClient.get<PaginatedResponse<BooklistItem>>(
       `/booklist/item/list/page/${booklistId}`,
       {
-        params: toPageParams(pageIndex, pageSize),
+        params: {
+          limit: params.limit ?? 24,
+          offset: params.offset ?? 0,
+          exclude_thread_ids: params.exclude_thread_ids,
+        },
       },
     );
     return response.data;
@@ -156,7 +159,7 @@ export const booklistsApi = {
 
   removeItems: async (
     booklistId: number | string,
-    threadIds: Array<string | number>,
+    threadIds: string[],
   ): Promise<void> => {
     await apiClient.delete(`/booklist/item/delete/${booklistId}`, {
       data: { thread_ids: threadIds },
@@ -175,7 +178,7 @@ export const booklistsApi = {
     return response.data;
   },
 
-  collect: async (booklistIds: number[]): Promise<void> => {
+  collect: async (booklistIds: string[]): Promise<void> => {
     await apiClient.post("/collection/batch/add", booklistIds, {
       params: {
         target_type: 2,
@@ -183,7 +186,7 @@ export const booklistsApi = {
     });
   },
 
-  uncollect: async (booklistIds: number[]): Promise<void> => {
+  uncollect: async (booklistIds: string[]): Promise<void> => {
     await apiClient.post("/collection/batch/remove", booklistIds, {
       params: {
         target_type: 2,

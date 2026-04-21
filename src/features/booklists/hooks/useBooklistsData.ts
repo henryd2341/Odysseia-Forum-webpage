@@ -1,5 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { apiClient } from "@/shared/api/client";
 import { booklistsApi } from "@/features/booklists/api/booklistsApi";
 import {
   booklistKeys,
@@ -81,9 +82,24 @@ export function useBooklistDetail(booklistId: number | string) {
 }
 
 export function useBooklistItems(booklistId: number | string) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: booklistKeys.items(booklistId),
-    queryFn: () => booklistsApi.listItems(booklistId, 0, 24),
+    queryFn: ({ pageParam }) =>
+      booklistsApi.listItems(booklistId, {
+        limit: 24,
+        offset: 0,
+        exclude_thread_ids: (pageParam as any)?.exclude_thread_ids || [],
+      }),
+    initialPageParam: { offset: 0, exclude_thread_ids: [] },
+    getNextPageParam: (lastPage, allPages) => {
+      const excludeIds = allPages
+        .flatMap((page) => (page.results || []).map((item) => String(item.thread_id)))
+        .filter(Boolean);
+
+      return (lastPage.total || 0) > 0
+        ? { offset: 0, exclude_thread_ids: excludeIds }
+        : undefined;
+    },
     enabled: /^\d+$/.test(String(booklistId)),
     staleTime: 60 * 1000,
   });

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -72,6 +72,10 @@ export function BooklistDetailPage() {
     [detailQuery.data?.owner_id, user?.id],
   );
 
+  const items = useMemo(() => {
+    return itemsQuery.data?.pages.flatMap((page) => page.results || []) ?? [];
+  }, [itemsQuery.data]);
+
   const updateMutation = useUpdateBooklist(Number(booklistId), () =>
     setShowEdit(false),
   );
@@ -85,7 +89,7 @@ export function BooklistDetailPage() {
     setEditingItem(null),
   );
 
-  if (!/^\d+$/.test(booklistId)) {
+  if (!booklistId) {
     return (
       <div className="p-8 text-sm text-(--od-error)">无效书单 ID</div>
     );
@@ -107,8 +111,26 @@ export function BooklistDetailPage() {
     );
   }
 
+  // ─── 无限滚动触发器 ──────────────────────────────────────
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !itemsQuery.hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && itemsQuery.hasNextPage && !itemsQuery.isFetchingNextPage) {
+          itemsQuery.fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [itemsQuery.hasNextPage, itemsQuery.isFetchingNextPage, itemsQuery.fetchNextPage]);
+
   const booklist = detailQuery.data;
-  const items = itemsQuery.data?.results ?? [];
 
   return (
     <>
@@ -289,11 +311,7 @@ export function BooklistDetailPage() {
                           <button
                             type="button"
                             onClick={() => {
-                              if (!/^\d+$/.test(item.thread_id)) {
-                                toast.error("无效 thread_id，无法删除");
-                                return;
-                              }
-                              removeItemMutation.mutate(item.thread_id);
+                              removeItemMutation.mutate(String(item.thread_id));
                             }}
                             className="rounded border border-(--od-border) px-2 py-1 text-(--od-error)"
                           >
@@ -310,6 +328,13 @@ export function BooklistDetailPage() {
                   )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* 无限滚动探测器 */}
+          {itemsQuery.hasNextPage && (
+            <div ref={loadMoreRef} className="flex justify-center py-8">
+              <RefreshCw className="h-6 w-6 animate-spin text-(--od-text-tertiary)" />
             </div>
           )}
         </div>
@@ -337,12 +362,8 @@ export function BooklistDetailPage() {
         onClose={() => setEditingItem(null)}
         onSubmit={(payload) => {
           if (!editingItem) return;
-          if (!/^\d+$/.test(editingItem.thread_id)) {
-            toast.error("无效 thread_id，无法更新");
-            return;
-          }
           updateItemMutation.mutate({
-            threadId: editingItem.thread_id,
+            threadId: String(editingItem.thread_id),
             payload,
           });
         }}

@@ -1175,6 +1175,11 @@ export interface components {
              */
             thread_id: string;
             /**
+             * Guild Id
+             * @description 帖子所属的 Discord 服务器 ID
+             */
+            guild_id?: string;
+            /**
              * Channel Id
              * @description 频道ID
              */
@@ -1193,6 +1198,11 @@ export interface components {
              */
             created_at: string;
             /**
+             * Last Active At
+             * @description 帖子最后活跃时间
+             */
+            last_active_at?: string | null;
+            /**
              * Reaction Count
              * @description 帖子点赞数
              */
@@ -1203,10 +1213,47 @@ export interface components {
              */
             reply_count: number;
             /**
+             * Display Count
+             * @description 在搜索结果中的展示次数
+             * @default 0
+             */
+            display_count: number;
+            /**
+             * First Message Excerpt
+             * @description 帖子首条消息摘要
+             */
+            first_message_excerpt?: string | null;
+            /**
+             * Latest Update At
+             * @description 最新更新时间
+             */
+            latest_update_at?: string | null;
+            /**
+             * Latest Update Link
+             * @description 最新版消息链接
+             */
+            latest_update_link?: string | null;
+            /**
+             * Collection Count
+             * @description 帖子被收藏的总次数
+             * @default 0
+             */
+            collection_count: number;
+            /**
              * Thumbnail Urls
              * @description 帖子首楼图片URL列表
              */
             thumbnail_urls: string[];
+            /**
+             * Tags
+             * @description 帖子关联的标签列表
+             */
+            tags?: string[];
+            /**
+             * Virtual Tags
+             * @description 帖子匹配的虚拟映射标签名列表
+             */
+            virtual_tags?: string[];
             /**
              * Comment
              * @description 书单主对该帖子的推荐语
@@ -1289,6 +1336,12 @@ export interface components {
              */
             guild_id: number;
             /**
+             * Guild Name
+             * @description 服务器名称
+             * @default 未知服务器
+             */
+            guild_name: string;
+            /**
              * Channel Id
              * @description 频道的 Discord ID
              */
@@ -1298,6 +1351,16 @@ export interface components {
              * @description 频道名称
              */
             name: string;
+            /**
+             * Category Id
+             * @description 频道所属类别的 Discord ID
+             */
+            category_id?: number | null;
+            /**
+             * Category Name
+             * @description 频道所属类别名称
+             */
+            category_name?: string | null;
             /**
              * Available Tags
              * @description 该频道原生的可用标签
@@ -1341,17 +1404,33 @@ export interface components {
              * Guild Id
              * @description 所属服务器的 Discord ID
              */
-            guild_id: string;
+            guild_id: string | null;
+            /**
+             * Guild Name
+             * @description 服务器名称
+             * @default 未知服务器
+             */
+            guild_name: string;
             /**
              * Channel Id
              * @description 频道的 Discord ID
              */
-            channel_id: string;
+            channel_id: string | null;
             /**
              * Name
              * @description 频道名称
              */
             name: string;
+            /**
+             * Category Id
+             * @description 频道所属类别的 Discord ID
+             */
+            category_id?: string | null;
+            /**
+             * Category Name
+             * @description 频道所属类别名称
+             */
+            category_name?: string | null;
             /**
              * Available Tags
              * @description 该频道原生的可用标签
@@ -1392,10 +1471,37 @@ export interface components {
          */
         "ChannelTagInfo-Input": {
             /**
+             * Guild Id
+             * @description 频道所属服务器的 Discord ID
+             */
+            guild_id: number;
+            /**
+             * Guild Name
+             * @description 服务器名称
+             * @default 未知服务器
+             */
+            guild_name: string;
+            /**
              * Channel Id
              * @description 频道的 Discord ID
              */
             channel_id: number;
+            /**
+             * Channel Name
+             * @description 频道名称
+             * @default 未知频道
+             */
+            channel_name: string;
+            /**
+             * Category Id
+             * @description 频道所属类别的 Discord ID
+             */
+            category_id?: number | null;
+            /**
+             * Category Name
+             * @description 频道所属类别名称
+             */
+            category_name?: string | null;
             /**
              * Tag Id
              * @description 标签的 Discord ID（虚拟标签为 0）
@@ -1418,15 +1524,42 @@ export interface components {
          */
         "ChannelTagInfo-Output": {
             /**
+             * Guild Id
+             * @description 频道所属服务器的 Discord ID
+             */
+            guild_id: string | null;
+            /**
+             * Guild Name
+             * @description 服务器名称
+             * @default 未知服务器
+             */
+            guild_name: string;
+            /**
              * Channel Id
              * @description 频道的 Discord ID
              */
-            channel_id: string;
+            channel_id: string | null;
+            /**
+             * Channel Name
+             * @description 频道名称
+             * @default 未知频道
+             */
+            channel_name: string;
+            /**
+             * Category Id
+             * @description 频道所属类别的 Discord ID
+             */
+            category_id?: string | null;
+            /**
+             * Category Name
+             * @description 频道所属类别名称
+             */
+            category_name?: string | null;
             /**
              * Tag Id
              * @description 标签的 Discord ID（虚拟标签为 0）
              */
-            tag_id: string;
+            tag_id: string | null;
             /**
              * Thread Count
              * @description 该频道下包含此标签的帖子数量
@@ -1621,12 +1754,12 @@ export interface components {
              * Guild Id
              * @description 要搜索的服务器ID，为空则不按服务器过滤
              */
-            guild_id?: number | null;
+            guild_id?: number | string | null;
             /**
              * Channel Ids
              * @description 要搜索的频道ID列表，为空则搜索所有频道
              */
-            channel_ids?: number[] | null;
+            channel_ids?: (number | string)[] | null;
             /**
              * Include Tags
              * @description 必须包含的标签名列表
@@ -1660,14 +1793,14 @@ export interface components {
             exclude_keyword_exemption_markers?: string[] | null;
             /**
              * Include Authors
-             * @description 只看这些作者的帖子，作者ID列表
+             * @description 包含的作者 ID 列表
              */
-            include_authors?: number[] | null;
+            include_authors?: (number | string)[] | null;
             /**
              * Exclude Authors
-             * @description 屏蔽这些作者的帖子，作者ID列表
+             * @description 屏蔽的作者 ID 列表
              */
-            exclude_authors?: number[] | null;
+            exclude_authors?: (number | string)[] | null;
             /**
              * Author Name
              * @description 模糊搜索作者的全局用户名或昵称
@@ -1739,7 +1872,7 @@ export interface components {
              * Exclude Thread Ids
              * @description 已在前端展示的帖子 thread_id 列表，本次请求将排除这些帖子
              */
-            exclude_thread_ids?: number[];
+            exclude_thread_ids?: (number | string)[];
             /**
              * Offset
              * @description 结果的偏移页（已弃用，为兼容旧版本保留）
