@@ -23,6 +23,7 @@ export type PlazaRailKey =
 
 export interface PlazaRailConfig {
   key: PlazaRailKey;
+  label: string;
   title: string;
   subtitle: string;
 }
@@ -43,26 +44,31 @@ export interface DiscoveryRailsResponse {
 export const PLAZA_RAILS: PlazaRailConfig[] = [
   {
     key: "latest",
-    title: "最近上新",
+    label: "LATEST",
+    title: "正在上新",
     subtitle: "按发布时间倒序，追踪最新内容",
   },
   {
     key: "reaction_surge",
+    label: "POPULAR",
     title: "点赞数飙升",
     subtitle: "近 7 天互动强势增长的帖子",
   },
   {
     key: "discussion_surge",
+    label: "TRENDING",
     title: "讨论升温",
     subtitle: "近 7 天回复活跃的讨论串",
   },
   {
     key: "collection_surge",
+    label: "SAVED",
     title: "收藏飙升",
     subtitle: "被大家偷偷藏起来的好东西",
   },
   {
     key: "editors_pick",
+    label: "FEATURED",
     title: "今日精选",
     subtitle: "综合排序下的高质量探索位",
   },
@@ -93,12 +99,14 @@ export const plazaApi = {
   getRail: async (
     key: PlazaRailKey,
     preferenceFilter?: PlazaPreferenceFilter,
+    exclude_thread_ids?: string[],
   ): Promise<Thread[]> => {
     let response: SearchResponse;
     const baseFilter = {
       channel_ids: preferenceFilter?.channel_ids,
       include_tags: preferenceFilter?.include_tags,
       exclude_tags: preferenceFilter?.exclude_tags,
+      exclude_thread_ids,
     };
 
     if (key === "latest") {
@@ -124,8 +132,7 @@ export const plazaApi = {
     } else if (key === "collection_surge") {
       response = await searchApi.search({
         ...baseFilter,
-        sort_method: "relevance", // 这里之前没定，暂用相关度/收藏数排序
-        search_by_collection: true,
+        sort_method: "reaction_desc", // 对齐搜索页的 reaction_desc 逻辑
         limit: 12,
       });
     } else {

@@ -1,13 +1,14 @@
-import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Compass, Dices, Plus, Sparkles } from 'lucide-react';
+import { Compass, Dices, Plus, Sparkles, RotateCw } from 'lucide-react';
 
 import { ThreadCard } from '@/entities/thread/ThreadCard';
 import { BooklistCard } from '@/entities/booklist/BooklistCard';
 import { BannerCarousel } from '@/widgets/layout/BannerCarousel';
 import type { Booklist } from '@/entities/booklist/types';
 import { plazaApi, PLAZA_RAILS, type PlazaRailKey } from '@/features/plaza/api/plazaApi';
+import type { Thread } from '@/entities/thread/types';
 import { useToggleBooklistCollection } from '@/features/booklists/hooks/useBooklistsData';
 import { useUserPreferences } from '@/features/preferences/hooks/useUserPreferences';
 import { plazaKeys } from '@/features/plaza/lib/queryKeys';
@@ -20,13 +21,24 @@ import defaultBannerImage from '@/assets/images/banners/banner.png';
 
 const WIKI_URL = 'https://wiki.xn--35zx7g.org/';
 
-const railSortMap: Record<PlazaRailKey, string> = {
-  latest: 'created_desc',
-  reaction_surge: 'reaction_desc',
-  discussion_surge: 'reply_desc',
-  collection_surge: 'reaction_desc', // 暂定收藏也跳点赞排序或收藏量
-  editors_pick: 'relevance',
-};
+interface RailRefreshButtonProps {
+  onRefresh: () => void;
+  isLoading: boolean;
+}
+
+function RailRefreshButton({ onRefresh, isLoading }: RailRefreshButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onRefresh}
+      disabled={isLoading}
+      className="od-inline-action od-inline-action-ghost gap-2 group/refresh transition-all active:scale-92 hover:bg-transparent hover:translate-y-0 hover:text-(--od-accent)"
+    >
+      <RotateCw className={`h-3.5 w-3.5 transition-transform duration-500 ${isLoading ? 'animate-spin' : 'group-hover/refresh:rotate-180'}`} />
+      <span>换一批</span>
+    </button>
+  );
+}
 
 export function PlazaPage() {
   const navigate = useNavigate();
@@ -47,6 +59,10 @@ export function PlazaPage() {
 
   const gridClass = useCardGridClass();
 
+  // 状态：存储每个轨道的具体帖子（由 query 或 refresh 产生）
+  const [railThreadsMap, setRailThreadsMap] = useState<Record<string, Thread[]>>({});
+  const [refreshingKeys, setRefreshingKeys] = useState<Record<string, boolean>>({});
+
   const bannersQuery = useQuery({
     queryKey: plazaKeys.banners(),
     queryFn: plazaApi.getBanners,
@@ -59,7 +75,7 @@ export function PlazaPage() {
     staleTime: 2 * 60 * 1000,
   });
 
-  // 聚合查询所有轨道
+  // 聚合查询所有轨道（初始化）
   const railsQuery = useQuery({
     queryKey: plazaKeys.rails({
       limit: 12,
@@ -74,16 +90,50 @@ export function PlazaPage() {
     staleTime: 90 * 1000,
   });
 
-  const railResultMap = useMemo(() => {
-    const data = railsQuery.data;
-    return {
-      latest: data?.latest || [],
-      reaction_surge: data?.reaction_surge || [],
-      discussion_surge: data?.discussion_surge || [],
-      collection_surge: data?.collection_surge || [],
-      editors_pick: (data as any)?.editors_pick || [],
-    };
+  // 当基础查询数据到达时，初始化 Map
+  useEffect(() => {
+    if (railsQuery.data) {
+      setRailThreadsMap({
+        latest: railsQuery.data.latest || [],
+        reaction_surge: railsQuery.data.reaction_surge || [],
+        discussion_surge: railsQuery.data.discussion_surge || [],
+        collection_surge: railsQuery.data.collection_surge || [],
+        editors_pick: (railsQuery.data as any).editors_pick || [],
+      });
+    }
   }, [railsQuery.data]);
+
+  const handleRefreshRail = useCallback(async (key: PlazaRailKey) => {
+    if (refreshingKeys[key]) return;
+
+    setRefreshingKeys(prev => ({ ...prev, [key]: true }));
+
+    try {
+      // 获取当前已在显示的 ID，用于去重
+      const currentIds = (railThreadsMap[key] || []).map(t => t.thread_id);
+
+      const nextThreads = await plazaApi.getRail(
+        key,
+        !ignorePreferenceFilter ? {
+          channel_ids: preferences?.preferred_channels,
+          include_tags: preferences?.include_tags,
+          exclude_tags: preferences?.exclude_tags,
+        } : undefined,
+        currentIds
+      );
+
+      if (nextThreads.length > 0) {
+        setRailThreadsMap(prev => ({
+          ...prev,
+          [key]: nextThreads,
+        }));
+      }
+    } catch (error) {
+      console.error(`[PlazaPage] Failed to refresh rail ${key}:`, error);
+    } finally {
+      setRefreshingKeys(prev => ({ ...prev, [key]: false }));
+    }
+  }, [railThreadsMap, refreshingKeys, ignorePreferenceFilter, preferences]);
 
   const collectMutation = useToggleBooklistCollection();
 
@@ -251,27 +301,25 @@ export function PlazaPage() {
 
       <section className="px-1">
         {PLAZA_RAILS.map((rail) => {
-          const list = railResultMap[rail.key];
+          const list = railThreadsMap[rail.key];
           if (!list || list.length === 0) return null;
 
           return (
             <div key={rail.key} className="od-page-section py-4 sm:py-5">
-              <FluidDivider label={rail.title} className="mb-5" />
+              <FluidDivider label={rail.label} className="mb-5" />
               <div className="mb-5 flex items-center justify-between gap-3">
                 <div>
                   <h2 className="od-section-title">{rail.title}</h2>
                   <p className="mt-1 text-sm text-(--od-text-secondary)">{rail.subtitle}</p>
                 </div>
-                <Link
-                  to={`/?sort=${railSortMap[rail.key]}`}
-                  className="od-inline-action od-inline-action-ghost"
-                >
-                  查看更多
-                </Link>
+                <RailRefreshButton
+                  onRefresh={() => handleRefreshRail(rail.key)}
+                  isLoading={refreshingKeys[rail.key]}
+                />
               </div>
 
               <div className={gridClass}>
-                {list.map((thread: any) => (
+                {list.map((thread) => (
                   <ThreadCard
                     key={`${rail.key}-${thread.thread_id}`}
                     thread={thread}

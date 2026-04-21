@@ -1,7 +1,7 @@
 import { MessageCircle, ThumbsUp, Eye, Clock3, Images, BookOpen } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { memo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { LazyImage } from '@/shared/ui/LazyImage';
@@ -51,7 +51,13 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
     '未知用户';
   const authorId = thread.author?.id || '';
   const hasExcerpt = !!thread.first_message_excerpt && thread.first_message_excerpt.trim() !== '...';
-  const thumbnails = imageMode === 'off' ? [] : (thread.thumbnail_urls || []).filter(Boolean).slice(0, 4);
+
+  // 获取有效的去重缩略图列表，最多 4 张
+  const thumbnails = useMemo(() => {
+    if (imageMode === 'off') return [];
+    const urls = (thread.thumbnail_urls || []).filter(Boolean);
+    return Array.from(new Set(urls)).slice(0, 4);
+  }, [thread.thumbnail_urls, imageMode]);
 
   const { measureRef: titleMeasureRef, clampedText: clampedTitle } = usePretextClampText<HTMLHeadingElement>(
     thread.title,

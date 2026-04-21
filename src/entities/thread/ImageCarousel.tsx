@@ -85,9 +85,8 @@ export function ImageCarousel({
     >
       {/* 轮播图片层 */}
       <AnimatePresence initial={false} custom={direction}>
-        <motion.img
+        <motion.div
           key={currentIndex}
-          src={images[currentIndex]}
           custom={direction}
           variants={variants}
           initial="enter"
@@ -97,9 +96,14 @@ export function ImageCarousel({
             x: { type: 'spring', stiffness: 300, damping: 30 },
             opacity: { duration: 0.2 },
           }}
-          alt={`${alt} - ${currentIndex + 1}`}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+          className="absolute inset-0 h-full w-full"
+        >
+          <LazyImage
+            src={images[currentIndex]}
+            alt={`${alt} - ${currentIndex + 1}`}
+            className="h-full w-full"
+          />
+        </motion.div>
       </AnimatePresence>
 
       {/* 左侧点击区（隐藏的导航按钮） */}
