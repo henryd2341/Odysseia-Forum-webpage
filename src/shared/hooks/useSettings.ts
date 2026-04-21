@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useSettingsStore } from '@/shared/store/settingsStore';
 import type { UserSettings } from '@/shared/lib/settings';
@@ -56,7 +57,7 @@ export function useSidebarCollapsedSetting() {
 }
 
 export function useThemeSettings() {
-  return useSettingsStore((state) => ({
+  return useSettingsStore(useShallow((state) => ({
     theme: state.settings.theme,
     fontMode: state.settings.fontMode,
     glassBlur: state.settings.glassBlur,
@@ -66,5 +67,5 @@ export function useThemeSettings() {
     backgroundImageOpacity: state.settings.backgroundImageOpacity,
     glassMode: state.settings.glassMode,
     backgroundlessMode: state.settings.backgroundlessMode,
-  }));
+  })));
 }
