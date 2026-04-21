@@ -7,6 +7,7 @@ import type { Thread } from '@/entities/thread/types';
 import { APP_VERSION } from '@/shared/config/appInfo';
 import { resolveStaticNotifications } from '@/features/notifications/notificationsConfig';
 import { usePreviewStore } from '@/features/search/store/previewStore';
+import { useThemeSettings } from '@/shared/hooks/useSettings';
 import { LazyImage } from '@/shared/ui/LazyImage';
 
 type NotificationKind = 'follow_update' | 'release_update';
@@ -29,6 +30,7 @@ interface NotificationCenterProps {
 
 export function NotificationCenter({ open, onClose, onUnreadChange }: NotificationCenterProps) {
   const navigate = useNavigate();
+  const { backgroundImageEnabled } = useThemeSettings();
 
   const setPreviewThread = usePreviewStore((state) => state.setPreviewThread);
 
@@ -187,7 +189,7 @@ export function NotificationCenter({ open, onClose, onUnreadChange }: Notificati
       role="dialog"
       aria-modal="true"
       aria-label="通知中心"
-      className="od-floating-glass fixed inset-x-3 top-20 z-50 mx-auto flex max-h-[70vh] w-auto max-w-md flex-col items-stretch rounded-xl border border-[var(--od-border-strong)] shadow-2xl shadow-black/50 animate-in fade-in slide-in-from-top-2 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-3 sm:max-h-[600px] sm:w-[360px]"
+      className={`${backgroundImageEnabled ? 'od-floating-glass' : 'od-floating-panel-solid'} fixed inset-x-3 top-20 z-50 mx-auto flex max-h-[70vh] w-auto max-w-md flex-col items-stretch rounded-xl border border-[var(--od-border-strong)] shadow-2xl shadow-black/50 animate-in fade-in slide-in-from-top-2 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-3 sm:max-h-[600px] sm:w-[360px]`}
     >
       <div className="flex items-start justify-between border-b border-[var(--od-border-strong)] px-4 py-3">
         <div>

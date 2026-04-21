@@ -189,6 +189,7 @@ return createPortal(
               {!hideExternalButton && (
                 <ThreadActions
                   threadId={thread.thread_id}
+                  channelId={thread.channel_id}
                   guildId={thread.guild_id}
                   size="sm"
                   alwaysVisible={true}

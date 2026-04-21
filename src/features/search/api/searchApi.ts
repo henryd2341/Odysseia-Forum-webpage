@@ -166,7 +166,7 @@ function buildSearchRequest(params: SearchUIRequest): ApiSearchParams {
     sort_order: 'desc',
     limit: params.limit || 24,
     offset: params.offset || 0,
-    exclude_thread_ids: params.exclude_thread_ids || [],
+    exclude_thread_ids: (params.exclude_thread_ids || []) as unknown as number[],
     reaction_count_range: DEFAULT_NUMERIC_RANGE,
     reply_count_range: DEFAULT_NUMERIC_RANGE,
     custom_base_sort: 'comprehensive',

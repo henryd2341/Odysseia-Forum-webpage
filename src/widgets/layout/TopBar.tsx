@@ -8,7 +8,6 @@ import {
 } from "@/features/search/components/SearchSuggestions";
 import { useSearchAutocomplete } from "@/features/search/hooks/useSearchAutocomplete";
 import type {
-    SortMethod,
     TagLogic,
 } from "@/features/search/hooks/useSearchParams";
 import { useSearchURLParams } from "@/features/search/hooks/useSearchParams";
@@ -201,7 +200,6 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
     params.excludeAuthors.length > 0 ||
     !!params.timeFrom ||
     !!params.timeTo ||
-    (params.sortMethod && params.sortMethod !== "last_active_desc") ||
     (params.tagLogic && params.tagLogic !== "and");
 
   const hasPanelFilters = hasActiveFilters;
@@ -323,7 +321,7 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8, scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 320, damping: 26 }}
-                className="od-floating-glass fixed top-[4.25rem] inset-x-3 z-50 mt-2 overflow-hidden rounded-2xl border border-[var(--od-border-strong)] shadow-2xl mx-auto w-auto max-w-md sm:absolute sm:top-full sm:inset-x-auto sm:left-auto sm:right-0 sm:mx-0 sm:w-[560px] sm:max-w-none"
+                className="od-floating-panel-solid fixed top-[4.25rem] inset-x-3 z-50 mt-2 overflow-hidden rounded-2xl border border-[var(--od-border-strong)] shadow-2xl mx-auto w-auto max-w-md sm:absolute sm:top-full sm:inset-x-auto sm:left-auto sm:right-0 sm:mx-0 sm:w-[560px] sm:max-w-none"
               >
                 {needsFilter && (
                   <div className="flex items-center gap-2 border-b border-white/[0.06] p-2">
@@ -373,9 +371,6 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
                     onIncludeAuthorDraftChange={setIncludeAuthorDraft}
                     onPreferenceTagSyncToggle={handlePreferenceTagSyncToggle}
                     onRemoveAuthorToken={removeAuthorToken}
-                    onSortMethodChange={(value: SortMethod) =>
-                      setParams({ sortMethod: value })
-                    }
                     onSubmitAuthorDraft={submitAuthorDraft}
                     onTagLogicChange={(value: TagLogic) =>
                       setParams({ tagLogic: value })
@@ -389,7 +384,6 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
                     onToggleTagToken={toggleTagToken}
                     preferenceExcludeTags={preferenceTagState.excludeTags}
                     preferenceIncludeTags={preferenceTagState.includeTags}
-                    sortMethod={params.sortMethod}
                     syncPreferenceTags={syncPreferenceTags}
                     tagLogic={params.tagLogic}
                     timeFrom={params.timeFrom}

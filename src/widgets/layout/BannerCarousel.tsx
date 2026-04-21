@@ -4,6 +4,8 @@ import { BannerApplicationModal } from '@/features/banner/components/BannerAppli
 import defaultBannerImage from '@/assets/images/banners/banner.png';
 import { LazyImage } from '@/shared/ui/LazyImage';
 
+const WIKI_URL = 'https://wiki.xn--35zx7g.org/';
+
 interface Banner {
   id: string;
   image: string;
@@ -60,6 +62,17 @@ export function BannerCarousel({ banners, autoPlayInterval = 5000, onBannerClick
             <p className="text-sm text-gray-200 line-clamp-2">
               今天的头图位还空着呢，不过没关系，先往下逛逛看吧。
             </p>
+            <div className="mt-4">
+              <a
+                href={WIKI_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center rounded-full border border-white/20 bg-black/30 px-4 py-2 text-xs font-semibold tracking-[0.12em] text-white transition-colors hover:bg-black/45"
+                onClick={(e) => e.stopPropagation()}
+              >
+                类脑智识库 Wiki
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -156,6 +169,18 @@ export function BannerCarousel({ banners, autoPlayInterval = 5000, onBannerClick
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="absolute right-4 top-4 z-10">
+        <a
+          href={WIKI_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center rounded-full border border-white/15 bg-black/35 px-3.5 py-2 text-xs font-semibold tracking-[0.12em] text-white backdrop-blur-md transition-colors hover:bg-black/55"
+          onClick={(e) => e.stopPropagation()}
+        >
+          类脑智识库 Wiki
+        </a>
       </div>
 
       <BannerApplicationModal

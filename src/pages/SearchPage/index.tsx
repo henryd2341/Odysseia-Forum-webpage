@@ -19,6 +19,7 @@ import { useChannels } from "@/shared/hooks/useChannels";
 import { addToken } from "@/shared/lib/searchTokenizer";
 import { FluidDivider } from "@/shared/ui/FluidDivider";
 import {
+  ArrowUpDown,
   Compass,
   Dices,
   LayoutGrid,
@@ -201,6 +202,28 @@ export function SearchPage() {
                 书单
               </button>
             </div>
+
+            {isThreadTab && (
+              <label className="inline-flex items-center gap-2 rounded-full border border-[var(--od-shell-line)] bg-[color-mix(in_srgb,var(--od-surface-input)_76%,transparent)] px-3 py-2 text-xs font-medium text-[var(--od-text-secondary)]">
+                <ArrowUpDown className="h-3.5 w-3.5" />
+                <select
+                  aria-label="选择排序方式"
+                  value={params.sortMethod}
+                  onChange={(e) =>
+                    setParams({
+                      sortMethod: e.target.value as typeof params.sortMethod,
+                    })
+                  }
+                  className="min-w-[6.25rem] bg-transparent text-[var(--od-text-primary)] outline-none"
+                >
+                  <option value="last_active_desc">最近活跃</option>
+                  <option value="created_desc">最新发布</option>
+                  <option value="reply_desc">回复数</option>
+                  <option value="reaction_desc">反应数</option>
+                  <option value="relevance">相关度</option>
+                </select>
+              </label>
+            )}
 
             <div className="inline-flex items-center gap-1 rounded-full border border-[var(--od-shell-line)] bg-[color-mix(in_srgb,var(--od-surface-input)_76%,transparent)] p-1">
               <button

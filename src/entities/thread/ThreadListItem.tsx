@@ -1,7 +1,7 @@
-import { MessageCircle, ThumbsUp, Eye, Clock3, Images } from 'lucide-react';
+import { MessageCircle, ThumbsUp, Eye, Clock3, Images, BookOpen } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { LazyImage } from '@/shared/ui/LazyImage';
@@ -14,6 +14,7 @@ import { ThreadActions } from '@/features/threads/components/ThreadActions';
 import { AuthorAvatar } from '@/entities/user/AuthorAvatar';
 import { ThreadStatusBadges } from '@/entities/thread/ThreadStatusBadges';
 import { usePretextClampText } from '@/shared/hooks/usePretextClampText';
+import { QuickAddToBooklistModal } from '@/features/booklists/components/QuickAddToBooklistModal';
 
 interface ThreadListItemProps {
   thread: Thread;
@@ -29,6 +30,7 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
   const fontSize = useFontSizeSetting();
   const imageMode = useImageModeSetting();
   const fontSizes = fontSizeMap[fontSize];
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
 
   const createdTime = formatDistanceToNow(new Date(thread.created_at), {
     addSuffix: true,
@@ -77,6 +79,105 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
       <div className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,color-mix(in_srgb,var(--od-divider-strong)_60%,transparent),transparent)]" />
 
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-5">
+        {thumbnails.length > 0 && (
+          <div className="shrink-0 md:w-[13.5rem] lg:w-[14.5rem]">
+            <div className="grid h-[9.5rem] grid-cols-2 gap-1.5 md:h-[10.75rem]">
+              {thumbnails.length === 1 && (
+                <div className="relative col-span-2 overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]">
+                  <LazyImage
+                    src={thumbnails[0]}
+                    alt={`${thread.title} 缩略图 1`}
+                    className="h-full w-full object-cover"
+                    threadId={thread.thread_id}
+                    channelId={thread.channel_id}
+                  />
+                </div>
+              )}
+
+              {thumbnails.length === 2 && (
+                <>
+                  {thumbnails.map((src, idx) => (
+                    <div
+                      key={`${thread.thread_id}-${src}-${idx}`}
+                      className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]"
+                    >
+                      <LazyImage
+                        src={src}
+                        alt={`${thread.title} 缩略图 ${idx + 1}`}
+                        className="h-full w-full object-cover"
+                        threadId={thread.thread_id}
+                        channelId={thread.channel_id}
+                        index={index}
+                      />
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {thumbnails.length === 3 && (
+                <>
+                  <div className="relative row-span-2 overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]">
+                    <LazyImage
+                      src={thumbnails[0]}
+                      alt={`${thread.title} 缩略图 1`}
+                      className="h-full w-full object-cover"
+                      threadId={thread.thread_id}
+                      channelId={thread.channel_id}
+                    />
+                  </div>
+                  <div className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]">
+                    <LazyImage
+                      src={thumbnails[1]}
+                      alt={`${thread.title} 缩略图 2`}
+                      className="h-full w-full object-cover"
+                      threadId={thread.thread_id}
+                      channelId={thread.channel_id}
+                      index={index}
+                    />
+                  </div>
+                  <div className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]">
+                    <LazyImage
+                      src={thumbnails[2]}
+                      alt={`${thread.title} 缩略图 3`}
+                      className="h-full w-full object-cover"
+                      threadId={thread.thread_id}
+                      channelId={thread.channel_id}
+                    />
+                  </div>
+                </>
+              )}
+
+              {thumbnails.length === 4 && (
+                <>
+                  {thumbnails.map((src, idx) => (
+                    <div
+                      key={`${thread.thread_id}-${src}-${idx}`}
+                      className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]"
+                    >
+                      <LazyImage
+                        src={src}
+                        alt={`${thread.title} 缩略图 ${idx + 1}`}
+                        className="h-full w-full object-cover"
+                        threadId={thread.thread_id}
+                        channelId={thread.channel_id}
+                        index={index}
+                      />
+                      {idx === 3 && (thread.thumbnail_urls?.length || 0) > thumbnails.length && (
+                        <div className="absolute inset-0 flex items-end justify-end bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.42))] p-2 text-white">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-medium tracking-[0.08em]">
+                            <Images className="h-3 w-3" />
+                            +{(thread.thumbnail_urls?.length || 0) - thumbnails.length}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="min-w-0 flex-1">
           <div className={`mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 ${fontSizes.meta} text-[var(--od-text-tertiary)]`}>
             <button type="button" onClick={handleAuthorClick} className="shrink-0 rounded-full">
@@ -159,116 +260,59 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
               </span>
             </div>
 
-            <div className="ml-auto shrink-0 text-[var(--od-text-tertiary)] transition-colors group-hover:text-[var(--od-text-primary)]">
+            <div className="ml-auto flex shrink-0 items-center gap-2 text-[var(--od-text-tertiary)] transition-colors group-hover:text-[var(--od-text-primary)] md:hidden">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setQuickAddOpen(true);
+                }}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold transition-all duration-200 hover:bg-[var(--od-bg-tertiary)] hover:text-[var(--od-text-primary)]"
+                aria-label="加入书单"
+                title="加入书单"
+              >
+                <BookOpen className="h-4 w-4" />
+              </button>
               <ThreadActions
                 threadId={thread.thread_id}
+                channelId={thread.channel_id}
                 guildId={thread.guild_id}
                 size="md"
-                alwaysVisible
               />
             </div>
           </div>
         </div>
-
-        {thumbnails.length > 0 && (
-          <div className="shrink-0 md:w-[13.5rem] lg:w-[14.5rem]">
-            <div className="grid h-[9.5rem] grid-cols-2 gap-1.5 md:h-[10.75rem]">
-              {thumbnails.length === 1 && (
-                <div className="relative col-span-2 overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]">
-                  <LazyImage
-                    src={thumbnails[0]}
-                    alt={`${thread.title} 缩略图 1`}
-                    className="h-full w-full object-cover"
-                    threadId={thread.thread_id}
-                    channelId={thread.channel_id}
-                  />
-                </div>
-              )}
-
-              {thumbnails.length === 2 && (
-                <>
-                  {thumbnails.map((src, idx) => (
-                    <div
-                      key={`${thread.thread_id}-${src}-${idx}`}
-                      className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]"
-                    >
-                    <LazyImage
-                      src={src}
-                      alt={`${thread.title} 缩略图 ${idx + 1}`}
-                      className="h-full w-full object-cover"
-                      threadId={thread.thread_id}
-                      channelId={thread.channel_id}
-                      index={index}
-                    />
-                    </div>
-                  ))}
-                </>
-              )}
-
-              {thumbnails.length === 3 && (
-                <>
-                  <div className="relative row-span-2 overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]">
-                    <LazyImage
-                      src={thumbnails[0]}
-                      alt={`${thread.title} 缩略图 1`}
-                      className="h-full w-full object-cover"
-                      threadId={thread.thread_id}
-                      channelId={thread.channel_id}
-                    />
-                  </div>
-                  <div className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]">
-                    <LazyImage
-                      src={thumbnails[1]}
-                      alt={`${thread.title} 缩略图 2`}
-                      className="h-full w-full object-cover"
-                      threadId={thread.thread_id}
-                      channelId={thread.channel_id}
-                      index={index}
-                    />
-                  </div>
-                  <div className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]">
-                    <LazyImage
-                      src={thumbnails[2]}
-                      alt={`${thread.title} 缩略图 3`}
-                      className="h-full w-full object-cover"
-                      threadId={thread.thread_id}
-                      channelId={thread.channel_id}
-                    />
-                  </div>
-                </>
-              )}
-
-              {thumbnails.length === 4 && (
-                <>
-                  {thumbnails.map((src, idx) => (
-                    <div
-                      key={`${thread.thread_id}-${src}-${idx}`}
-                      className="relative overflow-hidden rounded-[1rem] bg-[var(--od-surface-shell)]"
-                    >
-                    <LazyImage
-                      src={src}
-                      alt={`${thread.title} 缩略图 ${idx + 1}`}
-                      className="h-full w-full object-cover"
-                      threadId={thread.thread_id}
-                      channelId={thread.channel_id}
-                      index={index}
-                    />
-                    {idx === 3 && (thread.thumbnail_urls?.length || 0) > thumbnails.length && (
-                      <div className="absolute inset-0 flex items-end justify-end bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.42))] p-2 text-white">
-                        <span className="inline-flex items-center gap-1 text-[10px] font-medium tracking-[0.08em]">
-                          <Images className="h-3 w-3" />
-                          +{(thread.thumbnail_urls?.length || 0) - thumbnails.length}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  ))}
-                </>
-              )}
-            </div>
-          </div>
-        )}
       </div>
+
+      <div className="absolute right-0 top-3 hidden items-center gap-2 md:flex">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setQuickAddOpen(true);
+          }}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold text-[var(--od-text-tertiary)] transition-all duration-200 md:translate-y-1 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 hover:bg-[var(--od-bg-tertiary)] hover:text-[var(--od-text-primary)]"
+          aria-label="加入书单"
+          title="加入书单"
+        >
+          <BookOpen className="h-4 w-4" />
+        </button>
+        <div className="text-[var(--od-text-tertiary)] transition-colors group-hover:text-[var(--od-text-primary)]">
+          <ThreadActions
+            threadId={thread.thread_id}
+            channelId={thread.channel_id}
+            guildId={thread.guild_id}
+            size="md"
+          />
+        </div>
+      </div>
+
+      <QuickAddToBooklistModal
+        isOpen={quickAddOpen}
+        threadId={thread.thread_id}
+        threadTitle={thread.title}
+        onClose={() => setQuickAddOpen(false)}
+      />
     </article>
   );
 }

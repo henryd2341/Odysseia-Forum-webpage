@@ -12,6 +12,7 @@ const GITHUB_REPO_URL = 'https://github.com/shiyue137mh-netizen/Odysseia-Forum-N
 const CONTRIBUTORS_URL = `${GITHUB_REPO_URL}/graphs/contributors`;
 const CONTRIBUTORS_API_URL =
   'https://api.github.com/repos/shiyue137mh-netizen/Odysseia-Forum-Newpage/contributors?per_page=100';
+const WIKI_URL = 'https://wiki.xn--35zx7g.org/';
 
 interface GithubContributor {
   id: number;
@@ -155,7 +156,7 @@ export function AboutPage() {
                 </p>
               </div>
 
-              <div className="mb-5 flex justify-center">
+              <div className="mb-5 flex flex-wrap justify-center gap-3">
                 <a
                   href={GITHUB_REPO_URL}
                   target="_blank"
@@ -164,6 +165,14 @@ export function AboutPage() {
                 >
                   <Github className="h-5 w-5" />
                   <span>访问 GitHub 仓库</span>
+                </a>
+                <a
+                  href={WIKI_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-lg border border-[var(--od-border-strong)]/55 bg-[color-mix(in_oklab,var(--od-bg)_72%,transparent)] px-6 py-3 text-sm font-medium text-[var(--od-text-primary)] shadow-lg transition-all duration-200 hover:scale-105 hover:border-[var(--od-accent)]/45 hover:text-[var(--od-accent)]"
+                >
+                  <span>类脑智识库 Wiki</span>
                 </a>
               </div>
 

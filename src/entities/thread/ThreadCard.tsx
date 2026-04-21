@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import {
+    BookOpen,
     Calendar,
     Clock3,
     Eye,
@@ -274,10 +275,11 @@ function ThreadCardImpl({
                 aria-label="加入书单"
                 title="加入书单"
               >
-                <span className="text-sm font-semibold">+</span>
+                <BookOpen className="h-4 w-4" />
               </button>
               <ThreadActions
                 threadId={thread.thread_id}
+                channelId={thread.channel_id}
                 guildId={thread.guild_id}
                 variant="glass"
               />

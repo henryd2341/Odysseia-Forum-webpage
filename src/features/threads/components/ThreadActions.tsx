@@ -3,9 +3,11 @@ import { DiscordIcon } from '@/shared/ui/icons/DiscordIcon';
 import { useOpenModeSetting } from '@/shared/hooks/useSettings';
 import { AnimatedIcon } from '@/shared/ui/animation/AnimatedIcon';
 import { useState } from 'react';
+import { buildDiscordAppThreadUrl, buildDiscordWebThreadUrl } from '@/shared/lib/discord';
 
 interface ThreadActionsProps {
     threadId: string;
+    channelId?: string;
     guildId?: string;
     size?: 'sm' | 'md';
     variant?: 'default' | 'white' | 'glass';
@@ -21,18 +23,48 @@ interface ThreadActionsProps {
  *  - 'white': 白色，用于深色背景/图片上
  *  - 'glass': 毛玻璃圆形按钮，用于卡片封面悬浮（与刷新按钮一致）
  */
-export function ThreadActions({ threadId, guildId, size = 'md', variant = 'default', alwaysVisible = false, className, externalUrlOverride }: ThreadActionsProps) {
+export function ThreadActions({ threadId, channelId, guildId, size = 'md', variant = 'default', alwaysVisible = false, className, externalUrlOverride }: ThreadActionsProps) {
     const openMode = useOpenModeSetting();
     const [isHovered, setIsHovered] = useState(false);
-    const finalGuildId = guildId || import.meta.env.VITE_GUILD_ID || '@me';
-
-    // 根据设置决定目标 URL
-    const targetUrl = openMode === 'web'
-        ? (externalUrlOverride || `https://discord.com/channels/${finalGuildId}/${threadId}`)
-        : (externalUrlOverride || `discord://discord.com/channels/${finalGuildId}/${threadId}`);
+    const webTargetUrl = externalUrlOverride || buildDiscordWebThreadUrl({
+        guildId,
+        channelId,
+        threadId,
+    });
+    const appTargetUrl = externalUrlOverride || buildDiscordAppThreadUrl({
+        guildId,
+        channelId,
+        threadId,
+    });
+    const targetUrl = openMode === 'web' ? webTargetUrl : appTargetUrl;
 
     const isWeb = openMode === 'web';
     const tooltipContent = isWeb ? "在浏览器中打开" : "在 Discord App 中打开";
+
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.stopPropagation();
+        if (isWeb) return;
+
+        e.preventDefault();
+
+        const fallbackTimer = window.setTimeout(() => {
+            window.open(webTargetUrl, "_blank", "noopener,noreferrer");
+        }, 900);
+
+        const clearFallback = () => {
+            window.clearTimeout(fallbackTimer);
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                clearFallback();
+            }
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange, { once: true });
+        window.addEventListener("pagehide", clearFallback, { once: true });
+        window.location.href = appTargetUrl;
+    };
 
     // 样式配置
     const sizeClasses = {
@@ -54,7 +86,7 @@ export function ThreadActions({ threadId, guildId, size = 'md', variant = 'defau
                     href={targetUrl}
                     target={isWeb ? "_blank" : undefined}
                     rel={isWeb ? "noopener noreferrer" : undefined}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={handleClick}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                     className={`flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md transition-colors hover:bg-black/60 ${className || ''}`}
@@ -85,7 +117,7 @@ export function ThreadActions({ threadId, guildId, size = 'md', variant = 'defau
                     href={targetUrl}
                     target={isWeb ? "_blank" : undefined}
                     rel={isWeb ? "noopener noreferrer" : undefined}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={handleClick}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                     className={`flex items-center justify-center rounded-md transition-all duration-200 ${classes.button} ${colorClasses} ${visibilityClasses}`}

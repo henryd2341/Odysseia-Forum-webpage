@@ -1,7 +1,7 @@
 import type { SearchToken } from '@/shared/lib/searchTokenizer';
 import { User, X } from 'lucide-react';
 
-import type { SortMethod, TagLogic } from '@/features/search/hooks/useSearchParams';
+import type { TagLogic } from '@/features/search/hooks/useSearchParams';
 
 interface SearchFilterPanelProps {
   availableTags: string[];
@@ -17,7 +17,6 @@ interface SearchFilterPanelProps {
   onIncludeAuthorDraftChange: (value: string) => void;
   onPreferenceTagSyncToggle: () => void;
   onRemoveAuthorToken: (token: SearchToken) => void;
-  onSortMethodChange: (value: SortMethod) => void;
   onSubmitAuthorDraft: (mode: 'include' | 'exclude') => void;
   onTagLogicChange: (value: TagLogic) => void;
   onTimeFromChange: (value: string) => void;
@@ -25,7 +24,6 @@ interface SearchFilterPanelProps {
   onToggleTagToken: (tagName: string, mode: 'include' | 'exclude') => void;
   preferenceExcludeTags: string[];
   preferenceIncludeTags: string[];
-  sortMethod: SortMethod;
   syncPreferenceTags: boolean;
   tagLogic: TagLogic;
   timeFrom: string;
@@ -46,7 +44,6 @@ export function SearchFilterPanel({
   onIncludeAuthorDraftChange,
   onPreferenceTagSyncToggle,
   onRemoveAuthorToken,
-  onSortMethodChange,
   onSubmitAuthorDraft,
   onTagLogicChange,
   onTimeFromChange,
@@ -54,7 +51,6 @@ export function SearchFilterPanel({
   onToggleTagToken,
   preferenceExcludeTags,
   preferenceIncludeTags,
-  sortMethod,
   syncPreferenceTags,
   tagLogic,
   timeFrom,
@@ -77,24 +73,6 @@ export function SearchFilterPanel({
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label htmlFor="topbar-sort" className="mb-1 block text-[11px] font-medium uppercase tracking-wider text-[var(--od-text-tertiary)]">
-            排序方式
-          </label>
-          <select
-            id="topbar-sort"
-            value={sortMethod}
-            onChange={(e) => onSortMethodChange(e.target.value as SortMethod)}
-            className="od-chrome-surface w-full rounded-xl border border-white/[0.06] px-3 py-2 text-sm text-[var(--od-text-primary)] outline-none transition-colors focus:border-[var(--od-accent)]"
-          >
-            <option value="last_active_desc">最近活跃</option>
-            <option value="created_desc">最新发布</option>
-            <option value="reply_desc">回复数</option>
-            <option value="reaction_desc">反应数</option>
-            <option value="relevance">相关度</option>
-          </select>
-        </div>
-
         <div>
           <label htmlFor="topbar-tagLogic" className="mb-1 block text-[11px] font-medium uppercase tracking-wider text-[var(--od-text-tertiary)]">
             标签逻辑

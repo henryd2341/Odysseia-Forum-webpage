@@ -1,4 +1,6 @@
 
+import { Spoiler } from '@/shared/ui/Spoiler';
+
 interface DiscordMarkdownTextProps {
   text: string;
   className?: string;
@@ -10,7 +12,7 @@ export function DiscordMarkdownText({ text, className = '', truncateClassName = 
 
   // 简易行内 Markdown 解析器
   // 匹配: 链接 [text](url) | 粗体 **text** | 行内代码 `code`
-  const regex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|\*\*([^*]+)\*\*|`([^`]+)`/g;
+  const regex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|\|\|(.+?)\|\||\*\*([^*]+)\*\*|`([^`]+)`/g;
   const parts = [];
   let lastIndex = 0;
   
@@ -24,11 +26,13 @@ export function DiscordMarkdownText({ text, className = '', truncateClassName = 
       // 匹配到链接
       parts.push({ type: 'link', text: match[1], url: match[2] });
     } else if (match[3]) {
-      // 匹配到粗体
-      parts.push({ type: 'bold', content: match[3] });
+      parts.push({ type: 'spoiler', content: match[3] });
     } else if (match[4]) {
+      // 匹配到粗体
+      parts.push({ type: 'bold', content: match[4] });
+    } else if (match[5]) {
       // 匹配到代码块
-      parts.push({ type: 'code', content: match[4] });
+      parts.push({ type: 'code', content: match[5] });
     }
 
     lastIndex = regex.lastIndex;
@@ -55,6 +59,9 @@ export function DiscordMarkdownText({ text, className = '', truncateClassName = 
               {part.text}
             </a>
           );
+        }
+        if (part.type === 'spoiler') {
+          return <Spoiler key={index}>{part.content}</Spoiler>;
         }
         if (part.type === 'bold') {
           return <strong key={index} className="font-bold text-[var(--od-text-primary)]">{part.content}</strong>;

@@ -13,9 +13,12 @@ import { useUserPreferences } from '@/features/preferences/hooks/useUserPreferen
 import { plazaKeys } from '@/features/plaza/lib/queryKeys';
 import { usePreviewStore } from '@/features/search/store/previewStore';
 import { GUILD_ID } from '@/shared/config/channelCategories.private';
+import { buildDiscordWebThreadUrl } from '@/shared/lib/discord';
 import { FluidDivider } from '@/shared/ui/FluidDivider';
 import { useCardGridClass } from '@/shared/hooks/useSettings';
 import defaultBannerImage from '@/assets/images/banners/banner.png';
+
+const WIKI_URL = 'https://wiki.xn--35zx7g.org/';
 
 const railSortMap: Record<PlazaRailKey, string> = {
   latest: 'created_desc',
@@ -133,9 +136,18 @@ export function PlazaPage() {
                   image: b.cover_image_url,
                   title: b.title,
                   description: b.author ? `作者：${b.author.display_name || b.author.global_name || b.author.name}` : '点击可以直接探索原帖',
+                  link: buildDiscordWebThreadUrl({
+                    guildId: b.guild_id || GUILD_ID,
+                    channelId: b.channel_id,
+                    threadId: b.thread_id,
+                  }),
                 }))}
                 onBannerClick={(banner) => {
-                  const url = `https://discord.com/channels/${GUILD_ID}/${banner.id}`;
+                  const url = banner.link || buildDiscordWebThreadUrl({
+                    guildId: GUILD_ID,
+                    channelId: banner.id,
+                    threadId: banner.id,
+                  });
                   window.open(url, '_blank', 'noopener,noreferrer');
                 }}
               />
@@ -155,6 +167,19 @@ export function PlazaPage() {
                     <p className="text-sm text-gray-200 line-clamp-2">
                       今天的头图位还空着呢，不过没关系，先往下逛逛看吧。
                     </p>
+                    <p className="mt-2 max-w-2xl text-xs leading-5 text-white/80">
+                      想先快速熟悉社区脉络的话，也可以先去类脑智识库 Wiki 看看整理过的知识入口，再回来顺着广场慢慢逛。
+                    </p>
+                    <div className="mt-4">
+                      <a
+                        href={WIKI_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center rounded-full border border-white/20 bg-black/30 px-4 py-2 text-xs font-semibold tracking-[0.12em] text-white transition-colors hover:bg-black/45"
+                      >
+                        类脑智识库 Wiki
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>

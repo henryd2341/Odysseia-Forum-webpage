@@ -1,22 +1,22 @@
+import {
+    BadgeCheck,
+    Compass,
+    Dices,
+    Eye,
+    Layers3,
+    RefreshCw,
+    Sparkles,
+    Wand2,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  BadgeCheck,
-  Compass,
-  Dices,
-  Eye,
-  Layers3,
-  RefreshCw,
-  Sparkles,
-  Wand2,
-} from "lucide-react";
 
 import { ThreadCard } from "@/entities/thread/ThreadCard";
 import type { Thread } from "@/entities/thread/types";
 import { DrawRevealOverlay } from "@/features/draw/components/DrawRevealOverlay";
+import { plazaApi } from "@/features/plaza/api/plazaApi";
 import { useUserPreferences } from "@/features/preferences/hooks/useUserPreferences";
 import { getDiscoveryPreferenceContext } from "@/features/preferences/lib/discoveryPreferences";
-import { plazaApi } from "@/features/plaza/api/plazaApi";
 import { usePreviewThread } from "@/features/search/hooks/usePreviewThread";
 import { GUILD_ID } from "@/shared/config/channelCategories.private";
 import { useChannels } from "@/shared/hooks/useChannels";

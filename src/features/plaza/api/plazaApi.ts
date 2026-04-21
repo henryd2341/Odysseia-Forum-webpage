@@ -10,6 +10,7 @@ export interface PlazaBannerItem {
   title: string;
   cover_image_url: string;
   channel_id?: string;
+  guild_id?: string;
   author?: Author;
 }
 

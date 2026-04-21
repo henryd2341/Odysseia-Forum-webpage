@@ -164,7 +164,7 @@ export function AppSidebar() {
                 animation="pulse"
                 trigger="hover"
               />
-              <span className="truncate">随机抽卡</span>
+              <span className="truncate">抽卡</span>
             </Link>
 
             <Link
@@ -196,7 +196,7 @@ export function AppSidebar() {
                 animation="rotate"
                 trigger="hover"
               />
-              <span className="truncate">标签总览</span>
+              <span className="truncate">标签</span>
             </Link>
 
             <Link
@@ -224,7 +224,7 @@ export function AppSidebar() {
                 animation="bounce"
                 trigger="hover"
               />
-              <span className="truncate">关于我们</span>
+              <span className="truncate">关于</span>
             </Link>
 
             {import.meta.env.VITE_API_MOCKING === 'true' && (
