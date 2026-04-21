@@ -30,7 +30,7 @@ export function HighlightText({ text, highlight, className = '' }: HighlightText
         )}
       </span>
     );
-  } catch (error) {
+  } catch {
     // 如果正则表达式失败，返回原文本
     return <span className={className}>{text}</span>;
   }

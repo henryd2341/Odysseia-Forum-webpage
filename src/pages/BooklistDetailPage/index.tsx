@@ -275,13 +275,10 @@ export function BooklistDetailPage() {
                       onPreview={openPreview}
                     />
                   )}
-                  <div className="rounded-lg border border-[var(--od-border)] bg-[var(--od-card)] px-3 py-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                      <span className="text-[var(--od-text-tertiary)]">
-                        排序权重: {item.display_order}
-                      </span>
+                  {(isOwner || item.comment) && (
+                    <div className="rounded-lg border border-[var(--od-border)] bg-[var(--od-card)] px-3 py-2">
                       {isOwner && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center justify-end gap-2 text-xs">
                           <button
                             type="button"
                             onClick={() => setEditingItem(item)}
@@ -304,13 +301,13 @@ export function BooklistDetailPage() {
                           </button>
                         </div>
                       )}
+                      {item.comment && (
+                        <p className={`${isOwner ? "mt-2" : ""} text-sm text-[var(--od-text-secondary)]`}>
+                          推荐语: {item.comment}
+                        </p>
+                      )}
                     </div>
-                    {item.comment && (
-                      <p className="mt-2 text-sm text-[var(--od-text-secondary)]">
-                        推荐语: {item.comment}
-                      </p>
-                    )}
-                  </div>
+                  )}
                 </div>
               ))}
             </div>

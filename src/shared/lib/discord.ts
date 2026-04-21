@@ -24,7 +24,7 @@ export function getAvatarUrl(user: DiscordUser, size: number = 128): string {
     let index = 0;
     try {
         index = Number((BigInt(user.id) >> 22n) % 6n);
-    } catch (e) {
+    } catch {
         // 如果 ID 不是纯数字（例如 mock 数据），使用简单的 hash
         index = user.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 6;
     }

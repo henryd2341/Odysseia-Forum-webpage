@@ -46,23 +46,6 @@ export function ThreadActions({ threadId, channelId, guildId, size = 'md', varia
         if (isWeb) return;
 
         e.preventDefault();
-
-        const fallbackTimer = window.setTimeout(() => {
-            window.open(webTargetUrl, "_blank", "noopener,noreferrer");
-        }, 900);
-
-        const clearFallback = () => {
-            window.clearTimeout(fallbackTimer);
-        };
-
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                clearFallback();
-            }
-        };
-
-        document.addEventListener("visibilitychange", handleVisibilityChange, { once: true });
-        window.addEventListener("pagehide", clearFallback, { once: true });
         window.location.href = appTargetUrl;
     };
 

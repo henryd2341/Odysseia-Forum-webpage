@@ -26,7 +26,7 @@ export const apiClient = axios.create({
         // 正则解释：匹配冒号和空格后的 16 位以上数字，并捕获之。
         const fixedData = data.replace(/: (\d{16,})/g, ': "$1"');
         return JSON.parse(fixedData);
-      } catch (e) {
+      } catch {
         // 解析异常时（如非 JSON 格式）回退到原生逻辑，避免阻塞
         return JSON.parse(data);
       }

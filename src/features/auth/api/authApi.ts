@@ -20,7 +20,7 @@ export const authApi = {
     try {
       const response = await apiClient.get<AuthResponse>('/auth/checkauth');
       return response.data;
-    } catch (error) {
+    } catch {
       // 如果检查失败，返回未认证状态而不是抛出错误
       return { loggedIn: false };
     }

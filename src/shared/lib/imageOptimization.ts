@@ -53,7 +53,7 @@ export function optimizeDiscordImageUrl(url: string, width: number = 800): strin
     urlObj.searchParams.set('quality', 'lossless'); 
 
     return urlObj.toString();
-  } catch (e) {
+  } catch {
     return url;
   }
 }

@@ -25,7 +25,7 @@ function toGuildQuery(guildId?: string | number) {
 
 function parsePreferencesResponseText(text: string): UserPreferencesResponse {
   const patched = text.replace(
-    /(\"preferred_channels\"\s*:\s*)\[(.*?)\]/,
+    /("preferred_channels"\s*:\s*)\[(.*?)\]/,
     (_match, prefix: string, inner: string) => {
       const normalized = inner
         .split(',')
