@@ -48,6 +48,10 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    build: {
+      cssTarget: 'chrome100',
+      target: 'esnext',
+    },
     test: {
       globals: true,
       environment: 'jsdom',

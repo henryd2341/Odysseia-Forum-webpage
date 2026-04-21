@@ -20,7 +20,7 @@ describe('MarkdownText', () => {
   });
 
   it('点击 Discord 链接时不弹警告', () => {
-    render(<MarkdownText text={'https://discord.com/channels/1/2/3'} />);
+    render(<MarkdownText text={'https://discord.com/channels/1/3'} />);
     const link = screen.getByRole('link');
 
     fireEvent.click(link);

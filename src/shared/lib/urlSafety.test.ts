@@ -3,7 +3,7 @@ import { getUrlSafetyInfo, isTrustedDiscordHostname, parseHttpUrl } from './urlS
 
 describe('urlSafety', () => {
   it('只接受 http/https 链接', () => {
-    expect(parseHttpUrl('https://discord.com/channels/1/2/3')?.hostname).toBe('discord.com');
+    expect(parseHttpUrl('https://discord.com/channels/1/3')?.hostname).toBe('discord.com');
     expect(parseHttpUrl('javascript:alert(1)')).toBeNull();
     expect(parseHttpUrl('data:text/html,test')).toBeNull();
   });
@@ -16,7 +16,7 @@ describe('urlSafety', () => {
   });
 
   it('对非 Discord 外链标记警告', () => {
-    expect(getUrlSafetyInfo('https://discord.com/channels/1/2/3')?.requiresExternalWarning).toBe(false);
+    expect(getUrlSafetyInfo('https://discord.com/channels/1/3')?.requiresExternalWarning).toBe(false);
     expect(getUrlSafetyInfo('https://example.com/post/1')?.requiresExternalWarning).toBe(true);
   });
 });
