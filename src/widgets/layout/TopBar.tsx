@@ -3,33 +3,34 @@ import { useUserPreferences } from "@/features/preferences/hooks/useUserPreferen
 import { getPreferenceTagState } from "@/features/preferences/lib/discoveryPreferences";
 import { SearchFilterPanel } from "@/features/search/components/SearchFilterPanel";
 import {
-    SearchSuggestions,
-    type SearchSuggestionAction,
+  SearchSuggestions,
+  type SearchSuggestionAction,
 } from "@/features/search/components/SearchSuggestions";
 import { useSearchAutocomplete } from "@/features/search/hooks/useSearchAutocomplete";
 import type {
-    TagLogic,
+  TagLogic,
 } from "@/features/search/hooks/useSearchParams";
 import { useSearchURLParams } from "@/features/search/hooks/useSearchParams";
 import { useTopBarFilterState } from "@/features/search/hooks/useTopBarFilterState";
 import { useTopBarSearchController } from "@/features/search/hooks/useTopBarSearchController";
 import { usePreviewStore } from "@/features/search/store/previewStore";
 import { GUILD_ID } from "@/shared/config/channelCategories.private";
+import { useThemeSettings } from "@/shared/hooks/useSettings";
 import { SearchTokenInput } from "@/shared/ui/SearchTokenInput";
 import { AnimatedIcon } from "@/shared/ui/animation/AnimatedIcon";
-import { AnimatePresence, motion } from "motion/react";
 import {
-    Bell,
-    Compass,
-    Eye,
-    Hash,
-    Menu,
-    Search,
-    Settings as SettingsIcon,
-    SlidersHorizontal,
-    User,
-    X,
+  Bell,
+  Compass,
+  Eye,
+  Hash,
+  Menu,
+  Search,
+  Settings as SettingsIcon,
+  SlidersHorizontal,
+  User,
+  X,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -48,6 +49,7 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
     (state) => state.setPreviewThreadId,
   );
   const { preferences } = useUserPreferences({ guildId: GUILD_ID });
+  const { backgroundImageEnabled } = useThemeSettings();
 
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
@@ -224,9 +226,8 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
 
   return (
     <header
-      className={`fixed left-0 right-0 top-0 z-40 flex h-13 shrink-0 items-center justify-between bg-transparent px-3 transition-[left] duration-300 sm:h-17 sm:px-4 ${
-        sidebarCollapsed ? "lg:left-0" : "lg:left-[170px]"
-      }`}
+      className={`fixed left-0 right-0 top-0 z-40 flex h-13 shrink-0 items-center justify-between bg-transparent px-3 transition-[left] duration-300 sm:h-17 sm:px-4 ${sidebarCollapsed ? "lg:left-0" : "lg:left-[170px]"
+        }`}
     >
       <div className="flex items-center gap-3">
         <button
@@ -295,11 +296,10 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
             {needsFilter && (
               <button
                 onClick={toggleFilters}
-                className={`relative mr-2 shrink-0 p-1.5 transition-colors duration-200 ${
-                  showFilters || hasPanelFilters
+                className={`relative mr-2 shrink-0 p-1.5 transition-colors duration-200 ${showFilters || hasPanelFilters
                     ? "text-(--od-accent)"
                     : "text-(--od-text-tertiary) hover:text-(--od-text-primary)"
-                }`}
+                  }`}
                 aria-label="筛选"
                 title="打开筛选面板"
               >
@@ -318,7 +318,7 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8, scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 320, damping: 26 }}
-                className="od-floating-panel-solid fixed top-17 inset-x-3 z-50 mt-2 overflow-hidden rounded-2xl border border-(--od-border-strong) shadow-2xl mx-auto w-auto max-w-md sm:absolute sm:top-full sm:inset-x-auto sm:left-auto sm:right-0 sm:mx-0 sm:w-[560px] sm:max-w-none"
+                className={`${backgroundImageEnabled ? 'od-floating-glass' : 'od-floating-panel-solid'} fixed top-17 inset-x-3 z-50 mt-2 overflow-hidden rounded-2xl border border-(--od-border-strong) shadow-2xl mx-auto w-auto max-w-md sm:absolute sm:top-full sm:inset-x-auto sm:left-auto sm:right-0 sm:mx-0 sm:w-[560px] sm:max-w-none`}
               >
                 {needsFilter && (
                   <div className="flex items-center gap-2 border-b border-white/6 p-2">
@@ -328,11 +328,10 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
                         setShowSuggestions(true);
                         setShowFilters(false);
                       }}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                        showSuggestions
+                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${showSuggestions
                           ? "bg-(--od-accent)/20 text-(--od-accent)"
                           : "text-(--od-text-secondary) hover:bg-(--od-bg-tertiary)"
-                      }`}
+                        }`}
                     >
                       搜索建议
                     </button>
@@ -342,11 +341,10 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
                         setShowFilters(true);
                         setShowSuggestions(false);
                       }}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                        showFilters
+                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${showFilters
                           ? "bg-(--od-accent)/20 text-(--od-accent)"
                           : "text-(--od-text-secondary) hover:bg-(--od-bg-tertiary)"
-                      }`}
+                        }`}
                     >
                       高级筛选
                     </button>
@@ -419,12 +417,11 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
         <button
           type="button"
           onClick={() => navigate("/me?tab=history")}
-          className={`relative flex h-8 w-8 shrink-0 items-center justify-center text-(--od-text-tertiary) transition-colors sm:h-[34px] sm:w-[34px] ${
-            location.pathname === "/me" &&
-            new URLSearchParams(location.search).get("tab") === "history"
+          className={`relative flex h-8 w-8 shrink-0 items-center justify-center text-(--od-text-tertiary) transition-colors sm:h-[34px] sm:w-[34px] ${location.pathname === "/me" &&
+              new URLSearchParams(location.search).get("tab") === "history"
               ? "text-(--od-accent)"
               : "hover:text-(--od-text-primary)"
-          }`}
+            }`}
           aria-label="打开浏览足迹"
           title="浏览足迹"
         >
@@ -441,11 +438,10 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
             aria-label="打开通知中心"
             aria-expanded={notificationOpen}
             onClick={() => setNotificationOpen((prev) => !prev)}
-            className={`relative flex h-8 w-8 shrink-0 items-center justify-center text-(--od-text-tertiary) transition-colors sm:h-[34px] sm:w-[34px] ${
-              notificationOpen
+            className={`relative flex h-8 w-8 shrink-0 items-center justify-center text-(--od-text-tertiary) transition-colors sm:h-[34px] sm:w-[34px] ${notificationOpen
                 ? "text-(--od-accent)"
                 : "hover:text-(--od-text-primary)"
-            }`}
+              }`}
           >
             <AnimatedIcon
               icon={Bell}

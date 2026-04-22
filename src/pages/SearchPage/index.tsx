@@ -140,7 +140,7 @@ export function SearchPage() {
   const isThreadTab = params.type === "thread";
 
   return (
-    <div className="flex min-h-screen flex-col overflow-x-hidden">
+    <div className="flex min-h-full flex-col overflow-x-hidden">
       <div className="animate-in fade-in duration-500 flex-1 p-4 sm:p-6 lg:p-8">
         <FluidDivider label="Search" tone="strong" className="mb-6" />
         <div className="mb-6 flex flex-col gap-4 pb-2 sm:flex-row sm:items-center sm:justify-between">

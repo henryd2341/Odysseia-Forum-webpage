@@ -190,6 +190,26 @@
     scrollbar-width: thin;
     scrollbar-color: var(--od-border-strong) var(--od-bg-secondary);
   }
+
+  html[data-od-wallpaper='on'] *::-webkit-scrollbar-track,
+  html[data-od-glass='on'] *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  html[data-od-wallpaper='on'] *,
+  html[data-od-glass='on'] * {
+    scrollbar-color: var(--od-border-strong) transparent;
+  }
+
+  html[data-od-wallpaper='on'] body::-webkit-scrollbar-track,
+  html[data-od-glass='on'] body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  html[data-od-wallpaper='on'] body,
+  html[data-od-glass='on'] body {
+    scrollbar-color: var(--od-border-strong) transparent;
+  }
 }
 
 /* ========================================

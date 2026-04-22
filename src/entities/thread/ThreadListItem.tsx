@@ -84,12 +84,12 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
     >
       <div className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,color-mix(in_srgb,var(--od-divider-strong)_60%,transparent),transparent)]" />
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-5">
-        {thumbnails.length > 0 && (
-          <div className="shrink-0 md:w-54 lg:w-58">
-            <div className="grid h-38 grid-cols-2 gap-1.5 md:h-43">
+      <div className="flex items-start gap-3 md:gap-5">
+        <div className="w-16 shrink-0 md:w-54 lg:w-58">
+          {thumbnails.length > 0 ? (
+            <div className="grid h-20 grid-cols-1 gap-1.5 md:h-43 md:grid-cols-2">
               {thumbnails.length === 1 && (
-                <div className="relative col-span-2 overflow-hidden rounded-2xl bg-(--od-surface-shell)">
+                <div className="relative col-span-1 overflow-hidden rounded-xl bg-(--od-surface-shell) md:col-span-2 md:rounded-2xl">
                   <LazyImage
                     src={thumbnails[0]}
                     alt={`${thread.title} 缩略图 1`}
@@ -103,28 +103,8 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
 
               {thumbnails.length === 2 && (
                 <>
-                  {thumbnails.map((src, idx) => (
-                    <div
-                      key={`${thread.thread_id}-${src}-${idx}`}
-                      className="relative overflow-hidden rounded-2xl bg-(--od-surface-shell)"
-                    >
-                      <LazyImage
-                        src={src}
-                        alt={`${thread.title} 缩略图 ${idx + 1}`}
-                        className="h-full w-full object-cover"
-                        threadId={thread.thread_id}
-                        channelId={thread.channel_id}
-                        index={index}
-                        imageIndex={idx}
-                      />
-                    </div>
-                  ))}
-                </>
-              )}
-
-              {thumbnails.length === 3 && (
-                <>
-                  <div className="relative row-span-2 overflow-hidden rounded-2xl bg-(--od-surface-shell)">
+                  {/* 移动端只展示第一张 */}
+                  <div className="relative overflow-hidden rounded-xl bg-(--od-surface-shell) md:rounded-2xl">
                     <LazyImage
                       src={thumbnails[0]}
                       alt={`${thread.title} 缩略图 1`}
@@ -134,7 +114,7 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
                       imageIndex={0}
                     />
                   </div>
-                  <div className="relative overflow-hidden rounded-2xl bg-(--od-surface-shell)">
+                  <div className="relative hidden overflow-hidden rounded-2xl bg-(--od-surface-shell) md:block">
                     <LazyImage
                       src={thumbnails[1]}
                       alt={`${thread.title} 缩略图 2`}
@@ -145,7 +125,33 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
                       imageIndex={1}
                     />
                   </div>
-                  <div className="relative overflow-hidden rounded-2xl bg-(--od-surface-shell)">
+                </>
+              )}
+
+              {thumbnails.length === 3 && (
+                <>
+                  <div className="relative overflow-hidden rounded-xl bg-(--od-surface-shell) md:row-span-2 md:rounded-2xl">
+                    <LazyImage
+                      src={thumbnails[0]}
+                      alt={`${thread.title} 缩略图 1`}
+                      className="h-full w-full object-cover"
+                      threadId={thread.thread_id}
+                      channelId={thread.channel_id}
+                      imageIndex={0}
+                    />
+                  </div>
+                  <div className="relative hidden overflow-hidden rounded-2xl bg-(--od-surface-shell) md:block">
+                    <LazyImage
+                      src={thumbnails[1]}
+                      alt={`${thread.title} 缩略图 2`}
+                      className="h-full w-full object-cover"
+                      threadId={thread.thread_id}
+                      channelId={thread.channel_id}
+                      index={index}
+                      imageIndex={1}
+                    />
+                  </div>
+                  <div className="relative hidden overflow-hidden rounded-2xl bg-(--od-surface-shell) md:block">
                     <LazyImage
                       src={thumbnails[2]}
                       alt={`${thread.title} 缩略图 3`}
@@ -160,21 +166,32 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
 
               {thumbnails.length === 4 && (
                 <>
-                  {thumbnails.map((src, idx) => (
+                  {/* 移动端只展示第一张 */}
+                  <div className="relative overflow-hidden rounded-xl bg-(--od-surface-shell) md:rounded-2xl">
+                    <LazyImage
+                      src={thumbnails[0]}
+                      alt={`${thread.title} 缩略图 1`}
+                      className="h-full w-full object-cover"
+                      threadId={thread.thread_id}
+                      channelId={thread.channel_id}
+                      imageIndex={0}
+                    />
+                  </div>
+                  {thumbnails.slice(1).map((src, idx) => (
                     <div
-                      key={`${thread.thread_id}-${src}-${idx}`}
-                      className="relative overflow-hidden rounded-2xl bg-(--od-surface-shell)"
+                      key={`${thread.thread_id}-${src}-${idx + 1}`}
+                      className="relative hidden overflow-hidden rounded-2xl bg-(--od-surface-shell) md:block"
                     >
                       <LazyImage
                         src={src}
-                        alt={`${thread.title} 缩略图 ${idx + 1}`}
+                        alt={`${thread.title} 缩略图 ${idx + 2}`}
                         className="h-full w-full object-cover"
                         threadId={thread.thread_id}
                         channelId={thread.channel_id}
                         index={index}
-                        imageIndex={idx}
+                        imageIndex={idx + 1}
                       />
-                      {idx === 3 && (thread.thumbnail_urls?.length || 0) > thumbnails.length && (
+                      {idx === 2 && (thread.thumbnail_urls?.length || 0) > thumbnails.length && (
                         <div className="absolute inset-0 flex items-end justify-end bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.42))] p-2 text-white">
                           <span className="inline-flex items-center gap-1 text-[10px] font-medium tracking-[0.08em]">
                             <Images className="h-3 w-3" />
@@ -187,8 +204,12 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
                 </>
               )}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="flex h-20 items-center justify-center rounded-xl bg-(--od-surface-shell) md:h-43 md:rounded-2xl">
+              <Images className="h-5 w-5 text-(--od-text-tertiary) opacity-40 md:h-7 md:w-7" />
+            </div>
+          )}
+        </div>
 
         <div className="min-w-0 flex-1">
           <div className={`mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 ${fontSizes.meta} text-(--od-text-tertiary)`}>

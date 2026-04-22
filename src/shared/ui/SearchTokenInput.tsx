@@ -203,16 +203,16 @@ export function SearchTokenInput({
 
   const getTokenColor = (token: SearchToken) => {
     if (token.mode === "exclude") {
-      return "border-rose-500/25 bg-rose-500/12 text-rose-300";
+      return "border-rose-500/40 bg-rose-500/12 text-rose-300";
     }
 
     switch (token.type) {
       case "tag":
-        return "border-sky-500/25 bg-sky-500/12 text-sky-300";
+        return "border-sky-500/40 bg-sky-500/12 text-sky-300";
       case "author":
-        return "border-violet-500/25 bg-violet-500/12 text-violet-300";
+        return "border-violet-500/40 bg-violet-500/12 text-violet-300";
       case "channel":
-        return "border-amber-500/25 bg-amber-500/12 text-amber-300";
+        return "border-amber-500/40 bg-amber-500/12 text-amber-300";
       default:
         return "border-(--od-shell-line) bg-(--od-surface-soft) text-(--od-text-secondary)";
     }
@@ -226,7 +226,7 @@ export function SearchTokenInput({
       aria-expanded={tokens.length > 0 || inputValue.length > 0}
       aria-haspopup="listbox"
       aria-controls="search-suggestions-listbox"
-      className={`flex min-h-[40px] w-full min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden rounded-lg border-none bg-(--od-bg-secondary) px-2 py-1.5 text-sm text-(--od-text-primary) transition-all duration-200 ${className}`}
+      className={`flex min-h-[40px] w-full min-w-0 flex-nowrap items-center gap-1.5 overflow-x-auto scrollbar-none rounded-lg border-none bg-(--od-bg-secondary) px-2 py-1.5 text-sm text-(--od-text-primary) transition-all duration-200 ${className}`}
     >
       {/* 显示 token chips */}
       {tokens

@@ -44,7 +44,23 @@ export function BooklistListItem({
     >
       <div className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,color-mix(in_srgb,var(--od-divider-strong)_60%,transparent),transparent)]" />
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-5">
+      <div className="flex items-start gap-3 md:gap-5">
+        <div className="w-16 shrink-0 md:w-54 lg:w-58">
+          <div className="relative h-20 overflow-hidden rounded-xl bg-(--od-surface-shell) md:h-43 md:rounded-2xl">
+            {coverImageUrl ? (
+              <LazyImage
+                src={coverImageUrl}
+                alt={booklist.title}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-(--od-text-tertiary)">
+                <BookOpen className="h-5 w-5 opacity-40 md:h-10 md:w-10" />
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="min-w-0 flex-1">
           <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-(--od-text-tertiary)">
             <span className="relative h-6 w-6 shrink-0 overflow-hidden rounded-full bg-(--od-bg-tertiary)">
@@ -144,22 +160,6 @@ export function BooklistListItem({
               </button>
             </div>
           )}
-        </div>
-
-        <div className="shrink-0 md:w-54 lg:w-58">
-          <div className="relative h-38 overflow-hidden rounded-2xl bg-(--od-surface-shell) md:h-43">
-            {coverImageUrl ? (
-              <LazyImage
-                src={coverImageUrl}
-                alt={booklist.title}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-(--od-text-tertiary)">
-                <BookOpen className="h-10 w-10" />
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </article>

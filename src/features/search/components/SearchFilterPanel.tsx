@@ -159,12 +159,12 @@ export function SearchFilterPanel({
                         }
                         onToggleTagToken(tag, 'include');
                       }}
-                      className={`rounded-full px-3 py-1 text-xs transition-colors ${
+                      className={`rounded-full border px-3 py-1 text-xs transition-all ${
                         isIncluded
-                          ? 'bg-emerald-500/20 text-emerald-300'
+                          ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300'
                           : isExcluded
-                            ? 'bg-rose-500/20 text-rose-300'
-                            : 'text-(--od-text-secondary) hover:bg-emerald-500/10 hover:text-emerald-300'
+                            ? 'border-rose-500/40 bg-rose-500/15 text-rose-300'
+                            : 'border-white/10 text-(--od-text-secondary) hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300'
                       }`}
                     >
                       {isIncluded ? '✓ ' : isExcluded ? '✕ ' : ''}{tag}
