@@ -93,6 +93,15 @@ export function MarkdownText({ text }: MarkdownTextProps) {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
 
+    // Spoiler 点击揭示
+    const spoiler = target.closest('[data-spoiler]');
+    if (spoiler instanceof HTMLElement) {
+      event.preventDefault();
+      event.stopPropagation();
+      spoiler.classList.toggle('revealed');
+      return;
+    }
+
     const anchor = target.closest('a');
     if (!(anchor instanceof HTMLAnchorElement)) return;
 

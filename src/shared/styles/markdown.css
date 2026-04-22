@@ -131,6 +131,12 @@
     background-color: #3a3a3d;
   }
 
+  & .spoiler.revealed {
+    background-color: rgba(79, 84, 92, 0.38);
+    color: var(--od-text-secondary);
+    user-select: auto;
+  }
+
   & u {
     text-decoration: underline;
     text-underline-offset: 2px;
@@ -230,5 +236,11 @@
 
   .od-md &:hover {
     background-color: #3a3a3d;
+  }
+
+  .od-md &.revealed {
+    background-color: rgba(79, 84, 92, 0.38);
+    color: var(--od-text-secondary);
+    user-select: auto;
   }
 }
