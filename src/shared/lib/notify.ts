@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { showMascotToast, showMascotErrorToast, type MascotToastOptions } from '@/features/mascot/lib/mascotToast';
+import { showMascotToast, type MascotToastOptions } from '@/features/mascot/lib/mascotToast';
 
 interface NotifyMessageOptions extends MascotToastOptions {
   description?: string;

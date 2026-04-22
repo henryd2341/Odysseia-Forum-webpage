@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MASCOT_IMAGES } from '@/features/mascot/assets';
 import { useOnboardingStore } from '../store/useOnboardingStore';

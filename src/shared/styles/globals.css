@@ -1,4 +1,4 @@
-@import './tokens.css' layer(base);
+@import './tokens.css';
 @import './base.css';
 @import './typography.css';
 @import './primitives.css';
@@ -7,7 +7,7 @@
 @import './markdown.css';
 @import './discovery.css';
 @import './feedback.css';
-@import './utilities.css' layer(base);
+@import './utilities.css';
 @import './utilities.utilities.css';
 
 @import 'tailwindcss';
