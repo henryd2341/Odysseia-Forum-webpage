@@ -118,7 +118,7 @@ export function AppSidebar() {
         </div>
       </div>
 
-      <div className="scrollbar-invisible flex-1 overflow-y-auto px-3 py-2">
+      <div className="od-sidebar-nav scrollbar-invisible flex-1 overflow-y-auto px-3 py-2">
         <div className="mb-6">
           <div className="mb-2 flex items-center justify-between px-2">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-(--od-text-tertiary)">
@@ -203,6 +203,7 @@ export function AppSidebar() {
 
             <Link
               to="/settings"
+              data-tour="sidebar-settings"
               className={navItemClass(isActive('/settings'))}
             >
               <span className={navIndicatorClass(isActive('/settings'))} />

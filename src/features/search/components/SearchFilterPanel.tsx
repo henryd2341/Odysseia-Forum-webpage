@@ -55,7 +55,7 @@ export function SearchFilterPanel({
   const hasPreferenceTags = preferenceIncludeTags.length + preferenceExcludeTags.length > 0;
 
   return (
-    <div className="p-4">
+    <div data-tour="filter-panel" className="p-4">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-(--od-text-primary)">高级筛选</h3>
         {hasPanelFilters && (
@@ -75,6 +75,7 @@ export function SearchFilterPanel({
           </label>
           <select
             id="topbar-tagLogic"
+            data-tour="filter-logic"
             value={tagLogic}
             onChange={(e) => onTagLogicChange(e.target.value as TagLogic)}
             className="od-chrome-surface w-full rounded-xl border border-white/6 px-3 py-2 text-sm text-(--od-text-primary) outline-hidden transition-colors focus:border-(--od-accent)"

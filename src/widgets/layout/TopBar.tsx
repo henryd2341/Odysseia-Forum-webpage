@@ -254,7 +254,7 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
       </div>
 
       <div
-        className="flex flex-1 items-center justify-end gap-2 md:gap-3"
+        className="od-topbar-actions flex flex-1 items-center justify-end gap-2 md:gap-3"
         ref={searchContainerRef}
       >
         <div className="relative min-w-0 flex-1 max-w-[560px]">
@@ -296,6 +296,7 @@ export function TopBar({ onMenuClick, sidebarCollapsed = false }: TopBarProps) {
             {needsFilter && (
               <button
                 onClick={toggleFilters}
+                data-tour="search-filters-btn"
                 className={`relative mr-2 shrink-0 p-1.5 transition-colors duration-200 ${showFilters || hasPanelFilters
                     ? "text-(--od-accent)"
                     : "text-(--od-text-tertiary) hover:text-(--od-text-primary)"

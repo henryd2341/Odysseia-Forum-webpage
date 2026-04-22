@@ -36,9 +36,6 @@ export function SearchPage() {
   const { params, setParams } = useSearchURLParams();
   const { query, channel: selectedChannel } = params;
 
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    return !localStorage.getItem("od_onboarding_shown");
-  });
 
   const { preferences } = useUserPreferences({ guildId: GUILD_ID });
   const collectBooklistMutation = useToggleBooklistCollection();
@@ -81,30 +78,6 @@ export function SearchPage() {
   const booklistResults = booklistQuery.data?.results ?? [];
   const booklistTotal = booklistQuery.data?.total ?? 0;
 
-  const handleCloseOnboarding = () => {
-    setShowOnboarding(false);
-    localStorage.setItem("od_onboarding_shown", "true");
-  };
-
-  const handleApplyPreferences = () => {
-    if (!preferences) {
-      handleCloseOnboarding();
-      return;
-    }
-
-    setIgnoreDiscoveryPreferences(false);
-    setParams({
-      query: "",
-      channel: null,
-      sortMethod: "last_active_desc",
-      timeFrom: "",
-      timeTo: "",
-      tagLogic: "and",
-    });
-
-    toast.success("已切换到按偏好展示的探索模式");
-    handleCloseOnboarding();
-  };
 
   const handleTagClick = (tagName: string) => {
     const nextQuery = addToken(query || "", "tag", tagName, "include");
@@ -144,7 +117,7 @@ export function SearchPage() {
       <div className="animate-in fade-in duration-500 flex-1 p-4 sm:p-6 lg:p-8">
         <FluidDivider label="Search" tone="strong" className="mb-6" />
         <div className="mb-6 flex flex-col gap-4 pb-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
+          <div data-tour="search-header" className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--od-surface-soft) text-(--od-accent)">
               <Compass className="h-6 w-6" />
             </div>
@@ -213,7 +186,7 @@ export function SearchPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-1 rounded-full border border-(--od-shell-line) bg-[color-mix(in_srgb,var(--od-surface-input)_76%,transparent)] p-1">
+            <div data-tour="search-type-toggle" className="inline-flex items-center gap-1 rounded-full border border-(--od-shell-line) bg-[color-mix(in_srgb,var(--od-surface-input)_76%,transparent)] p-1">
               <button
                 type="button"
                 onClick={() => setParams({ type: "thread" })}
@@ -574,35 +547,6 @@ export function SearchPage() {
         )}
       </div>
 
-      <MascotDialog
-        visible={showOnboarding}
-        onClose={handleCloseOnboarding}
-        emotion="hi"
-        title="欢迎来到 Odysseia！"
-        actionLabel={preferences ? "应用我的偏好" : "开始探索！"}
-        onAction={preferences ? handleApplyPreferences : handleCloseOnboarding}
-      >
-        <p className="mb-3">
-          我是这里的看板娘<b>类脑娘</b>
-          ！你要是想认真找东西，我最擅长陪你一起慢慢筛啦。
-        </p>
-        <ul className="list-disc space-y-1 pl-5 text-sm opacity-90">
-          <li>
-            顶上的搜索框很好用哦，像{" "}
-            <code className="rounded bg-(--od-bg-tertiary) px-1 font-mono text-[0.9em]">
-              $author:
-            </code>
-            、
-            <code className="rounded bg-(--od-bg-tertiary) px-1 font-mono text-[0.9em]">
-              -$tag:
-            </code>{" "}
-            等高级语法
-          </li>
-          <li>筛选那边也能慢慢缩范围，标签、作者、时间和排序都可以一起配</li>
-          <li>点卡片就能先偷看内容，不用来回跳页，轻松一点呀</li>
-          {preferences && <li>如果你已经存过偏好，我也可以一键帮你套上</li>}
-        </ul>
-      </MascotDialog>
     </div>
   );
 }

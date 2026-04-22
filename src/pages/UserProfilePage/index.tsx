@@ -166,16 +166,18 @@ export function UserProfilePage() {
           <FluidDivider label="Author" tone="strong" className="mb-8 lg:mb-10" />
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
             <div className="flex flex-col items-center gap-4">
-              <UserHeaderCard
-                user={{
-                  id: profile?.id || userId || 'unknown',
-                  username: profile?.name || authorFromThreads?.name || authorName,
-                  global_name: profile?.global_name || authorName,
-                  avatar: undefined,
-                }}
-                avatarUrl={profile?.avatar_url || authorFromThreads?.avatar_url || null}
-                subtitle={`作者主页 · ${userId ? `ID: ${userId}` : '正在加载作者信息'}`}
-              />
+              <div data-tour="user-header" className="w-full">
+                <UserHeaderCard
+                  user={{
+                    id: profile?.id || userId || 'unknown',
+                    username: profile?.name || authorFromThreads?.name || authorName,
+                    global_name: profile?.global_name || authorName,
+                    avatar: undefined,
+                  }}
+                  avatarUrl={profile?.avatar_url || authorFromThreads?.avatar_url || null}
+                  subtitle={`作者主页 · ${userId ? `ID: ${userId}` : '正在加载作者信息'}`}
+                />
+              </div>
 
               <button
                 type="button"
@@ -191,7 +193,9 @@ export function UserProfilePage() {
             </div>
 
             <div className="mx-auto h-px w-16 bg-[color-mix(in_srgb,var(--od-text-secondary)_12%,transparent)]" />
-            <UserStatsGrid items={stats} />
+            <div data-tour="user-stats">
+              <UserStatsGrid items={stats} />
+            </div>
           </div>
         </section>
 

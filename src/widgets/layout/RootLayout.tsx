@@ -6,6 +6,7 @@ import { MobileTabBar } from '@/widgets/layout/MobileTabBar';
 import { TopBar } from '@/widgets/layout/TopBar';
 import { ResizableSidebar } from '@/widgets/sidebar/ResizableSidebar';
 import { GlobalThreadPreview } from '@/widgets/thread-preview/GlobalThreadPreview';
+import { OnboardingManager } from '@/features/onboarding/components/OnboardingManager';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 
@@ -140,6 +141,7 @@ export function RootLayout() {
       <GlobalThreadPreview />
       <MascotBar />
       <ScrollToTop />
+      <OnboardingManager />
     </div>
   );
 }

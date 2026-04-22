@@ -211,7 +211,7 @@ export function DisplaySettingsSection({ settings, updateSettings }: DisplaySett
           </div>
         </div>
 
-        <div>
+        <div data-tour="open-mode-setting">
            <label className="mb-1 block text-[1.1rem] font-semibold tracking-[-0.02em] text-(--od-text-primary)">
              端外跳转方式
            </label>

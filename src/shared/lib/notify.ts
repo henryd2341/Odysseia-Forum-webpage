@@ -1,30 +1,39 @@
 import axios from 'axios';
-import { toast, type ExternalToast } from 'sonner';
+import { showMascotToast, showMascotErrorToast, type MascotToastOptions } from '@/features/mascot/lib/mascotToast';
 
-interface NotifyMessageOptions extends ExternalToast {
+interface NotifyMessageOptions extends MascotToastOptions {
   description?: string;
 }
 
-const DEFAULT_DURATION = 3600;
-const DEFAULT_ERROR_DURATION = 4600;
+const DEFAULT_DURATION = 5200;
 
 export function notifySuccess(message: string, options?: NotifyMessageOptions) {
-  return toast.success(message, {
+  return showMascotToast({
+    emotion: 'success',
+    title: '好消息！',
+    message,
     duration: DEFAULT_DURATION,
     ...options,
   });
 }
 
 export function notifyInfo(message: string, options?: NotifyMessageOptions) {
-  return toast.info(message, {
+  return showMascotToast({
+    emotion: 'hi',
+    title: '宝宝的小提醒',
+    message,
     duration: DEFAULT_DURATION,
     ...options,
   });
 }
 
 export function notifyError(message: string, options?: NotifyMessageOptions) {
-  return toast.error(message, {
-    duration: DEFAULT_ERROR_DURATION,
+  // 这里的 message 可能是后端返回的原始错误，我们后续可以增加更智能的解析
+  return showMascotToast({
+    emotion: 'complaint',
+    title: '出了点小状况',
+    message,
+    duration: 6000,
     ...options,
   });
 }

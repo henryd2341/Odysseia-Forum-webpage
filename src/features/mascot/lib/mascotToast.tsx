@@ -8,7 +8,7 @@ import {
   type ResolvedMascotMessage,
 } from '@/features/mascot/lib/messageResolver';
 
-interface MascotToastOptions extends ExternalToast {
+export interface MascotToastOptions extends ExternalToast {
   emotion?: MascotEmotion;
   message?: ReactNode;
   title?: ReactNode;
@@ -115,7 +115,7 @@ function MascotToastCard({
   return (
     <div className="od-mascot-toast animate-in slide-in-from-top-4 fade-in duration-300">
       <div className="od-mascot-toast-figure">
-        <img src={imageSrc} alt="Mascot" className="od-mascot-toast-image" />
+        <img src={imageSrc} alt="Mascot" className="od-mascot-toast-image animate-bounce-slow" />
       </div>
 
       <div className="od-mascot-toast-body">

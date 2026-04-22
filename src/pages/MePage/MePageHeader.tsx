@@ -60,6 +60,7 @@ export function MePageHeader({
                   key={item.key}
                   type="button"
                   onClick={() => onSelectTab(item.key)}
+                  data-tour={item.key === 'preferences' ? 'me-tab-preferences' : `me-tab-${item.key}`}
                   className={`od-pill-chip inline-flex items-center gap-1.5 text-xs transition-colors ${
                     active
                       ? 'bg-(--od-accent) text-white font-od-bold'

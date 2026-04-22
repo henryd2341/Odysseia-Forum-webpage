@@ -48,7 +48,7 @@ export function AtmosphereSettingsSection({
   return (
     <SettingsPageSection dividerLabel="Atmosphere" kicker="Backdrop Mood" title="背景与毛玻璃" icon={Sparkles}>
       <div className="space-y-6">
-        <div className="od-setting-subsection space-y-4">
+        <div data-tour="atmosphere-settings" className="od-setting-subsection space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[1.1rem] font-semibold tracking-[-0.02em] text-(--od-text-primary)">背景图</p>
