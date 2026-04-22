@@ -1,16 +1,19 @@
 import { APP_VERSION, RELEASE_FEED_URL } from '@/shared/config/appInfo';
 import type { Thread } from '@/entities/thread/types';
 import { parse as parseYaml } from 'yaml';
+import serverIconUrl from '@/assets/images/icon/A90C044F8DDF1959B2E9078CB629C239.png';
 
-export type StaticNotificationKind = 'release_update';
+// ── 通知类型 ──────────────────────────────────────────
+export type NotificationKind = 'release' | 'announcement' | 'maintenance';
 
 export interface StaticNotificationDefinition {
   id: string;
-  kind: StaticNotificationKind;
+  kind: NotificationKind;
   title: string;
   message: string;
   created_at: string;
-  source: 'webpage' | 'system';
+  starts_at: string;
+  expires_at: string | null;
   version?: string;
   url?: string;
   previewThread?: Thread;
@@ -20,15 +23,20 @@ export interface ResolvedNotificationContext {
   currentAppVersion?: string;
 }
 
+// ── YAML Feed 原始类型 ──────────────────────────────────
 interface ReleaseFeedItem {
   id: string;
   title: string;
   message: string;
   created_at: string;
-  source: 'webpage' | 'system';
+  kind?: NotificationKind;
+  /** @deprecated 兼容旧格式，映射到 kind */
+  source?: 'webpage' | 'system';
   version?: string;
   url?: string;
   min_app_version?: string;
+  starts_at?: string;
+  expires_at?: string;
   preview_thread?: {
     thread_id?: string;
     guild_id?: string;
@@ -54,6 +62,8 @@ interface ReleaseFeedPayload {
   updates: ReleaseFeedItem[];
 }
 
+// ── 工具函数 ──────────────────────────────────────────
+
 function compareSemver(a: string, b: string): number {
   const toNums = (v: string) =>
     v
@@ -72,6 +82,17 @@ function compareSemver(a: string, b: string): number {
   return 0;
 }
 
+/** 将旧 `source` 字段映射到新 `kind` 体系 */
+function resolveKind(item: ReleaseFeedItem): NotificationKind {
+  if (item.kind) return item.kind;
+  // 兼容旧格式
+  if (item.source === 'system') return 'maintenance';
+  if (item.version) return 'release';
+  return 'announcement';
+}
+
+// ── 数据转换 ──────────────────────────────────────────
+
 function toPreviewThread(item: ReleaseFeedItem): Thread {
   const preview = item.preview_thread;
   const createdAt = preview?.created_at ?? item.created_at;
@@ -81,9 +102,16 @@ function toPreviewThread(item: ReleaseFeedItem): Thread {
         name: preview.author.name ?? preview.author.display_name ?? 'Odysseia',
         global_name: preview.author.global_name ?? null,
         display_name: preview.author.display_name ?? preview.author.name ?? 'Odysseia',
-        avatar_url: preview.author.avatar_url ?? null,
+        // 默认头像：服务器 icon
+        avatar_url: preview.author.avatar_url ?? serverIconUrl,
       }
-    : null;
+    : {
+        id: `notification-author-${item.id}`,
+        name: 'Odysseia',
+        global_name: null,
+        display_name: 'Odysseia',
+        avatar_url: serverIconUrl,
+      };
 
   return {
     thread_id: preview?.thread_id ?? `notification-${item.id}`,
@@ -106,18 +134,37 @@ function toPreviewThread(item: ReleaseFeedItem): Thread {
 }
 
 function mapFeedItem(item: ReleaseFeedItem): StaticNotificationDefinition {
+  const kind = resolveKind(item);
   return {
     id: item.id,
-    kind: 'release_update',
+    kind,
     title: item.title,
     message: item.message,
     created_at: item.created_at,
-    source: item.source,
+    starts_at: item.starts_at ?? item.created_at,
+    expires_at: item.expires_at ?? null,
     version: item.version,
     url: item.url,
     previewThread: toPreviewThread(item),
   };
 }
+
+// ── 过滤逻辑 ──────────────────────────────────────────
+
+function isWithinTimeWindow(item: ReleaseFeedItem): boolean {
+  const now = Date.now();
+  const startsAt = item.starts_at ?? item.created_at;
+  if (new Date(startsAt).getTime() > now) return false;
+  if (item.expires_at && new Date(item.expires_at).getTime() < now) return false;
+  return true;
+}
+
+function passesVersionGate(item: ReleaseFeedItem, currentVersion: string): boolean {
+  if (!item.min_app_version) return true;
+  return compareSemver(currentVersion, item.min_app_version) >= 0;
+}
+
+// ── 公开 API ──────────────────────────────────────────
 
 export async function fetchReleaseNotifications(
   context?: ResolvedNotificationContext,
@@ -146,14 +193,11 @@ export async function fetchReleaseNotifications(
           typeof item.id === 'string' &&
           typeof item.title === 'string' &&
           typeof item.message === 'string' &&
-          typeof item.created_at === 'string' &&
-          (item.source === 'webpage' || item.source === 'system')
+          typeof item.created_at === 'string'
         );
       })
-      .filter((item) => {
-        if (!item.min_app_version) return true;
-        return compareSemver(currentVersion, item.min_app_version) >= 0;
-      })
+      .filter((item) => isWithinTimeWindow(item))
+      .filter((item) => passesVersionGate(item, currentVersion))
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .map(mapFeedItem);
   } catch {

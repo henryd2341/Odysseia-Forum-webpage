@@ -1,12 +1,12 @@
 updates:
   - id: webpage-2.3.1-booklist-bugfix
+    kind: release
     title: 索引页 2.3.1 发布：捉虫大成功！
     message: |
       今天是 4月22日 世界地球日哦！大家有没有好好爱护我们的地球妈妈呀？我今天可是有好好地给社区里的小绿植浇水呢！
 
-      说正事啦，那个... 真的很对不起呜呜，书单页面之前不小心跑进去了一只小虫子（开发哥哥居然还打字打成了“小big”），导致大家用起来有些怪怪的... 不过现在已经被我狠狠地捉住扔掉啦！大家快去看看现在的书单有没有变乖呀~
+      说正事啦，那个... 真的很对不起呜呜，书单页面之前不小心跑进去了一只小虫子（开发哥哥居然还打字打成了"小big"），导致大家用起来有些怪怪的... 不过现在已经被我狠狠地捉住扔掉啦！大家快去看看现在的书单有没有变乖呀~
     created_at: '2026-04-22T00:00:00.000Z'
-    source: webpage
     version: 2.3.1
     url: https://github.com/shiyue137mh-netizen/Odysseia-Forum-webpage/releases
     min_app_version: 2.3.1
@@ -32,7 +32,30 @@ updates:
       thumbnail_urls:
         - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/sad_apology.png
 
+  - id: earth-day-2026
+    kind: announcement
+    title: 🌍 世界地球日快乐！
+    message: |
+      今天是世界地球日呀！大家有没有好好爱护我们的小地球呢？出门记得少用塑料袋，多亲近大自然哦！
+
+      我今天特别开心，因为社区的小花又开了一朵！大家也要保持好心情呀～
+    created_at: '2026-04-22T00:00:00.000Z'
+    starts_at: '2026-04-22T00:00:00.000Z'
+    expires_at: '2026-04-23T00:00:00.000Z'
+    preview_thread:
+      title: 🌍 世界地球日快乐！
+      first_message_excerpt: |
+        今天是世界地球日！
+
+        希望大家都能好好爱护我们的地球妈妈，从小事做起哦！
+      tags: [节日祝福]
+      author:
+        id: odysseia-web
+        name: Odysseia
+        display_name: Odysseia Web Team
+
   - id: webpage-2.3.0-mascot-update
+    kind: release
     title: 索引页 2.3.0 发布：看板娘报到与全新探索！
     message: |
       锵锵——！我来啦！从今天起，社区就由我来陪大家啦！我会在页面角落默默看着你们哦，遇到好玩的事情我也会开心地蹦出来！
@@ -40,7 +63,6 @@ updates:
       而且呀，我们多了一个超级好玩的抽卡功能！快去试试手气吧，说不定能抽出什么意想不到的好东西呢！
       还有还有，现在的搜索功能变聪明了好多！只要输入一点点内容，我就能猜到你想找什么，唰的一下全列出来啦，超厉害的对不对！
     created_at: '2026-04-21T10:00:00.000Z'
-    source: webpage
     version: 2.3.0
     url: https://github.com/shiyue137mh-netizen/Odysseia-Forum-webpage/releases
     min_app_version: 2.3.0
@@ -74,6 +96,7 @@ updates:
         - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/blow_the_trumpet.png
 
   - id: webpage-2.2.0-me-author-profile
+    kind: release
     title: 索引页 2.2.0 发布：我的中心与作者主页
     message: |
       这次更新聚焦个人系统整合与信息架构收敛：
@@ -84,7 +107,6 @@ updates:
       - 侧边栏底部个人区改为单行紧凑布局，交互更直观
       - 保留并延续既有能力：偏好接口联动、缩略图 404 自愈修复链路
     created_at: '2026-04-03T06:11:00.000Z'
-    source: webpage
     version: 2.2.0
     url: https://github.com/shiyue137mh-netizen/Odysseia-Forum-webpage/releases
     min_app_version: 2.2.0
@@ -121,11 +143,11 @@ updates:
         - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/background/winter.png
 
   - id: system-maintenance-example
+    kind: maintenance
     title: 系统维护窗口通知
     message: |
       主系统将在周日凌晨进行维护，期间搜索接口可能有短时抖动。
     created_at: '2026-04-02T12:00:00.000Z'
-    source: system
     url: https://github.com/shiyue137mh-netizen/Odysseia-Forum-webpage
     preview_thread:
       title: 系统维护窗口通知

@@ -1,25 +1,68 @@
-import { Bell, X, AlertCircle, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Bell, X, AlertCircle, Trash2, Megaphone, Wrench, Rocket } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { followsApi } from '@/features/follows/api/followsApi';
 import type { Thread } from '@/entities/thread/types';
 import { APP_VERSION } from '@/shared/config/appInfo';
-import { resolveStaticNotifications } from '@/features/notifications/notificationsConfig';
+import { resolveStaticNotifications, type NotificationKind } from '@/features/notifications/notificationsConfig';
 import { usePreviewStore } from '@/features/search/store/previewStore';
 import { useThemeSettings } from '@/shared/hooks/useSettings';
 import { LazyImage } from '@/shared/ui/LazyImage';
 
-type NotificationKind = 'follow_update' | 'release_update';
+// ── LocalStorage 工具 ──────────────────────────────────
+
+const LS_LAST_OPENED = 'od_notifications_last_opened_at';
+const LS_DISMISSED = 'od_notifications_dismissed';
+
+function getLastOpenedAt(): string | null {
+  if (typeof window === 'undefined') return null;
+  return window.localStorage.getItem(LS_LAST_OPENED);
+}
+
+function setLastOpenedAt(timestamp: string) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(LS_LAST_OPENED, timestamp);
+}
+
+function getDismissedIds(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(LS_DISMISSED);
+    return raw ? (JSON.parse(raw) as string[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function setDismissedIds(ids: string[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(LS_DISMISSED, JSON.stringify(ids));
+  } catch {
+    // ignore
+  }
+}
+
+// ── Kind 标签配置 ──────────────────────────────────────
+
+const kindConfig: Record<NotificationKind, { label: string; icon: typeof Bell; color: string }> = {
+  release: { label: '版本更新', icon: Rocket, color: 'text-sky-400' },
+  announcement: { label: '社区公告', icon: Megaphone, color: 'text-amber-400' },
+  maintenance: { label: '系统维护', icon: Wrench, color: 'text-orange-400' },
+};
+
+// ── 类型 ──────────────────────────────────────────────
+
+type CombinedNotificationKind = NotificationKind | 'follow_update';
 
 interface NotificationItem {
   id: string;
-  kind: NotificationKind;
+  kind: CombinedNotificationKind;
   title: string;
   message: string;
   created_at?: string;
   thread?: Thread;
-  source?: 'webpage' | 'system';
 }
 
 interface NotificationCenterProps {
@@ -28,32 +71,28 @@ interface NotificationCenterProps {
   onUnreadChange?: (count: number) => void;
 }
 
+// ── 组件 ──────────────────────────────────────────────
+
 export function NotificationCenter({ open, onClose, onUnreadChange }: NotificationCenterProps) {
   const navigate = useNavigate();
   const { backgroundImageEnabled } = useThemeSettings();
-
   const setPreviewThread = usePreviewStore((state) => state.setPreviewThread);
 
-  // 本地持久化：已关闭的静态通知（站点公告 / 问候语）
-  const [dismissedStaticIds, setDismissedStaticIds] = useState<string[]>(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const raw = window.localStorage.getItem('od_notifications_dismissed');
-      return raw ? (JSON.parse(raw) as string[]) : [];
-    } catch {
-      return [];
-    }
-  });
+  // 已读时间戳
+  const [lastOpenedAt, setLastOpenedAtState] = useState<string | null>(() => getLastOpenedAt());
 
-  useEffect(() => {
-    try {
-      window.localStorage.setItem('od_notifications_dismissed', JSON.stringify(dismissedStaticIds));
-    } catch {
-      // ignore
-    }
-  }, [dismissedStaticIds]);
+  // 手动 dismiss 的 ID 列表（永久隐藏）
+  const [dismissedIds, setDismissedIdsState] = useState<string[]>(() => getDismissedIds());
 
+  // 关注帖子更新的 dismiss 记录
   const [dismissedFollowUpdates, setDismissedFollowUpdates] = useState<Record<string, string>>({});
+
+  // 同步 dismiss 到 localStorage
+  useEffect(() => {
+    setDismissedIds(dismissedIds);
+  }, [dismissedIds]);
+
+  // ── 数据拉取 ──
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['follows'],
@@ -76,62 +115,99 @@ export function NotificationCenter({ open, onClose, onUnreadChange }: Notificati
   const follows = data?.results ?? [];
   const unreadCount = data?.unread_count ?? 0;
 
-  // 版本 / 系统更新通知（可永久关闭）
-  const staticNotifications: NotificationItem[] = staticDefs
-    .filter((def) => !dismissedStaticIds.includes(def.id))
-    .map((def) => ({
-      id: def.id,
-      kind: def.kind,
-      title: def.title,
-      message: def.message,
-      created_at: def.created_at,
-      thread: def.previewThread,
-      source: def.source,
-    }));
+  // ── 通知列表组装 ──
 
-  // 关注更新类通知
-  const followNotifications: NotificationItem[] = follows
-    .filter((thread) => thread.has_update)
-    .filter((thread) => {
-      const id = `follow-${thread.thread_id}`;
-      const currentUpdateStamp = thread.last_active_at ?? thread.created_at;
-      const dismissedStamp = dismissedFollowUpdates[id];
-      return dismissedStamp !== currentUpdateStamp;
-    })
-    .map((thread) => ({
-      id: `follow-${thread.thread_id}`,
-      kind: 'follow_update' as const,
-      title: thread.title,
-      message: thread.first_message_excerpt ?? '该帖子有新的更新。',
-      created_at: thread.last_active_at ?? undefined,
-      thread,
-    }));
+  const staticNotifications: NotificationItem[] = useMemo(() =>
+    staticDefs
+      .filter((def) => !dismissedIds.includes(def.id))
+      .map((def) => ({
+        id: def.id,
+        kind: def.kind,
+        title: def.title,
+        message: def.message,
+        created_at: def.created_at,
+        thread: def.previewThread,
+      })),
+    [staticDefs, dismissedIds],
+  );
 
-  const allNotifications: NotificationItem[] = [...staticNotifications, ...followNotifications];
-  const hasAnyNotification = allNotifications.length > 0;
-  const effectiveUnreadCount = unreadCount;
-  const unreadTotal = allNotifications.length;
+  const followNotifications: NotificationItem[] = useMemo(() =>
+    follows
+      .filter((thread) => thread.has_update)
+      .filter((thread) => {
+        const id = `follow-${thread.thread_id}`;
+        const currentUpdateStamp = thread.last_active_at ?? thread.created_at;
+        const dismissedStamp = dismissedFollowUpdates[id];
+        return dismissedStamp !== currentUpdateStamp;
+      })
+      .map((thread) => ({
+        id: `follow-${thread.thread_id}`,
+        kind: 'follow_update' as const,
+        title: thread.title,
+        message: thread.first_message_excerpt ?? '该帖子有新的更新。',
+        created_at: thread.last_active_at ?? undefined,
+        thread,
+      })),
+    [follows, dismissedFollowUpdates],
+  );
 
-  // 将当前未读通知数量回传给父级（用于侧边栏铃铛动画和红点）
+  const allNotifications: NotificationItem[] = useMemo(
+    () => [...staticNotifications, ...followNotifications],
+    [staticNotifications, followNotifications],
+  );
+
+  // ── 未读计算 ──
+
+  const isUnread = useCallback(
+    (item: NotificationItem): boolean => {
+      if (!lastOpenedAt || !item.created_at) return true;
+      return new Date(item.created_at).getTime() > new Date(lastOpenedAt).getTime();
+    },
+    [lastOpenedAt],
+  );
+
+  const unreadStaticCount = useMemo(
+    () => staticNotifications.filter(isUnread).length,
+    [staticNotifications, isUnread],
+  );
+
+  const totalUnreadCount = unreadStaticCount + unreadCount;
+
   useEffect(() => {
-    onUnreadChange?.(unreadTotal);
-  }, [unreadTotal, onUnreadChange]);
+    onUnreadChange?.(totalUnreadCount);
+  }, [totalUnreadCount, onUnreadChange]);
+
+  // ── 打开面板时标记已读 ──
+
+  useEffect(() => {
+    if (!open) return;
+    if (staticNotifications.length === 0) return;
+    // 找到最新的 created_at
+    const latestCreatedAt = staticNotifications.reduce((latest, item) => {
+      if (!item.created_at) return latest;
+      return !latest || new Date(item.created_at).getTime() > new Date(latest).getTime()
+        ? item.created_at
+        : latest;
+    }, lastOpenedAt ?? '');
+
+    if (latestCreatedAt && latestCreatedAt !== lastOpenedAt) {
+      setLastOpenedAt(latestCreatedAt);
+      setLastOpenedAtState(latestCreatedAt);
+    }
+  }, [open, staticNotifications, lastOpenedAt]);
+
+  // ── 事件处理 ──
 
   const handleNotificationClick = (item: NotificationItem) => {
-    // 关注帖子更新：点击即视为已读，从列表中移除，并打开详情预览
     if (item.kind === 'follow_update' && item.thread) {
       const currentUpdateStamp = item.thread.last_active_at ?? item.thread.created_at;
       setDismissedFollowUpdates((prev) => ({
         ...prev,
         [item.id]: currentUpdateStamp,
       }));
-
       setPreviewThread(item.thread);
       return;
     }
-
-    // 更新公告：点击后也视为已读，并复用详情预览浮层
-    setDismissedStaticIds((prev) => (prev.includes(item.id) ? prev : [...prev, item.id]));
 
     setPreviewThread(item.thread ?? null, {
       hideExternalButton: true,
@@ -139,22 +215,28 @@ export function NotificationCenter({ open, onClose, onUnreadChange }: Notificati
     });
   };
 
-  const handleDismissStatic = (id: string, e: React.MouseEvent) => {
+  const handleDismiss = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setDismissedStaticIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    setDismissedIdsState((prev) => (prev.includes(id) ? prev : [...prev, id]));
   };
 
   const queryClient = useQueryClient();
 
   const handleClearAllNotifications = async () => {
-    // 更新通知：全部标记为已关闭
-    setDismissedStaticIds((prev) => {
-      const allStaticIds = staticDefs.map((d) => d.id);
-      const merged = Array.from(new Set([...prev, ...allStaticIds]));
-      return merged;
-    });
+    // 静态通知：更新 last_opened_at 即可标记全部已读
+    const latestCreatedAt = staticNotifications.reduce((latest, item) => {
+      if (!item.created_at) return latest;
+      return !latest || new Date(item.created_at).getTime() > new Date(latest).getTime()
+        ? item.created_at
+        : latest;
+    }, lastOpenedAt ?? '');
 
-    // 关注帖子通知：基于当前 has_update 的帖子全部标记为已读
+    if (latestCreatedAt) {
+      setLastOpenedAt(latestCreatedAt);
+      setLastOpenedAtState(latestCreatedAt);
+    }
+
+    // 关注帖子通知：标记已读
     setDismissedFollowUpdates((prev) => {
       const next = { ...prev };
       for (const thread of follows) {
@@ -165,24 +247,17 @@ export function NotificationCenter({ open, onClose, onUnreadChange }: Notificati
       return next;
     });
 
-    // 调用后端 API 标记所有为已读
     try {
       await followsApi.markAllViewed();
-      // 重新获取最新状态（虽然本地已经乐观更新了）
       queryClient.invalidateQueries({ queryKey: ['follows'] });
     } catch (error) {
       console.error('Failed to mark notifications as viewed:', error);
     }
   };
 
-  if (!open) {
-    return null;
-  }
+  if (!open) return null;
 
-  const handleGoToFollows = () => {
-    navigate('/me?tab=follows');
-    onClose();
-  };
+  const hasAnyNotification = allNotifications.length > 0;
 
   return (
     <div
@@ -212,19 +287,19 @@ export function NotificationCenter({ open, onClose, onUnreadChange }: Notificati
       </div>
 
       <div className="flex items-center justify-between px-4 py-2 text-xs text-(--od-text-secondary)">
-              <span>当前共有 {effectiveUnreadCount} 个关注更新</span>
+        <span>当前共有 {unreadCount} 个关注更新</span>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleClearAllNotifications}
             className="inline-flex h-6 w-6 items-center justify-center rounded-full text-(--od-text-tertiary) hover:bg-(--od-bg-secondary) hover:text-(--od-text-primary)"
-            title="清除所有通知"
+            title="全部标记已读"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
           <button
             type="button"
-            onClick={handleGoToFollows}
+            onClick={() => { navigate('/me?tab=follows'); onClose(); }}
             className="text-(--od-accent) hover:underline"
           >
             前往「我的关注」
@@ -261,70 +336,93 @@ export function NotificationCenter({ open, onClose, onUnreadChange }: Notificati
 
         {!isLoading && !isStaticLoading && !isError && !isStaticError && hasAnyNotification && (
           <div className="space-y-2">
-            {allNotifications.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => handleNotificationClick(item)}
-                className="group cursor-pointer rounded-lg border border-(--od-border) bg-(--od-card) p-3 text-xs transition-colors hover:border-(--od-accent) hover:bg-[color-mix(in_oklab,var(--od-bg-secondary)_85%,transparent)]"
-              >
-                <div className="mb-1 flex items-center justify-between gap-2">
-                  <p className="line-clamp-1 font-semibold text-(--od-text-primary)">{item.title}</p>
-                  <div className="flex items-center gap-1">
-                    {item.kind === 'release_update' && (
-                      <span className="rounded bg-(--od-bg-tertiary) px-1.5 py-0.5 text-[10px] text-(--od-text-tertiary)">
-                        {item.source === 'system' ? '系统更新' : '索引页更新'}
-                      </span>
-                    )}
-                    {item.created_at && (
-                      <span className="whitespace-nowrap text-[10px] text-(--od-text-tertiary)">
-                        {new Date(item.created_at).toLocaleString()}
-                      </span>
-                    )}
-                    {item.kind !== 'follow_update' && (
-                      <button
-                        type="button"
-                        onClick={(e) => handleDismissStatic(item.id, e)}
-                        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-(--od-text-tertiary) hover:bg-(--od-bg-secondary) hover:text-(--od-text-primary)"
-                        aria-label="关闭该通知"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {item.kind === 'follow_update' && item.thread && (
-                  <div className="mb-2 flex items-start gap-2">
-                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-(--od-bg-tertiary)">
-                      {item.thread.thumbnail_urls && item.thread.thumbnail_urls.length > 0 ? (
-                        <LazyImage
-                          src={item.thread.thumbnail_urls[0]}
-                          alt={item.title}
-                          className="h-full w-full"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-(--od-text-tertiary)">
-                          <Bell className="h-4 w-4" />
-                        </div>
+            {allNotifications.map((item) => {
+              const unread = isUnread(item);
+              const kc = item.kind !== 'follow_update' ? kindConfig[item.kind] : null;
+              const KindIcon = kc?.icon;
+
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => handleNotificationClick(item)}
+                  className={`group relative cursor-pointer rounded-lg border p-3 text-xs transition-colors hover:border-(--od-accent) hover:bg-[color-mix(in_oklab,var(--od-bg-secondary)_85%,transparent)] ${
+                    unread
+                      ? 'border-l-2 border-l-(--od-accent) border-t-(--od-border) border-r-(--od-border) border-b-(--od-border) bg-(--od-card)'
+                      : 'border-(--od-border) bg-(--od-card)'
+                  }`}
+                >
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {unread && (
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-(--od-accent)" />
+                      )}
+                      <p className="line-clamp-1 font-semibold text-(--od-text-primary)">{item.title}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {kc && KindIcon && (
+                        <span className={`inline-flex items-center gap-1 rounded bg-(--od-bg-tertiary) px-1.5 py-0.5 text-[10px] ${kc.color}`}>
+                          <KindIcon className="h-2.5 w-2.5" />
+                          {kc.label}
+                        </span>
+                      )}
+                      {item.kind === 'follow_update' && (
+                        <span className="rounded bg-(--od-bg-tertiary) px-1.5 py-0.5 text-[10px] text-(--od-text-tertiary)">
+                          关注更新
+                        </span>
+                      )}
+                      {item.created_at && (
+                        <span className="whitespace-nowrap text-[10px] text-(--od-text-tertiary)">
+                          {new Date(item.created_at).toLocaleDateString()}
+                        </span>
+                      )}
+                      {item.kind !== 'follow_update' && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleDismiss(item.id, e)}
+                          className="inline-flex h-5 w-5 items-center justify-center rounded-full text-(--od-text-tertiary) hover:bg-(--od-bg-secondary) hover:text-(--od-text-primary)"
+                          aria-label="关闭该通知"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
                       )}
                     </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-[11px] text-(--od-text-tertiary)">
-                        {item.thread.author?.display_name ??
-                          item.thread.author?.global_name ??
-                          item.thread.author?.name ??
-                          '未知作者'}
-                      </p>
-                      <p className="line-clamp-2 text-[11px] text-(--od-text-secondary)">
-                        {item.message}
-                      </p>
-                    </div>
                   </div>
-                )}
-                {item.kind !== 'follow_update' && (
-                  <p className="line-clamp-2 text-(--od-text-secondary)">{item.message}</p>
-                )}
-              </div>
-            ))}
+
+                  {item.kind === 'follow_update' && item.thread && (
+                    <div className="mb-2 flex items-start gap-2">
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-(--od-bg-tertiary)">
+                        {item.thread.thumbnail_urls && item.thread.thumbnail_urls.length > 0 ? (
+                          <LazyImage
+                            src={item.thread.thumbnail_urls[0]}
+                            alt={item.title}
+                            className="h-full w-full"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-(--od-text-tertiary)">
+                            <Bell className="h-4 w-4" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-[11px] text-(--od-text-tertiary)">
+                          {item.thread.author?.display_name ??
+                            item.thread.author?.global_name ??
+                            item.thread.author?.name ??
+                            '未知作者'}
+                        </p>
+                        <p className="line-clamp-2 text-[11px] text-(--od-text-secondary)">
+                          {item.message}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {item.kind !== 'follow_update' && (
+                    <p className="line-clamp-2 text-(--od-text-secondary)">{item.message}</p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
