@@ -47,6 +47,7 @@ Odysseia-Forum-Main/
 │   │   │   ├── lib/                # 纯函数支持 (Tailwind合并器, 工具类)
 │   │   │   ├── hooks/              # 非业务相关的 React钩子 (页面视窗感知等)
 │   │   │   ├── api/                # Axios 总实例与拦截器配置
+│   │   │   ├── config/             # 全局静态配置区 (如频道映射、导航栏配置)
 │   │   │   ├── styles/             # Tailwind 全局配置与入口
 │   │   │   └── types/              # TS 声明区 (包括 OpenAPI 自动生成接口)
 │   │   │
