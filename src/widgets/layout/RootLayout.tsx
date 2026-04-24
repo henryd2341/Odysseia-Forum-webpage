@@ -29,6 +29,7 @@ import { Outlet, useLocation } from 'react-router-dom';
  *   - sidebarCollapsed: 侧边栏收起
  *   - 未来: topBarVisible / immersiveMode 等
  */
+
 export function RootLayout() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const sidebarCollapsed = useSidebarCollapsedSetting();

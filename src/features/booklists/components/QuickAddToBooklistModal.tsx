@@ -29,11 +29,13 @@ export function QuickAddToBooklistModal({
   const [selectedBooklistId, setSelectedBooklistId] = useState<number | null>(
     null,
   );
+  const [comment, setComment] = useState("");
 
   const myBooklists = myBooklistsQuery.data?.results || [];
 
   useEffect(() => {
     if (!isOpen) return;
+    setComment(""); // Reset on open
     if (myBooklists.length > 0) {
       setSelectedBooklistId(myBooklists[0].id);
     } else {
@@ -47,7 +49,9 @@ export function QuickAddToBooklistModal({
 
   const addMutation = useMutation({
     mutationFn: async (booklistId: number) => {
-      await booklistsApi.addItems(booklistId, [{ thread_id: threadId }]);
+      await booklistsApi.addItems(booklistId, [
+        { thread_id: threadId, comment: comment.trim() || undefined },
+      ]);
       return booklistId;
     },
     onSuccess: (booklistId) => {
@@ -92,7 +96,7 @@ export function QuickAddToBooklistModal({
           </button>
         </div>
 
-        <div className="space-y-3 p-5">
+        <div className="space-y-4 p-5">
           {!/^\d+$/.test(threadId) ? (
             <p className="text-sm text-(--od-error)">
               当前帖子 ID 无效，暂时无法加入书单。
@@ -107,35 +111,49 @@ export function QuickAddToBooklistModal({
               你还没有创建书单，先去书单页新建一个吧。
             </p>
           ) : (
-            <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-              {myBooklists.map((booklist) => (
-                <label
-                  key={booklist.id}
-                  className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 transition-colors ${
-                    selectedBooklistId === booklist.id
-                      ? "border-(--od-accent) bg-(--od-accent)/8"
-                      : "border-(--od-border) hover:border-(--od-border-strong)"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="quick-add-booklist"
-                    checked={selectedBooklistId === booklist.id}
-                    onChange={() => setSelectedBooklistId(booklist.id)}
-                    className="mt-1"
-                  />
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-(--od-text-primary)">
-                      {booklist.title}
+            <>
+              <div className="max-h-56 space-y-2 overflow-y-auto pr-1 scrollbar-thin">
+                {myBooklists.map((booklist) => (
+                  <label
+                    key={booklist.id}
+                    className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 transition-colors ${
+                      selectedBooklistId === booklist.id
+                        ? "border-(--od-accent) bg-(--od-accent)/8"
+                        : "border-(--od-border) hover:border-(--od-border-strong)"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="quick-add-booklist"
+                      checked={selectedBooklistId === booklist.id}
+                      onChange={() => setSelectedBooklistId(booklist.id)}
+                      className="mt-1"
+                    />
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-medium text-(--od-text-primary)">
+                        {booklist.title}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-(--od-text-tertiary)">
+                        {booklist.item_count} 帖子 · {booklist.collection_count}{" "}
+                        收藏
+                      </span>
                     </span>
-                    <span className="mt-0.5 block text-xs text-(--od-text-tertiary)">
-                      {booklist.item_count} 帖子 · {booklist.collection_count}{" "}
-                      收藏
-                    </span>
-                  </span>
+                  </label>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-(--od-text-secondary)">
+                  推荐语 (可选)
                 </label>
-              ))}
-            </div>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="说点为什么想收藏这个帖子吧..."
+                  className="w-full min-h-[80px] rounded-lg border border-(--od-border) bg-(--od-surface-input) p-3 text-sm text-(--od-text-primary) outline-hidden focus:border-(--od-accent) transition-colors"
+                />
+              </div>
+            </>
           )}
 
           <div className="flex justify-end gap-2 border-t border-(--od-border) pt-4">

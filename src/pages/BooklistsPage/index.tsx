@@ -116,7 +116,7 @@ export function BooklistsPage() {
     queries: normalizedResults.map((booklist) => ({
       queryKey: ["booklists", "latest-cover", booklist.id],
       queryFn: async () => {
-        const data = await booklistsApi.listItems(booklist.id, 0, 1);
+        const data = await booklistsApi.listItems(booklist.id, { offset: 0, limit: 1 });
         return data.results?.[0]?.thumbnail_urls?.[0] || null;
       },
       staleTime: 5 * 60 * 1000,

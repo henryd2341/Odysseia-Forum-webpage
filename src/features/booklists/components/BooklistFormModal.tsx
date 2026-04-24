@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, X } from 'lucide-react';
 import type { Booklist, BooklistFormInput } from '@/entities/booklist/types';
+import { createPortal } from 'react-dom';
 
 const schema = z.object({
   title: z.string().trim().min(1, '请输入书单标题').max(80, '标题最多 80 字'),
@@ -63,8 +64,8 @@ export function BooklistFormModal({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs" onClick={onClose}>
+  const content = (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
       <div
         className="od-floating-panel-solid w-full max-w-xl rounded-xl border border-(--od-border) shadow-2xl"
         onClick={(e) => e.stopPropagation()}
@@ -157,4 +158,6 @@ export function BooklistFormModal({
       </div>
     </div>
   );
+
+  return createPortal(content, document.body);
 }
