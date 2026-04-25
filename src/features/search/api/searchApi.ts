@@ -158,6 +158,7 @@ function buildSearchRequest(params: SearchUIRequest): ApiSearchParams {
     // 否则会变成“排除正文包含作者名的帖子”，语义和性能都不对。
     exclude_keywords: null,
     search_by_collection: params.search_by_collection || false,
+    apply_preferences: false,
     created_after: params.created_after || null,
     created_before: params.created_before || null,
     active_after: params.active_after || null,

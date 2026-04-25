@@ -1080,6 +1080,11 @@ export interface components {
              */
             is_public: boolean;
             /**
+             * Is Default
+             * @description 是否为用户的默认书单
+             */
+            is_default: boolean;
+            /**
              * Display Type
              * @description 展示方式: 1=加入时间倒序, 2=作者自定义排序(display_order)
              */
@@ -1118,13 +1123,25 @@ export interface components {
              */
             collected_flag: boolean;
         };
-        /** BooklistItemAddData */
+        /**
+         * BooklistItemAddData
+         * @description 书单项添加数据
+         */
         BooklistItemAddData: {
-            /** Thread Id */
-            thread_id: number;
-            /** Comment */
+            /**
+             * Thread Id
+             * @description Discord Thread ID
+             */
+            thread_id: number | string;
+            /**
+             * Comment
+             * @description 推荐语/备注
+             */
             comment?: string | null;
-            /** Display Order */
+            /**
+             * Display Order
+             * @description 排序权重
+             */
             display_order?: number | null;
         };
         /**
@@ -1301,7 +1318,7 @@ export interface components {
         /** BooklistItemsDeleteRequest */
         BooklistItemsDeleteRequest: {
             /** Thread Ids */
-            thread_ids: number[];
+            thread_ids: (number | string)[];
         };
         /**
          * BooklistUpdateResponse
@@ -1365,7 +1382,7 @@ export interface components {
              * Available Tags
              * @description 该频道原生的可用标签
              */
-            available_tags?: components["schemas"]["TagDetail"][];
+            available_tags?: components["schemas"]["TagDetail-Input"][];
             /**
              * Virtual Tags
              * @description 映射到该频道的虚拟标签
@@ -1435,7 +1452,7 @@ export interface components {
              * Available Tags
              * @description 该频道原生的可用标签
              */
-            available_tags?: components["schemas"]["TagDetail"][];
+            available_tags?: components["schemas"]["TagDetail-Output"][];
             /**
              * Virtual Tags
              * @description 映射到该频道的虚拟标签
@@ -1603,12 +1620,12 @@ export interface components {
              * Thread Id
              * @description Discord Thread ID (也是首楼消息ID)
              */
-            thread_id: number;
+            thread_id: number | string;
             /**
              * Channel Id
-             * @description 帖子所属频道ID，可选，仅用于调试记录
+             * @description 帖子所属频道ID，可选，仅用于调试记录，支持数字或字符串
              */
-            channel_id?: number | null;
+            channel_id?: number | string | null;
         };
         /** FetchImageRequest */
         FetchImageRequest: {
@@ -1663,7 +1680,7 @@ export interface components {
              * Available Tags
              * @description 该频道原生的可用标签
              */
-            available_tags?: components["schemas"]["TagDetail"][];
+            available_tags?: components["schemas"]["TagDetail-Input"][];
             /**
              * Real Thread Count
              * @description 该频道的实际有效帖子数
@@ -1695,7 +1712,7 @@ export interface components {
              * Available Tags
              * @description 该频道原生的可用标签
              */
-            available_tags?: components["schemas"]["TagDetail"][];
+            available_tags?: components["schemas"]["TagDetail-Output"][];
             /**
              * Real Thread Count
              * @description 该频道的实际有效帖子数
@@ -1813,6 +1830,12 @@ export interface components {
              */
             search_by_collection: boolean | null;
             /**
+             * Apply Preferences
+             * @description 是否应用当前用户的搜索偏好。若为True，前端未传的字段将使用用户偏好补全
+             * @default false
+             */
+            apply_preferences: boolean;
+            /**
              * Created After
              * @description 发帖时间晚于此日期 (格式: YYYY-MM-DD 或相对时间如 -7d)
              */
@@ -1874,6 +1897,11 @@ export interface components {
              */
             exclude_thread_ids?: (number | string)[];
             /**
+             * Exclude Channel Ids
+             * @description 要排除的频道ID列表
+             */
+            exclude_channel_ids?: (number | string)[];
+            /**
              * Offset
              * @description 结果的偏移页（已弃用，为兼容旧版本保留）
              * @default 0
@@ -1928,12 +1956,28 @@ export interface components {
          * TagDetail
          * @description 标签的基础信息模型
          */
-        TagDetail: {
+        "TagDetail-Input": {
             /**
              * Tag Id
              * @description 标签的 Discord ID
              */
             tag_id: number;
+            /**
+             * Name
+             * @description 标签名称
+             */
+            name: string;
+        };
+        /**
+         * TagDetail
+         * @description 标签的基础信息模型
+         */
+        "TagDetail-Output": {
+            /**
+             * Tag Id
+             * @description 标签的 Discord ID
+             */
+            tag_id: string | null;
             /**
              * Name
              * @description 标签名称
@@ -2171,6 +2215,12 @@ export interface components {
              */
             results_per_page: number;
             /**
+             * Ui Page Size
+             * @description 网页端每页显示的结果数量
+             * @default 48
+             */
+            ui_page_size: number;
+            /**
              * Sort Method
              * @description 排序方法：'comprehensive'(综合排序), 'created_at'(发帖时间), 'last_active'(最后活跃时间), 'reaction_count'(点赞数), 'reply_count'(回复数)
              * @default comprehensive
@@ -2210,19 +2260,19 @@ export interface components {
         UserPreferencesUpdateRequest: {
             /**
              * Preferred Channels
-             * @description 用户偏好的频道ID列表，搜索时优先在这些频道中查找
+             * @description 用户偏好的频道ID列表，搜索时优先在这些频道中查找，支持数字或字符串
              */
-            preferred_channels?: number[] | null;
+            preferred_channels?: (number | string)[] | null;
             /**
              * Include Authors
-             * @description 只看这些作者的帖子，作者ID列表
+             * @description 只看这些作者的帖子，作者ID列表，支持数字或字符串
              */
-            include_authors?: number[] | null;
+            include_authors?: (number | string)[] | null;
             /**
              * Exclude Authors
-             * @description 屏蔽这些作者的帖子，作者ID列表
+             * @description 屏蔽这些作者的帖子，作者ID列表，支持数字或字符串
              */
-            exclude_authors?: number[] | null;
+            exclude_authors?: (number | string)[] | null;
             /**
              * Include Tags
              * @description 必须包含的标签名列表
@@ -2255,9 +2305,14 @@ export interface components {
             preview_image_mode?: string | null;
             /**
              * Results Per Page
-             * @description 每页显示的结果数量
+             * @description 每页显示的结果数量，必须小于10
              */
             results_per_page?: number | null;
+            /**
+             * Ui Page Size
+             * @description 网页端每页显示的结果数量
+             */
+            ui_page_size?: number | null;
             /**
              * Sort Method
              * @description 排序方法：'comprehensive'(综合排序), 'created_at'(发帖时间), 'last_active'(最后活跃时间), 'reaction_count'(点赞数), 'reply_count'(回复数)
@@ -2780,9 +2835,9 @@ export interface operations {
         parameters: {
             query?: {
                 /** @description 要查询的特定频道ID列表 */
-                channel_ids?: number[] | null;
+                channel_ids?: (number | string)[] | null;
                 /** @description 按服务器ID过滤频道 */
-                guild_id?: number | null;
+                guild_id?: number | string | null;
             };
             header?: never;
             path?: never;
