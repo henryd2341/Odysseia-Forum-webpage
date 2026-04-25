@@ -2,24 +2,6 @@
 
 本文件基于后端实际代码整理，用于说明 **生产环境** 中前端能够从 API 拿到的字段与含义。
 
-> 代码参考：
-- `src/api/v1/routers/search.py`
-- `src/api/v1/routers/meta.py`
-- `src/api/v1/routers/preferences.py`
-- `src/api/v1/routers/authors.py`
-- `src/api/v1/routers/tags.py`
-- `src/api/v1/routers/discovery.py`
-- `src/api/v1/schemas/search/search_request.py`
-- `src/api/v1/schemas/search/search_response.py`
-- `src/api/v1/schemas/meta/channel.py`
-- `src/api/v1/schemas/meta/tag_detail.py`
-- `src/api/v1/schemas/preferences/user_preferences.py`
-- `src/api/v1/schemas/banner/banner_item.py`
-- `src/api/v1/schemas/author/author_profile.py`
-- `src/api/v1/schemas/tags/tag_stats.py`
-- `src/api/v1/schemas/discovery/discovery_response.py`
-- `src/shared/models/thread.py`
-
 ## 1. 通用约定
 
 - API 前缀：`/v1`
@@ -37,16 +19,12 @@
 
 ## 2. 搜索接口 `/v1/search`
 
-路由定义见 `src/api/v1/routers/search.py`：
-
 - 方法：`POST /v1/search/`
 - 依赖：`require_auth`（需要登录态）
 - 请求体：`SearchRequest`
 - 响应体：`SearchResponse`（包含 `ThreadDetail` 列表、标签、Banner、未读数等）
 
 ### 2.1 SearchRequest 请求字段
-
-定义见 `src/api/v1/schemas/search/search_request.py`：
 
 - `guild_id: Optional[int]`
   - 要搜索的服务器 ID，为空则不按服务器过滤。
@@ -103,10 +81,12 @@
 - `offset: int`
   - 偏移量，从 0 开始。
 
-> 生产环境中，`search.py` 还会通过 `KeywordParser` 对 `keywords` 做二次解析，抽取作者名、精确关键词与排除词，组合成实际用于检索的 `final_keywords` 和 `final_exclude_keywords`。
+> 生产环境中，后端还会通过内部解析器对 `keywords` 做二次解析，抽取作者名、精确关键词与排除词，组合成实际用于检索的查询参数。
 
 ### 2.2 前端参数装配机制 (Tokenization & Mapping)
+
 虽然最终的网络传输体符合 `SearchRequest` 模型，但前端在组装数据时引入了**全局中间态分词层 (`src/shared/lib/searchTokenizer.ts`)**：
+
 - 前端界面的源字符串 `query`（如 `"关键词 $tag:音乐$ -$author:张三$"`）会被解析出不同的 Token。
 - `searchApi.ts` 会将打散的 Token 字段拼装到请求体中：
   - `$tag:` 提取后追加到 `include_tags`。
@@ -116,7 +96,7 @@
 
 ### 2.3 SearchResponse 响应字段
 
-定义见 `src/api/v1/schemas/search/search_response.py`。该响应继承自 `PaginatedResponse[ThreadDetail]`，并增加了若干额外字段。
+该响应继承自 `PaginatedResponse[ThreadDetail]`，并增加了若干额外字段。
 
 基础分页字段：
 
@@ -126,7 +106,7 @@
 
 #### 2.3.1 ThreadDetail 帖子字段
 
-`ThreadDetail` 是搜索结果中单个帖子的公开视图，其字段主要来自 `src/shared/models/thread.py`：
+`ThreadDetail` 是搜索结果中单个帖子的公开视图，其字段如下：
 
 - `thread_id: str`
   - 帖子的 Discord ID（以字符串形式返回）。
@@ -195,8 +175,6 @@
 
 ## 3. 元数据接口 `/v1/meta/channels`
 
-路由定义见 `src/api/v1/routers/meta.py`：
-
 - 方法：`GET /v1/meta/channels`
 - 依赖：`get_current_user`（需要登录态）
 - 查询参数：
@@ -204,7 +182,7 @@
   - `guild_id: Optional[int]`：按服务器 ID 过滤频道。
 - 响应体：`List[ChannelDetail]`
 
-`ChannelDetail` 定义见 `src/api/v1/schemas/meta/channel.py`：
+`ChannelDetail`
 
 - `id: int`
   - 频道 Discord ID。
@@ -213,7 +191,7 @@
 - `tags: List[TagDetail]`
   - 该频道下所有可用标签。
 
-`TagDetail` 定义见 `src/api/v1/schemas/meta/tag_detail.py`：
+`TagDetail`
 
 - `id: int`
   - 标签 Discord ID。
@@ -232,8 +210,6 @@
 - 响应：Snowflake ID 字符串
 
 ## 4. 用户偏好接口 `/v1/preferences`
-
-路由定义见 `src/api/v1/routers/preferences.py`：
 
 - `GET /v1/preferences/users/{user_id}`
   - 获取指定用户的搜索偏好。
@@ -273,8 +249,6 @@
 
 ## 5. 作者数据统计接口 `/v1/authors/{author_id}`
 
-路由定义见 `src/api/v1/routers/authors.py`：
-
 - 方法：`GET /v1/authors/{author_id}`
 - 路径参数：`author_id` (int) — 作者的 Discord 用户 ID
 - 响应体：`AuthorProfileResponse`
@@ -300,8 +274,6 @@
 - 帖子卡片中的作者弹窗：快速预览作者数据。
 
 ## 6. 标签数据统计接口 `/v1/tags/stats`
-
-路由定义见 `src/api/v1/routers/tags.py`：
 
 - 方法：`POST /v1/tags/stats`
 - 请求体：`TagStatsRequest`
@@ -335,7 +307,7 @@
 
 ## 7. 发现广场接口 `/v1/discovery`
 
-路由定义见 `src/api/v1/routers/discovery.py`。
+路由
 
 > **重要说明**: 这些接口是专用的发现功能端点，用于替代之前 Plaza 和 Draw 页面通过 `/search` 接口模拟的临时方案（详见第 12 节）。
 
@@ -375,8 +347,6 @@
 
 ## 8. 线程模型与前端可见字段
 
-内部线程模型见 `src/shared/models/thread.py` 的 `Thread` 类。
-
 部分字段仅用于内部审计或排序控制（如 `show_flag`、`not_found_count`、`latest_update_at` 等），不会直接暴露到前端。
 真正暴露给前端的数据通过 `ThreadDetail` 进行筛选和序列化（见 2.3.1 小节）。
 
@@ -413,7 +383,7 @@
 
 ### 10.1 关注列表 `/v1/follows/`
 
-路由定义见 [`src/api/v1/routers/follows.py`](src/api/v1/routers/follows.py:15)，依赖 `get_current_user`：
+依赖 `get_current_user`：
 
 - 方法：`GET /v1/follows/`
 - 查询参数：
@@ -441,15 +411,15 @@
       "tags": ["标签A", "标签B"],
       "followed_at": "2024-01-01T12:00:00+00:00",
       "last_viewed_at": "2024-01-02T12:00:00+00:00",
-      "has_update": true
-    }
+      "has_update": true,
+    },
   ],
   "limit": 10000,
-  "offset": 0
+  "offset": 0,
 }
 ```
 
-字段来源见 [`FollowService.get_user_follows`](src/ThreadManager/services/follow_service.py:227)：
+字段来源：
 
 - 线程字段（来自 `Thread` 模型）：
   - `thread_id: str`
@@ -485,8 +455,8 @@
 
 未读更新有三处来源，语义一致：
 
-1. 搜索接口 [`/v1/search`](src/api/v1/routers/search.py:189)：
-   - 返回的 [`SearchResponse`](src/api/v1/schemas/search/search_response.py:36) 中包含：
+1. 搜索接口 `/v1/search`：
+   - 返回的 `SearchResponse` 中包含：
 
      ```py
      unread_count: int = Field(
@@ -497,7 +467,7 @@
 
    - 值来自 `FollowService.get_unread_count(user_id)`。
 
-2. 认证检查接口 [`/v1/auth/checkauth`](src/api/v1/routers/auth.py:198)：
+2. 认证检查接口 `/v1/auth/checkauth`：
    - 返回 JSON 中同样包含 `unread_count` 字段：
 
      ```jsonc
@@ -510,7 +480,7 @@
 
    - 便于前端在全局导航（如登录后立刻）显示未读徽标。
 
-3. 关注路由 [`/v1/follows/unread-count`](src/api/v1/routers/follows.py:100)：
+3. 关注路由 `/v1/follows/unread-count`：
    - 方法：`GET /v1/follows/unread-count`
    - 响应：`{"unread_count": number}`
 
@@ -550,7 +520,6 @@
   - `latest_update_at` / `latest_update_link`：可用于"跳转到最新更新"按钮。
   - `display_count`：主要用于排序算法（UCB1），不建议直接展示，但可用于 debug / 实验性 UI。
 
-
 ## 11. 收藏与书单 (Collections & Booklists)
 
 新增的收藏系统与书单系统，提供了更灵活的内容组织方式。
@@ -564,7 +533,7 @@
 
 ### 11.2 书单详情 `BooklistDetail`
 
-书单列表与详情接口返回的核心模型 `src/api/v1/schemas/booklist/booklist_detail.py`：
+书单列表与详情接口返回的核心模型：
 
 - `id: int`: 书单 ID
 - `title: str`: 标题
@@ -580,7 +549,7 @@
 
 ### 11.3 书单项 `BooklistItemDetail`
 
-书单内容接口 `/booklist/item/list/page/{id}` 返回的列表项 `src/api/v1/schemas/booklist/booklist_item_detail.py`：
+书单内容接口 `/booklist/item/list/page/{id}` 返回的列表项：
 
 - `booklist_item_id: int`: 关联记录 ID
 - `thread_id: str`: 帖子 ID
@@ -599,12 +568,13 @@
 
 前端的 `plazaApi.ts` 和 `DrawPage` 目前通过调用 `/search` 来模拟广场和抽卡功能：
 
-| 页面 | 当前实现 | 调用方式 |
-|------|---------|---------|
+| 页面           | 当前实现             | 调用方式                                                                        |
+| -------------- | -------------------- | ------------------------------------------------------------------------------- |
 | **Plaza 广场** | `plazaApi.getRail()` | 对 4 条轨道分别调用 `searchApi.search()`，用不同的 `sort_method` 和时间过滤模拟 |
-| **Draw 抽卡** | `DrawPage` 候选池 | 调用 `searchApi.search()` 获取 72 条帖子，再在前端 `sampleThreads()` 做随机抽样 |
+| **Draw 抽卡**  | `DrawPage` 候选池    | 调用 `searchApi.search()` 获取 72 条帖子，再在前端 `sampleThreads()` 做随机抽样 |
 
 **问题**：
+
 - 广场页每次加载产生 **4 次** 独立的 search 请求，服务端压力大
 - 抽卡的"随机"是前端伪随机，候选池受 `limit=72` 限制，池深度不够真正随机
 - 广场缺少 `collection_surge`（收藏飙升）轨道，之前用 `editors_pick`（综合排序）代替
@@ -612,19 +582,19 @@
 
 ### 12.2 新接口替代方案
 
-| 页面 | 新接口 | 优势 |
-|------|-------|------|
-| **Plaza 广场** | `GET /discovery/rails` | 单次请求返回全部 4 条轨道；后端原生支持 `collection_surge`；`apply_preferences` 参数直接由后端处理偏好过滤 |
-| **Draw 抽卡** | `GET /discovery/random` | 后端直接做真随机抽取，不限于前端伪随机；支持 `channel_ids` / `include_tags` / `exclude_tags` 筛选 |
+| 页面           | 新接口                  | 优势                                                                                                                                                                                                  |
+| -------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Plaza 广场** | `GET /discovery/rails`  | `getRails` 单次请求返回全部 4 条轨道；后端原生支持 `collection_surge`；`apply_preferences` 参数直接由后端处理偏好过滤。**注意：单个轨道的刷新 `getRail` 目前仍 fallback 回调 `searchApi.search()`。** |
+| **Draw 抽卡**  | `GET /discovery/random` | 后端直接做真随机抽取，不限于前端伪随机；支持 `channel_ids` / `include_tags` / `exclude_tags` 筛选                                                                                                     |
 
 ### 12.3 迁移影响分析
 
 需要改动的文件：
 
-| 文件 | 改动内容 |
-|------|---------|
-| `src/features/plaza/api/plazaApi.ts` | `getRail()` 替换为调用 `/discovery/rails`；移除 `searchApi` 依赖；`PlazaRailKey` 增加 `collection_surge` |
-| `src/pages/PlazaPage/index.tsx` | 用单一 `useQuery` 替换 4 个独立 rail query；偏好过滤逻辑交给后端 `apply_preferences` |
-| `src/pages/DrawPage/index.tsx` | 候选池改为调用 `/discovery/random`；移除前端 `sampleThreads()` 随机逻辑 |
-| `src/features/plaza/lib/queryKeys.ts` | 更新 query key 结构 |
-| `src/features/search/lib/queryKeys.ts` | 移除 `drawPool` key（不再需要） |
+| 文件                                   | 改动内容                                                                                                                                                     |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/features/plaza/api/plazaApi.ts`   | `getRails()` 替换为调用 `/discovery/rails`；`PlazaRailKey` 增加 `collection_surge`。**注：`getRail()` 暂时保留了对 `searchApi.search()` 的依赖。**           |
+| `src/pages/PlazaPage/index.tsx`        | 用单一 `useQuery` 替换 4 个独立 rail query；偏好过滤逻辑交给后端 `apply_preferences`                                                                         |
+| `src/pages/DrawPage/index.tsx`         | 候选池改为直接调用 `plazaApi.getRandomThreads` (/discovery/random) 获取真实随机数据；彻底移除之前前端 `sampleThreads()` 随机采样逻辑，提升抽取结果的分散度。 |
+| `src/features/plaza/lib/queryKeys.ts`  | 更新 query key 结构                                                                                                                                          |
+| `src/features/search/lib/queryKeys.ts` | 移除 `drawPool` key（不再需要）                                                                                                                              |

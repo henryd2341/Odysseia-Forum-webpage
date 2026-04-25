@@ -7,29 +7,37 @@
 项目采用基于 `react-router-dom` v6 搭建的路由体系。在 `src/app/` 或 `src/pages/` 的顶层定义有整个路由大树。
 
 ### 1.1 嵌套路由与 Layout
+
 我们使用了嵌套路由的概念：
+
 ```tsx
 <Route path="/" element={<RootLayout />}>
   <Route index element={<HomePage />} />
   <Route path="/search" element={<SearchPage />} />
 </Route>
 ```
+
 所有的普通页面被嵌入到了 `RootLayout`（主布局）中。
+
 - `RootLayout` 负责渲染全局的 Sidebar，搜索顶栏、背景图容器等。
 - `<Outlet />` 是各个具体 `Page` 组件挂载的渲染热区。
-利用这个模式避免了页面跳转带来的整个外框的反复卸载与重绘。
+  利用这个模式避免了页面跳转带来的整个外框的反复卸载与重绘。
 
 ### 1.2 路由懒加载 (Code Splitting)
+
 为了加快首屏（FCP/LCP）加载速度，大型页面通过 `React.lazy()` 进行异步代码分割：
+
 ```tsx
-const ProfilePage = lazy(() => import('@/pages/UserProfilePage'));
+const ProfilePage = lazy(() => import("@/pages/UserProfilePage"));
 ```
+
 路由层用 `<Suspense fallback={<Loader />}>` 进行包裹。如果你新加了一个特别庞大的独立页面组件，**强制使用懒加载形式注册路由**。
 
 ## 2. 身份验证守卫 (Auth Guard)
 
 我们的权限验证不是仅仅靠后端返回 401 报错才拦截。
 在路由体系中具备 `ProtectedRoute` 高阶组件（或 Wrapper）。
+
 - 检测不到有效认证状态时，拦截去往敏感路由（如 `/me`）的访问，展示提示或者自动触发到 Discord OAuth2 的登录流程。
 
 ## 3. 错误捕获 (Error Boundaries)
@@ -40,26 +48,32 @@ const ProfilePage = lazy(() => import('@/pages/UserProfilePage'));
 ## 4. 主题与持久化 (Theme Persistence)
 
 黑/白模式切换由 `ThemeToggle` 控制。此状态属于全局客户端偏好：
+
 - 优先读取 `localStorage` 中记录的用户偏好（如 `theme: dark`）。
 - 否则读取浏览器系统的时区或 `prefers-color-scheme`。
-我们将 class `dark` 动态注入至 `HTML` 根节点上控制整个 Tailwind 变量生效。
+  我们将 class `dark` 动态注入至 `HTML` 根节点上控制整个 Tailwind 变量生效。
 
 ## 5. 搜索系统与 URL 状态驱动
 
 搜索系统目前完全依靠 **URL Search Params** 进行状态同步，以保障用户可以自由分享其搜索或过滤状态，并避免状态管理的冗余与数据不一致。
 
 ### 5.1 分词器驱动 (searchTokenizer)
+
 搜索词输入支持高级语法的精确匹配与条件剥离，前端使用 `src/shared/lib/searchTokenizer.ts` 作为统一解释器：
+
 - **可用语法**: `$tag:xxx$`, `-$tag:xxx$`, `$author:xxx$`, `-$author:xxx$`, `$channel:xxx$`。
 - **协议转换**: 当用户在 `TopBar` 键入字符或在 `SearchFilterPanel` 操作标签、作者（如 `onToggleTagToken`、`onSubmitAuthorDraft`）时，工具函数（如 `addToken`, `removeToken`）会操作字符串以维持唯一的 Source of Truth。随后 `tokenizeSearchPayload` 会将长字符串打散为内部的 `TokenizedSearchPayload` 数据结构（包含 `includeTags`, `excludeTags`, `includeAuthors`, `excludeAuthors`, `channels` 等）。
 - **向后端序列化**: 当发往后端时，如 `$author:xxx$` 这样的 Token 除了被映射至数组结构（如果支持），也会由 `searchApi.ts` 中的 `buildKeywordString` 封装成原生的 `author:"xxx"` 字符串格式并追加进 API 的 `keywords` 字段内。
 - **向后兼容**: 为了兼容旧版未带 `$` 符号的语法，分词器中引入了 `migrateLegacySyntax` 函数，在处理 URL 查询参数时，它会自动把类似 `author:xxx` 的格式标准化为 `$author:xxx$`。
 
 ### 5.2 参数层 (`useSearchURLParams`)
-`src/features/search/hooks/useSearchParams.ts` 中的 `useSearchURLParams` 钩子解析并暴露经过封装合并后的过滤状态，组件使用该钩子修改参数会自动触发 React Router 的导航方法，进而引发整个订阅此 Hooks 的查询模块重刷。
+
+`src/features/search/hooks/useSearchParams.ts` 中的 `useSearchURLParams` 钩子解析并暴露经过封装合并后的过滤状态（例如新增的 `type` 参数，用于区分 `thread` 或 `booklist` 的检索目标），组件使用该钩子修改参数会自动触发 React Router 的导航方法，进而引发整个订阅此 Hooks 的查询模块重刷。
 
 ### 5.3 偏好融合层 (`useSearchResults`)
+
 在获取最终数据前，`src/features/search/hooks/useSearchResults.ts` 会将 URL 参数与用户的个人发现偏好（`preferences`）进行融合：
+
 - **偏好补丁 (`discoveryPreferencePatch`)**: 当用户未明确指定特定条件（如标签、频道、排序）时，系统会自动注入由偏好生成的查询补丁。
 - **生效参数**: 最终用于向后端请求的数据包含合并后的 `effectiveSortMethod`、`effectiveChannelIds`、`effectiveIncludeTags` 等，实现了全局配置与临时 URL 过滤条件的优雅降级。
 - **无缝滚动分页拉黑**: 在加载下一页数据时，前端强制收集当前已获取的 `exclude_thread_ids` 列表发送给后端（因 ID 过大，已由前端主动转换为 String 数组），并保持 `offset=0` 以适配后端游标逻辑，从而防止排序跳页。
@@ -69,10 +83,12 @@ const ProfilePage = lazy(() => import('@/pages/UserProfilePage'));
 由于系统功能日益复杂，为了降低新用户门槛，前端引入了全局式的交互引导系统（`src/features/onboarding/`），取代了以往通过个别页面（如 `SearchPage` 的独立弹窗）来实现的局域提示逻辑。
 
 ### 6.1 OnboardingManager 与状态控制
+
 整个向导系统由 `OnboardingManager` 充当驱动中心，挂载于 `RootLayout`。
 它监听路由变动与 DOM 树的可用情况。当用户达到特定场景并且之前尚未完成对应教程时，通过 Zustand Store (`useOnboardingStore`) 自动分发 `activeTutorial` 并弹出气泡提示。
 状态控制将自动把已完成的 `completedTutorialIds` 持久化记录至 `localStorage`。
 
 ### 6.2 基于 DOM 锚点的定向
+
 引导气泡采用了高弹性的 CSS Selector 选择机制。
 通过在 UI 节点绑定专用的 `data-tour="xxx"`（如 `data-tour="filter-panel"` 或 `data-tour="user-header"`），并在 `tutorials.ts` 中设定目标的 `target` 属性，气泡引擎会自动使用 `getBoundingClientRect` 追踪并计算绝对定位的动画平移，实现无需硬编码页面结构的“即插即用”式挂载。
