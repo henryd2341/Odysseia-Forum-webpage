@@ -72,10 +72,10 @@ const ProfilePage = lazy(() => import("@/pages/UserProfilePage"));
 
 ### 5.3 偏好融合层 (`useSearchResults`)
 
-在获取最终数据前，`src/features/search/hooks/useSearchResults.ts` 会将 URL 参数与用户的个人发现偏好（`preferences`）进行融合：
+在获取最终数据前，`src/features/search/hooks/useSearchResults.ts` 会结合当前查询参数状态向后端发起带有偏好标记的搜索请求：
 
-- **偏好补丁 (`discoveryPreferencePatch`)**: 当用户未明确指定特定条件（如标签、频道、排序）时，系统会自动注入由偏好生成的查询补丁。
-- **生效参数**: 最终用于向后端请求的数据包含合并后的 `effectiveSortMethod`、`effectiveChannelIds`、`effectiveIncludeTags` 等，实现了全局配置与临时 URL 过滤条件的优雅降级。
+- **偏好标志 (`apply_preferences`)**: 抛弃了以往在前端繁杂的 `discoveryPreferencePatch` 参数合成计算逻辑，现在前端统一只需在向后端发起搜索时带上 `apply_preferences: true` 标记。当用户未明确通过 URL 指定筛选条件时，系统后端会自动将用户记录在案的探索偏好作为过滤条件降级生效。
+- **展示与忽略控制 (`ignoreDiscoveryPreferences`)**: 提供状态变量供 UI（如横幅提示）触发暂时忽略偏好的动作，以使用纯净参数重查数据。
 - **无缝滚动分页拉黑**: 在加载下一页数据时，前端强制收集当前已获取的 `exclude_thread_ids` 列表发送给后端（因 ID 过大，已由前端主动转换为 String 数组），并保持 `offset=0` 以适配后端游标逻辑，从而防止排序跳页。
 
 ## 6. 交互式引导系统 (Onboarding Tour)

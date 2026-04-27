@@ -7,6 +7,7 @@
 自项目升级至 **React 19** 后，组件编写方式发生了重大变化。
 
 ### 1.1 弃用 `forwardRef`
+
 在 React 19 中，`ref` 作为一个普通的 Prop 传递。**禁止再写这种包裹代码**：
 
 ```tsx
@@ -20,6 +21,7 @@ export const MyButton = ({ ref, ...props }: Props) => (
 ```
 
 ### 1.2 使用 Actions 处理表单
+
 处理表单提交时，推荐使用 `useActionState`。这能自动处理提交中 (`pending`) 和结果 (`data/error`) 状态：
 
 ```tsx
@@ -38,6 +40,7 @@ return (
 ## 2. 目录结构
 
 组件应按 FSD 规范存放在对应的 `ui/` 或 `components/` 目录下。较复杂的组件应包含以下文件：
+
 - `index.ts` - 导出
 - `MyComponent.tsx` - 视图逻辑
 - `MyComponent.test.tsx` - 测试 (Vitest)
@@ -65,7 +68,7 @@ return (
 
 涉及重度交互的过滤器面板（例如 `src/features/search/components/SearchFilterPanel.tsx`）不应在内部缓存提交状态，而必须使用受控的 Props，将变更交由 URL Controller 处理：
 
-- 接收并展示解析后的组合状态（如 `includeAuthorTokens`、`timeFrom`、`tagLogic`）。
+- 接收并展示解析后的组合状态（如 `includeAuthorTokens`、`timeFrom`、`tagLogic`、`preferenceIncludeTags`、`preferenceExcludeTags`）。
 - 操作时触发暴露给外部的受控方法（例如 `onToggleTagToken`、`onSubmitAuthorDraft`）。
 
 ---
@@ -78,8 +81,9 @@ return (
 - **组件透传**: 对于高度封装的业务组件（如 `SearchFilterPanel`）或底层基础组件（如 `Button`），如果有需要，可以通过 Props 透传 `data-tour` 属性，以确保引导气泡能够准确定位。
 
 示例：
+
 ```tsx
-export function SearchFilterPanel({ 'data-tour': dataTour, ...props }: Props) {
+export function SearchFilterPanel({ "data-tour": dataTour, ...props }: Props) {
   return (
     <div data-tour={dataTour || "filter-panel"} className="p-4">
       {/* ... */}

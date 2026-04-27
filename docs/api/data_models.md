@@ -52,6 +52,8 @@
   - 仅搜索当前用户收藏的帖子。
 - `exclude_thread_ids: Optional[List[int]]`
   - 排除已展示的帖子 ID 列表。**(注意：受限于 JS 64 位整数精度，前端在请求中统一以 `string[]` 格式传递，依赖后端 Pydantic 自动转换为整型)**
+- `apply_preferences: Optional[bool]`
+  - 是否在搜索时应用当前登录用户的探索偏好（含过滤与降级），默认为 `false`。
 - `created_after / created_before: Optional[str]`
   - 发帖时间范围，支持绝对日期（`YYYY-MM-DD`）或相对时间（如 `-7d`）。
 - `active_after / active_before: Optional[str]`
