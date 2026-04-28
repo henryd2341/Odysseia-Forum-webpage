@@ -95,11 +95,13 @@ export const plazaApi = {
     key: PlazaRailKey,
     apply_preferences: boolean = true,
     exclude_thread_ids?: string[],
+    exclude_tags?: string[],
   ): Promise<Thread[]> => {
     let response: SearchResponse;
     const baseFilter = {
       apply_preferences,
       exclude_thread_ids,
+      exclude_tags,
     };
 
     if (key === "latest") {

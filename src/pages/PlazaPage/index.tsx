@@ -11,6 +11,8 @@ import { plazaApi, PLAZA_RAILS, type PlazaRailKey } from '@/features/plaza/api/p
 import type { Thread } from '@/entities/thread/types';
 import { useToggleBooklistCollection } from '@/features/booklists/hooks/useBooklistsData';
 import { useUserPreferences } from '@/features/preferences/hooks/useUserPreferences';
+import { getDiscoveryPreferenceContext } from '@/features/preferences/lib/discoveryPreferences';
+import { filterThreadsByPreferences } from '@/entities/thread/lib/threadFilter';
 import { plazaKeys } from '@/features/plaza/lib/queryKeys';
 import { usePreviewStore } from '@/features/search/store/previewStore';
 import { GUILD_ID } from '@/shared/config/channelCategories.private';
@@ -57,6 +59,11 @@ export function PlazaPage() {
 
   const showPreferenceNotice = hasActivePreferences && !ignorePreferenceFilter;
 
+  const discoveryPreferenceContext = useMemo(
+    () => getDiscoveryPreferenceContext(preferences),
+    [preferences],
+  );
+
   const gridClass = useCardGridClass();
 
   // 状态：存储每个轨道的具体帖子（由 query 或 refresh 产生）
@@ -93,15 +100,18 @@ export function PlazaPage() {
   // 当基础查询数据到达时，初始化 Map
   useEffect(() => {
     if (railsQuery.data) {
+      const applyFilter = (threads: Thread[]) => 
+        !ignorePreferenceFilter ? filterThreadsByPreferences(threads, discoveryPreferenceContext) : threads;
+
       setRailThreadsMap({
-        latest: railsQuery.data.latest || [],
-        reaction_surge: railsQuery.data.reaction_surge || [],
-        discussion_surge: railsQuery.data.discussion_surge || [],
-        collection_surge: railsQuery.data.collection_surge || [],
-        editors_pick: (railsQuery.data as any).editors_pick || [],
+        latest: applyFilter(railsQuery.data.latest || []),
+        reaction_surge: applyFilter(railsQuery.data.reaction_surge || []),
+        discussion_surge: applyFilter(railsQuery.data.discussion_surge || []),
+        collection_surge: applyFilter(railsQuery.data.collection_surge || []),
+        editors_pick: applyFilter((railsQuery.data as any).editors_pick || []),
       });
     }
-  }, [railsQuery.data]);
+  }, [railsQuery.data, ignorePreferenceFilter, discoveryPreferenceContext]);
 
   const handleRefreshRail = useCallback(async (key: PlazaRailKey) => {
     if (refreshingKeys[key]) return;
@@ -119,9 +129,13 @@ export function PlazaPage() {
       );
 
       if (nextThreads.length > 0) {
+        const filteredNextThreads = !ignorePreferenceFilter 
+          ? filterThreadsByPreferences(nextThreads, discoveryPreferenceContext)
+          : nextThreads;
+
         setRailThreadsMap(prev => ({
           ...prev,
-          [key]: nextThreads,
+          [key]: filteredNextThreads,
         }));
       }
     } catch (error) {

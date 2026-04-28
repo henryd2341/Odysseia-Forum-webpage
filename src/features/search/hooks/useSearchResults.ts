@@ -7,6 +7,7 @@ import { searchApi } from '@/features/search/api/searchApi';
 import {
   getDiscoveryPreferenceContext,
 } from '@/features/preferences/lib/discoveryPreferences';
+import { filterThreadsByPreferences } from '@/entities/thread/lib/threadFilter';
 import type { UserPreferencesResponse } from '@/features/preferences/api/preferencesApi';
 import type { SearchParams } from '@/features/search/hooks/useSearchParams';
 import { searchKeys } from '@/features/search/lib/queryKeys';
@@ -58,12 +59,17 @@ export function useSearchResults({ params, preferences }: UseSearchResultsOption
       preferenceSignature: discoveryPreferenceContext?.signature,
     }),
     initialPageParam: 0,
-    queryFn: ({ pageParam }) =>
-      searchApi.search({
+    queryFn: ({ pageParam }) => {
+      const mergedExcludeTags = [
+        ...excludeTags,
+        ...(applyPreferences ? discoveryPreferenceContext?.excludeTags || [] : []),
+      ];
+
+      return searchApi.search({
         query: query || undefined,
         channel_ids: selectedChannel ? [selectedChannel] : undefined,
         include_tags: includeTags.length > 0 ? includeTags : undefined,
-        exclude_tags: excludeTags.length > 0 ? excludeTags : undefined,
+        exclude_tags: mergedExcludeTags.length > 0 ? mergedExcludeTags : undefined,
         tag_logic: tagLogic,
         sort_method: sortMethod,
         apply_preferences: applyPreferences,
@@ -73,7 +79,8 @@ export function useSearchResults({ params, preferences }: UseSearchResultsOption
         exclude_thread_ids: typeof pageParam === 'object' ? (pageParam as any).exclude_thread_ids : [],
         created_after: timeFrom || undefined,
         created_before: timeTo || undefined,
-      }),
+      });
+    },
     getNextPageParam: (lastPage, allPages) => {
       const excludeIds = allPages.flatMap((page: any) => 
         (page.results || []).map((t: any) => t.thread_id)
@@ -112,13 +119,18 @@ export function useSearchResults({ params, preferences }: UseSearchResultsOption
 
     const finalResults = Array.from(uniqueResults.values());
     
+    // 前端兜底过滤：确保即使后端漏掉了过滤，用户偏好依然生效
+    const filteredResults = applyPreferences 
+      ? filterThreadsByPreferences(finalResults, discoveryPreferenceContext)
+      : finalResults;
+    
     // --- 调试埋点 ---
-    if (finalResults.length > 0) {
-      console.log(`%c[React状态] 当前已合成了 ${finalResults.length} 个唯一帖子 (总回包数据: ${mergedResults.length})`, "color: #ec4899; font-weight: bold;");
+    if (filteredResults.length > 0) {
+      console.log(`%c[React状态] 当前已合成了 ${filteredResults.length} 个唯一帖子 (总回包数据: ${mergedResults.length})`, "color: #ec4899; font-weight: bold;");
     }
     
-    return finalResults;
-  }, [queryState.data]);
+    return filteredResults;
+  }, [queryState.data, applyPreferences, discoveryPreferenceContext]);
 
   const totalResults = Number(queryState.data?.pages?.[0]?.total || 0);
 
