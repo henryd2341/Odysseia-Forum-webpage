@@ -211,7 +211,7 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
           )}
         </div>
 
-        <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 flex-col md:min-h-43">
           <div className={`mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 ${fontSizes.meta} text-(--od-text-tertiary)`}>
             <button type="button" onClick={handleAuthorClick} className="shrink-0 rounded-full">
               <AuthorAvatar author={thread.author} className="h-6 w-6 md:h-7 md:w-7" />
@@ -256,7 +256,7 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="mt-auto flex flex-col gap-2.5">
             <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-(--od-text-tertiary) md:text-xs">
               {thread.tags?.slice(0, 4).map((tag) => (
                 <button
@@ -278,40 +278,42 @@ function ThreadListItemImpl({ thread, onTagClick, searchQuery, onAuthorClick, on
               ))}
             </div>
 
-            <div className="flex items-center gap-3 text-[11px] text-(--od-text-tertiary) md:text-xs">
-              <span className="inline-flex items-center gap-1 transition-colors group-hover:text-(--od-text-secondary)">
-                <MessageCircle className="h-3.5 w-3.5" />
-                <span className="tabular-nums">{thread.reply_count}</span>
-              </span>
-              <span className="inline-flex items-center gap-1 transition-colors group-hover:text-(--od-text-secondary)">
-                <ThumbsUp className="h-3.5 w-3.5" />
-                <span className="tabular-nums">{thread.reaction_count}</span>
-              </span>
-              <span className="inline-flex items-center gap-1 transition-colors group-hover:text-(--od-text-secondary)">
-                <Eye className="h-3.5 w-3.5" />
-                <span className="tabular-nums">{thread.display_count}</span>
-              </span>
-            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 text-[11px] text-(--od-text-tertiary) md:text-xs">
+                <span className="inline-flex items-center gap-1 transition-colors group-hover:text-(--od-text-secondary)">
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  <span className="tabular-nums">{thread.reply_count}</span>
+                </span>
+                <span className="inline-flex items-center gap-1 transition-colors group-hover:text-(--od-text-secondary)">
+                  <ThumbsUp className="h-3.5 w-3.5" />
+                  <span className="tabular-nums">{thread.reaction_count}</span>
+                </span>
+                <span className="inline-flex items-center gap-1 transition-colors group-hover:text-(--od-text-secondary)">
+                  <Eye className="h-3.5 w-3.5" />
+                  <span className="tabular-nums">{thread.display_count}</span>
+                </span>
+              </div>
 
-            <div className="ml-auto flex shrink-0 items-center gap-2 text-(--od-text-tertiary) transition-colors group-hover:text-(--od-text-primary) md:hidden">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setQuickAddOpen(true);
-                }}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold transition-all duration-200 hover:bg-(--od-bg-tertiary) hover:text-(--od-text-primary)"
-                aria-label="加入书单"
-                title="加入书单"
-              >
-                <BookOpen className="h-4 w-4" />
-              </button>
-              <ThreadActions
-                threadId={thread.thread_id}
-                channelId={thread.channel_id}
-                guildId={thread.guild_id}
-                size="md"
-              />
+              <div className="ml-auto flex items-center gap-2 text-(--od-text-tertiary) transition-colors group-hover:text-(--od-text-primary) md:hidden">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setQuickAddOpen(true);
+                  }}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-(--od-bg-tertiary) hover:text-(--od-text-primary)"
+                  aria-label="加入书单"
+                  title="加入书单"
+                >
+                  <BookOpen className="h-4 w-4" />
+                </button>
+                <ThreadActions
+                  threadId={thread.thread_id}
+                  channelId={thread.channel_id}
+                  guildId={thread.guild_id}
+                  size="md"
+                />
+              </div>
             </div>
           </div>
         </div>

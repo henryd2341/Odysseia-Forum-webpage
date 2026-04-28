@@ -146,6 +146,8 @@ function ThreadCardImpl({
         onMouseDown={(e) => {
           if (!(e.target as HTMLElement).closest('button, a')) e.preventDefault();
         }}
+        onMouseEnter={() => setIsTitleHovered(true)}
+        onMouseLeave={() => setIsTitleHovered(false)}
         onClick={() => onPreview?.(thread)}
       >
         {/* 拦截 Tab 焦点进入内部元素，并对辅助技术隐藏内部细节 */}
@@ -205,8 +207,6 @@ function ThreadCardImpl({
                 <span
                   ref={titleViewportRef}
                   className="inline-block max-w-full overflow-hidden align-top"
-                  onMouseEnter={() => setIsTitleHovered(true)}
-                  onMouseLeave={() => setIsTitleHovered(false)}
                 >
                   <span
                     ref={titleTrackRef}

@@ -61,17 +61,18 @@ function stripChannelTokens(query: string) {
 }
 
 export function parseParams(sp: URLSearchParams): SearchParams {
-  const rawSort = sp.get("sort") || "last_active_desc";
-  const sortMethod: SortMethod = VALID_SORT_METHODS.has(rawSort)
+  const rawQuery = normalizeQuery(sp.get("q") || "");
+  const tokenized = tokenizeSearchPayload(rawQuery);
+  const query = stripChannelTokens(rawQuery);
+
+  const rawSort = sp.get("sort");
+  const sortMethod: SortMethod = VALID_SORT_METHODS.has(rawSort || "")
     ? (rawSort as SortMethod)
-    : "last_active_desc";
+    : (tokenized.text ? "relevance" : "last_active_desc");
 
   const rawTagLogic = sp.get("tag_logic");
   const tagLogic: TagLogic = rawTagLogic === "or" ? "or" : "and";
 
-  const rawQuery = normalizeQuery(sp.get("q") || "");
-  const tokenized = tokenizeSearchPayload(rawQuery);
-  const query = stripChannelTokens(rawQuery);
   const rawType = sp.get("type");
   const type: SearchTargetType = rawType === "booklist" ? "booklist" : "thread";
 
