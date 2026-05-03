@@ -87,23 +87,20 @@ export function useBooklistItems(booklistId: number | string) {
     queryFn: ({ pageParam }) =>
       booklistsApi.listItems(booklistId, {
         limit: 24,
-        offset: 0,
-        exclude_thread_ids: (pageParam as any)?.exclude_thread_ids || [],
+        offset: pageParam as number,
       }),
-    initialPageParam: { offset: 0, exclude_thread_ids: [] },
+    initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      const excludeIds = allPages
-        .flatMap((page) => (page.results || []).map((item) => String(item.thread_id)))
-        .filter(Boolean);
-
-      return (lastPage.total || 0) > 0
-        ? { offset: 0, exclude_thread_ids: excludeIds }
-        : undefined;
+      // 书单接口的 total 是总条目数，使用标准 offset 分页
+      const loadedCount = allPages.flatMap((page) => page.results || []).length;
+      const total = lastPage.total || 0;
+      return loadedCount < total ? loadedCount : undefined;
     },
     enabled: /^\d+$/.test(String(booklistId)),
     staleTime: 60 * 1000,
   });
 }
+
 
 function useInvalidateBooklists() {
   const queryClient = useQueryClient();

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { flushSync } from 'react-dom';
 import { themes, type ThemeName, type Theme } from '@/shared/styles/themes';
 import { useSettings, useThemeSettings } from '@/shared/hooks/useSettings';
+import { withViewTransition } from '@/shared/lib/viewTransition';
 import type { UserSettings } from '@/shared/lib/settings';
 
 const LIGHT_THEME_NAMES: ThemeName[] = ['discordLight', 'sakuraDay'];
@@ -102,30 +102,11 @@ export function useTheme() {
   const theme: Theme = themes[currentThemeName];
 
   const applyTransitionSettings = (nextSettingsTheme: UserSettings['theme'], animType: 'circle' | 'wipe-right' | 'wipe-down', e?: React.MouseEvent) => {
-    if (!document.startViewTransition) {
-      updateSettings({ theme: nextSettingsTheme });
-      return;
-    }
-
-    const root = document.documentElement;
-    root.setAttribute('data-theme-transition', animType);
-    
-    if (e && animType === 'circle') {
-      const x = e.clientX || window.innerWidth / 2;
-      const y = e.clientY || window.innerHeight / 2;
-      root.style.setProperty('--click-x', `${x}px`);
-      root.style.setProperty('--click-y', `${y}px`);
-    }
-
-    const transition = document.startViewTransition(() => {
-      flushSync(() => {
-        updateSettings({ theme: nextSettingsTheme });
-      });
-    });
-
-    transition.finished.then(() => {
-      root.removeAttribute('data-theme-transition');
-    });
+    withViewTransition(
+      () => updateSettings({ theme: nextSettingsTheme }),
+      animType,
+      e,
+    );
   };
 
   // 切换主题：只在浅色/深色之间切换，不轮播整套主题列表

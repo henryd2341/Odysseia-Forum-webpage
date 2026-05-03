@@ -18,7 +18,8 @@ export interface PreferencesFormValue {
   includeKeywordsText: string;
   excludeKeywordsText: string;
   previewImageMode: 'thumbnail' | 'full' | 'none';
-  resultsPerPage: number;
+  resultsPerPage: number | '';
+  uiPageSize: number;
   sortMethod: PreferencesSortUi;
 }
 
@@ -62,10 +63,8 @@ export function toPreferencesFormValue(prefs?: UserPreferencesResponse | null): 
     includeKeywordsText: prefs?.include_keywords || '',
     excludeKeywordsText: prefs?.exclude_keywords || '',
     previewImageMode: normalizePreviewMode(prefs?.preview_image_mode),
-    resultsPerPage:
-      Number.isFinite(prefs?.results_per_page) && (prefs?.results_per_page || 0) > 0
-        ? Number(prefs?.results_per_page)
-        : DEFAULT_RESULTS_PER_PAGE,
+    resultsPerPage: Number(prefs?.results_per_page ?? 5),
+    uiPageSize: Number(prefs?.ui_page_size ?? 48),
     sortMethod: sortApiToUiMap[prefs?.sort_method || ''] || 'last_active_desc',
   };
 }
@@ -88,9 +87,8 @@ export function toPreferencesUpdatePayload(
     include_keywords: value.includeKeywordsText.trim(),
     exclude_keywords: value.excludeKeywordsText.trim(),
     preview_image_mode: value.previewImageMode,
-    results_per_page: Number.isFinite(value.resultsPerPage)
-      ? Math.min(Math.max(Math.round(value.resultsPerPage), 1), 100)
-      : DEFAULT_RESULTS_PER_PAGE,
+    results_per_page: 5,
+    ui_page_size: value.resultsPerPage === '' ? 24 : value.resultsPerPage,
     sort_method: sortUiToApiMap[value.sortMethod] || 'last_active',
   };
 }

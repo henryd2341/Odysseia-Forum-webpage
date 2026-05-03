@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+
+import { withViewTransition } from '@/shared/lib/viewTransition';
 
 import forumIcon from '@/assets/images/icon/A90C044F8DDF1959B2E9078CB629C239.png';
 import backgroundImage from '@/assets/images/background/spring.png';
@@ -75,20 +76,20 @@ export function AboutPage() {
     hasSpawnedRef.current = true;
   };
 
-  useEffect(() => {
-    if (!isLeaving) return;
+  const handleBack = () => {
+    if (isLeaving) return;
+    setIsLeaving(true);
 
-    const timeoutId = window.setTimeout(() => {
+    const goBack = () => {
       if (window.history.length > 1) {
         navigate(-1);
-        return;
+      } else {
+        navigate('/', { replace: true });
       }
+    };
 
-      navigate('/', { replace: true });
-    }, 180);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [isLeaving, navigate]);
+    withViewTransition(goBack, 'wipe-down');
+  };
 
   useEffect(() => {
     let isActive = true;
@@ -144,11 +145,8 @@ export function AboutPage() {
   }, []);
 
   return (
-    <motion.div
+    <div
       className="relative min-h-screen overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: isLeaving ? 0 : 1 }}
-      transition={{ duration: 0.18, ease: 'easeOut' }}
     >
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -163,7 +161,7 @@ export function AboutPage() {
               <div className="mb-5 flex items-center justify-center md:justify-center">
                 <button
                   type="button"
-                  onClick={() => setIsLeaving(true)}
+                  onClick={handleBack}
                   disabled={isLeaving}
                   className="inline-flex items-center gap-2 rounded-full border border-(--od-border) bg-[color-mix(in_oklab,var(--od-bg)_68%,transparent)] px-4 py-2 text-sm font-medium text-(--od-text-primary) transition-all duration-200 hover:-translate-y-0.5 hover:border-(--od-accent)/45 hover:text-(--od-accent) disabled:cursor-not-allowed disabled:opacity-55"
                 >
@@ -319,6 +317,6 @@ export function AboutPage() {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -3,6 +3,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSearchURLParams } from '@/features/search/hooks/useSearchParams';
 import { useChannels } from '@/shared/hooks/useChannels';
 import { clearStoredAuthToken } from '@/shared/lib/authSession';
+import { withViewTransition } from '@/shared/lib/viewTransition';
 import { ThemeToggle } from '@/shared/ui/ThemeToggle';
 import { AnimatedIcon } from '@/shared/ui/animation/AnimatedIcon';
 import { WordLogoStatic } from '@/shared/ui/loaders/WordLogoStatic';
@@ -216,8 +217,11 @@ export function AppSidebar() {
               <span className="truncate">设置</span>
             </Link>
 
-            <Link
-              to="/about"
+            <button
+              type="button"
+              onClick={() => {
+                withViewTransition(() => navigate('/about'), 'wipe-down');
+              }}
               className={navItemClass(isActive('/about'))}
             >
               <span className={navIndicatorClass(isActive('/about'))} />
@@ -228,7 +232,7 @@ export function AppSidebar() {
                 trigger="hover"
               />
               <span className="truncate">关于</span>
-            </Link>
+            </button>
 
             {import.meta.env.VITE_API_MOCKING === 'true' && (
               <Link

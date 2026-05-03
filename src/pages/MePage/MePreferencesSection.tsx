@@ -121,9 +121,10 @@ export function MePreferencesSection({
                 max={100}
                 value={form.resultsPerPage}
                 onChange={(e) => {
+                  const val = e.target.value;
                   onUpdateForm((prev) => ({
                     ...prev,
-                    resultsPerPage: Number(e.target.value) || 24,
+                    resultsPerPage: val === "" ? "" : Number(val),
                   }));
                 }}
                 className="w-full rounded-2xl border border-(--od-shell-line) bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] px-4 py-3 text-sm text-(--od-text-primary)"

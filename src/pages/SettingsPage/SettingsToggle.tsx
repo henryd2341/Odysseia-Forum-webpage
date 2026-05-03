@@ -2,7 +2,7 @@ import { cn } from '@/shared/lib/utils';
 
 type SettingsToggleProps = {
   checked: boolean;
-  onToggle: () => void;
+  onToggle: (e: React.MouseEvent) => void;
   className?: string;
   ariaLabel: string;
 };
@@ -14,7 +14,7 @@ export function SettingsToggle({ checked, onToggle, className, ariaLabel }: Sett
       role="switch"
       aria-checked={checked}
       aria-label={ariaLabel}
-      onClick={onToggle}
+      onClick={(e) => onToggle(e)}
       data-checked={checked ? 'true' : 'false'}
       className={cn('od-toggle', className)}
     >

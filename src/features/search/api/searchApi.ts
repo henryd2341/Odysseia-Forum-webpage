@@ -143,28 +143,27 @@ function buildSearchRequest(params: SearchUIRequest): ApiSearchParams {
   const includeAuthorIds = normalizeIdList(params.include_authors ?? []);
   const excludeAuthorIds = normalizeIdList(params.exclude_authors ?? []);
 
-  const requestBody: ApiSearchParams = {
+  const includeTags = dedupeStrings([...(params.include_tags || []), ...tokenized.includeTags]);
+  const excludeTags = dedupeStrings([...(params.exclude_tags || []), ...tokenized.excludeTags]);
+
+  const requestBody: Partial<ApiSearchParams> = {
     guild_id: params.guild_id,
-    channel_ids: toApiIntIdList(channel_ids),
-    include_tags: dedupeStrings([...(params.include_tags || []), ...tokenized.includeTags]),
-    exclude_tags: dedupeStrings([...(params.exclude_tags || []), ...tokenized.excludeTags]),
-    tag_logic: params.tag_logic === 'or' ? 'or' : 'and',
-    keywords: buildKeywordString(tokenized.text, includeAuthorNames),
-    include_authors: toApiIntIdList(includeAuthorIds),
-    exclude_authors: toApiIntIdList(excludeAuthorIds),
-    // 后端路由目前实际不消费 request.author_name，
-    // 所以作者名搜索改走 keywords 中的 author: 语法。
-    author_name: params.author_name || null,
-    // 作者反选如果没有作者 ID 映射接口，先不要错误地降级成 exclude_keywords，
-    // 否则会变成“排除正文包含作者名的帖子”，语义和性能都不对。
-    exclude_keywords: null,
-    search_by_collection: params.search_by_collection || false,
-    apply_preferences: params.apply_preferences ?? false,
-    created_after: params.created_after || null,
-    created_before: params.created_before || null,
-    active_after: params.active_after || null,
-    active_before: params.active_before || null,
-    sort_method: mapSortMethod(params.sort_method),
+    channel_ids: toApiIntIdList(channel_ids) || undefined,
+    include_tags: includeTags.length > 0 ? includeTags : undefined,
+    exclude_tags: excludeTags.length > 0 ? excludeTags : undefined,
+    tag_logic: params.tag_logic === 'or' ? 'or' : (params.tag_logic === 'and' ? 'and' : undefined),
+    keywords: buildKeywordString(tokenized.text, includeAuthorNames) || undefined,
+    include_authors: toApiIntIdList(includeAuthorIds) || undefined,
+    exclude_authors: toApiIntIdList(excludeAuthorIds) || undefined,
+    author_name: params.author_name || undefined,
+    exclude_keywords: undefined, // Let backend merge from preferences if apply_preferences is true
+    search_by_collection: params.search_by_collection || undefined,
+    apply_preferences: params.apply_preferences ?? true,
+    created_after: params.created_after || undefined,
+    created_before: params.created_before || undefined,
+    active_after: params.active_after || undefined,
+    active_before: params.active_before || undefined,
+    sort_method: params.sort_method ? mapSortMethod(params.sort_method) : undefined,
     sort_order: 'desc',
     limit: params.limit || 24,
     offset: params.offset || 0,
@@ -174,10 +173,11 @@ function buildSearchRequest(params: SearchUIRequest): ApiSearchParams {
     custom_base_sort: 'comprehensive',
   };
 
-  // 【注意】此处的 exclude_thread_ids 包含了通过 axios 拦截器处理后的无损字符串 ID。
-  // 虽然 ApiSearchParams 定义为 number[]，但通过强制转换传递字符串，
-  // 依靠 Python 后端的 Pydantic 自动转换为正确的大整数。
-  return requestBody;
+  // 移除所有 undefined 的键，确保它们不在 JSON body 中出现
+  // 这样后端的 model_dump(exclude_unset=True) 才能正确识别并合并偏好
+  return Object.fromEntries(
+    Object.entries(requestBody).filter(([_, v]) => v !== undefined)
+  ) as ApiSearchParams;
 }
 
 export const searchApi = {

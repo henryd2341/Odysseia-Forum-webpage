@@ -2,6 +2,7 @@ import { EyeOff, Sparkles } from 'lucide-react';
 import { useMemo } from 'react';
 
 import type { UserSettings } from '@/shared/lib/settings';
+import { withViewTransition } from '@/shared/lib/viewTransition';
 
 import { backgroundPresets } from './config';
 import { SettingsPageSection } from './SettingsPageSection';
@@ -58,7 +59,11 @@ export function AtmosphereSettingsSection({
             </div>
             <SettingsToggle
               checked={settings.backgroundImageEnabled}
-              onToggle={() => updateSettings({ backgroundImageEnabled: !settings.backgroundImageEnabled })}
+              onToggle={(e) => withViewTransition(
+                () => updateSettings({ backgroundImageEnabled: !settings.backgroundImageEnabled }),
+                'circle',
+                e,
+              )}
               ariaLabel="切换背景图"
             />
           </div>
@@ -76,12 +81,16 @@ export function AtmosphereSettingsSection({
                       <button
                         key={preset.id}
                         type="button"
-                        onClick={() =>
-                          updateSettings({
-                            backgroundImageEnabled: true,
-                            backgroundImageUrl: preset.previewUrl,
-                            backgroundImageBase64: '',
-                          })
+                        onClick={(e) =>
+                          withViewTransition(
+                            () => updateSettings({
+                              backgroundImageEnabled: true,
+                              backgroundImageUrl: preset.previewUrl,
+                              backgroundImageBase64: '',
+                            }),
+                            'circle',
+                            e,
+                          )
                         }
                         data-active={isSelected}
                         className="od-setting-choice flex flex-col items-start gap-2 overflow-hidden rounded-[1.15rem] p-2 text-left"

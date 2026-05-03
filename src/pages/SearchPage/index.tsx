@@ -107,6 +107,23 @@ export function SearchPage() {
     hasTriggeredSearchCueRef.current = cueKey;
   }, [isError, isLoading, query, reactToSearch, totalResults]);
 
+  // 同步用户偏好排序
+  useEffect(() => {
+    if (preferences?.sort_method && !new URLSearchParams(window.location.search).get('sort')) {
+      const sortMap: Record<string, typeof params.sortMethod> = {
+        comprehensive: 'relevance',
+        last_active: 'last_active_desc',
+        created_at: 'created_desc',
+        reply_count: 'reply_desc',
+        reaction_count: 'reaction_desc',
+      };
+      const preferredSort = sortMap[preferences.sort_method];
+      if (preferredSort && preferredSort !== params.sortMethod) {
+        setParams({ sortMethod: preferredSort });
+      }
+    }
+  }, [preferences, params.sortMethod, setParams]);
+
   const isThreadTab = params.type === "thread";
 
   return (

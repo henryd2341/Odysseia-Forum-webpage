@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { Thread } from '@/entities/thread/types';
 import { searchApi } from '@/features/search/api/searchApi';
 import {
   getDiscoveryPreferenceContext,
 } from '@/features/preferences/lib/discoveryPreferences';
-import { filterThreadsByPreferences } from '@/entities/thread/lib/threadFilter';
 import type { UserPreferencesResponse } from '@/features/preferences/api/preferencesApi';
 import type { SearchParams } from '@/features/search/hooks/useSearchParams';
 import { searchKeys } from '@/features/search/lib/queryKeys';
@@ -32,6 +31,7 @@ export function useSearchResults({ params, preferences }: UseSearchResultsOption
   } = params;
 
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const queryClient = useQueryClient();
   const [ignoreDiscoveryPreferences, setIgnoreDiscoveryPreferences] = useState(false);
 
   const hasExplicitFilters =
@@ -60,16 +60,11 @@ export function useSearchResults({ params, preferences }: UseSearchResultsOption
     }),
     initialPageParam: 0,
     queryFn: ({ pageParam }) => {
-      const mergedExcludeTags = [
-        ...excludeTags,
-        ...(applyPreferences ? discoveryPreferenceContext?.excludeTags || [] : []),
-      ];
-
       return searchApi.search({
         query: query || undefined,
         channel_ids: selectedChannel ? [selectedChannel] : undefined,
         include_tags: includeTags.length > 0 ? includeTags : undefined,
-        exclude_tags: mergedExcludeTags.length > 0 ? mergedExcludeTags : undefined,
+        exclude_tags: excludeTags.length > 0 ? excludeTags : undefined,
         tag_logic: tagLogic,
         sort_method: sortMethod,
         apply_preferences: applyPreferences,
@@ -93,13 +88,14 @@ export function useSearchResults({ params, preferences }: UseSearchResultsOption
         ? { offset: 0, exclude_thread_ids: excludeIds } 
         : undefined;
     },
-    staleTime: 30 * 1000,
+    staleTime: 0,
   });
 
   useEffect(() => {
-    // 显式触发重搜，确保在手动切开关时逻辑闭环
-    queryState.refetch();
-  }, [applyPreferences, queryState.refetch]);
+    // 显式重置所有搜索结果。这会清除缓存并强制重新请求第一页。
+    // 解决切换“偏好开关”时 UI 不刷新的问题。
+    queryClient.resetQueries({ queryKey: searchKeys.all });
+  }, [applyPreferences, queryClient]);
 
   const results = useMemo<Thread[]>(() => {
     const pages = queryState.data?.pages || [];
@@ -119,17 +115,7 @@ export function useSearchResults({ params, preferences }: UseSearchResultsOption
 
     const finalResults = Array.from(uniqueResults.values());
     
-    // 前端兜底过滤：确保即使后端漏掉了过滤，用户偏好依然生效
-    const filteredResults = applyPreferences 
-      ? filterThreadsByPreferences(finalResults, discoveryPreferenceContext)
-      : finalResults;
-    
-    // --- 调试埋点 ---
-    if (filteredResults.length > 0) {
-      console.log(`%c[React状态] 当前已合成了 ${filteredResults.length} 个唯一帖子 (总回包数据: ${mergedResults.length})`, "color: #ec4899; font-weight: bold;");
-    }
-    
-    return filteredResults;
+    return finalResults;
   }, [queryState.data, applyPreferences, discoveryPreferenceContext]);
 
   const totalResults = Number(queryState.data?.pages?.[0]?.total || 0);
