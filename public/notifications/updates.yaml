@@ -1,4 +1,40 @@
 updates:
+  - id: release-2.3.9-url-concatenation-fix
+    kind: release
+    title: 索引页 2.3.9 发布：把错位的路标扶正啦！
+    message: |
+      今天是5月8日世界微笑日呀！大家今天有没有记得对身边的人，或者是镜子里的自己，露出一个大大的微笑呢？就算遇到烦心事，也要保持微笑哦！
+
+      呜呜呜，本宝宝今天要跟大家道个歉。之前大家看「浏览历史」或者「书单帖子」的时候，我可能把路标给指错了，导致大家点进去迷路了……都怪我不小心把 URL 给拼错了啦！不过别担心，我已经重新把路标都扶正了，现在大家又可以顺畅地到处闲逛啦！||才、才不是因为我贪玩忘记检查了呢！||大家快去试试看吧，以后我会更小心的！
+    created_at: 2026-05-08T00:30:00.000Z
+    version: 2.3.9
+    url: https://github.com/shiyue137mh-netizen/Odysseia-Forum-webpage/releases
+    min_app_version: 2.3.9
+    preview_thread:
+      title: Odysseia Index 2.3.9 更新日志
+      first_message_excerpt: |
+        # Odysseia Index 2.3.9
+
+        世界微笑日快乐！今天也要用微笑迎接每一天哦！
+
+        ## 🐛 捉虫大成功
+        - 修复了「浏览历史」和「书单帖子跳转」的 URL 拼接错误。
+        - 现在大家点击帖子链接，都能准确无误地到达目的地啦！
+        - 呜呜，之前迷路的宝宝们，真的对不起呀！||已经惩罚开发哥哥不许吃晚饭了！||
+
+        如果大家再发现什么不对劲的地方，一定要第一时间告诉我哦！
+      tags:
+        - 版本更新
+        - Bug修复
+      virtual_tags:
+        - release
+        - bugfix
+      author:
+        id: odysseia-web
+        name: Odysseia
+        display_name: Odysseia Web Team
+      thumbnail_urls:
+        - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/sad_apology.png
   - id: release-2.3.8-fixes-and-animations
     kind: release
     title: 索引页 2.3.8 发布：吃饱了才有力气捉虫呀！
@@ -82,48 +118,6 @@ updates:
         display_name: Odysseia Web Team
       thumbnail_urls:
         - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/letsgo.png
-  - id: release-2.3.6-docs-sync-preferences
-    kind: release
-    title: 索引页 2.3.6 发布：文档英雄来啦！
-    message: |
-      今天是4月28日国家英雄日呀！大家心里有没有一个超级英雄呢？不管是披着斗篷飞来飞去的，还是在平凡岗位上默默付出的，都是很了不起的英雄哦！
-
-      咱们社区也有自己的英雄呢！开发哥哥今天把前几天新上线的「偏好系统」的相关文档全部整理同步完啦！哼，总算是把坑填上了！以后大家要是有什么不懂的，或者想看看系统是怎么运作的，看文档就像看英雄秘籍一样清楚哦！是不是很赞呀？||其实就是怕自己以后忘了怎么写的代码吧！||大家快去膜拜一下这份新出炉的秘籍吧！
-    created_at: 2026-04-28T00:09:12.643Z
-    version: 2.3.6
-    url: https://github.com/shiyue137mh-netizen/Odysseia-Forum-webpage/releases
-    min_app_version: 2.3.6
-    preview_thread:
-      title: Odysseia Index 2.3.6 更新日志
-      first_message_excerpt: |
-        # Odysseia Index 2.3.6
-
-        英雄日快乐呀！致敬每一位在平凡中闪闪发光的英雄！
-
-        ## ✨ 偏好系统秘籍大公开！
-        - 开发哥哥终于把「偏好系统」的开发文档同步完成啦！
-        - 以后遇到不明白的地方，翻翻文档就好啦！
-
-        ## 🚀 填坑完毕
-        - 之前留下的坑总算补上了。
-        - 大家要是发现文档里有写错的地方，一定要告诉我哦！
-        - 我会帮大家去锤他的！||当然如果是错别字的话就勉为其难原谅他一次吧！||
-
-        快去看看新文档吧！本宝宝期待你们的发现哦！
-      tags:
-        - 版本更新
-        - 文档同步
-        - 偏好系统
-      virtual_tags:
-        - release
-        - docs
-        - preferences
-      author:
-        id: odysseia-web
-        name: Odysseia
-        display_name: Odysseia Web Team
-      thumbnail_urls:
-        - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/pride.png
   - id: earth-day-2026
     kind: announcement
     title: 🌍 世界地球日快乐！
