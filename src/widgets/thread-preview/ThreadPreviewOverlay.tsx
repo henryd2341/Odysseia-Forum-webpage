@@ -1,14 +1,14 @@
 import { format, formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import {
-    Calendar,
-    Clock3,
-    Eye,
-    Hash,
-    MessageCircle,
-    ThumbsUp,
-    User,
-    X,
+  Calendar,
+  Clock3,
+  Eye,
+  Hash,
+  MessageCircle,
+  ThumbsUp,
+  User,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -82,9 +82,9 @@ export function ThreadPreviewOverlay({
   });
   const lastActiveTime = thread.last_active_at
     ? formatDistanceToNow(new Date(thread.last_active_at), {
-        addSuffix: true,
-        locale: zhCN,
-      })
+      addSuffix: true,
+      locale: zhCN,
+    })
     : null;
   const virtualOnlyTags = (thread.virtual_tags || []).filter(
     (tag) => !thread.tags.includes(tag),
@@ -113,7 +113,7 @@ export function ThreadPreviewOverlay({
     [location.pathname, navigate, params.query, setParams],
   );
 
-return createPortal(
+  return createPortal(
     <>
       <dialog
         ref={dialogRef}
@@ -124,9 +124,8 @@ return createPortal(
           }
         }}
         aria-labelledby="thread-preview-title"
-        className={`fixed inset-0 z-2000 m-auto flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[1.6rem] p-0 backdrop:bg-black/60 backdrop:backdrop-blur-xs transition-all duration-300 ${
-          isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-95 opacity-0 backdrop:bg-black/0 backdrop:backdrop-blur-none"
-        } od-floating-panel-solid`}
+        className={`fixed inset-0 z-2000 m-auto flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[1.6rem] p-0 backdrop:bg-black/60 backdrop:backdrop-blur-xs transition-all duration-300 ${isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-95 opacity-0 backdrop:bg-black/0 backdrop:backdrop-blur-none"
+          } od-floating-panel-solid`}
       >
         {/* Header */}
         <div className="border-b border-(--od-shell-line) bg-(--od-surface-floating) px-6 py-5">
@@ -300,7 +299,7 @@ return createPortal(
             </div>
           )}
         </div>
-</dialog>
+      </dialog>
       <QuickAddToBooklistModal
         isOpen={quickAddOpen}
         threadId={thread.thread_id}

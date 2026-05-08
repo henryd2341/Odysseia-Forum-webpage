@@ -14,12 +14,11 @@
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: color-mix(
-      in_oklab,
-      var(--od-border-strong) 80%,
-      var(--od-bg) 20%
-    );
+    background: color-mix(in_oklab,
+        var(--od-border-strong) 80%,
+        var(--od-bg) 20%);
   }
+
   scrollbar-width: thin;
   scrollbar-color: var(--od-border-strong) transparent;
 }
@@ -28,8 +27,11 @@
   &::-webkit-scrollbar {
     display: none;
   }
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 @layer base {
@@ -220,14 +222,17 @@
   animation: none;
   z-index: 1;
 }
+
 [data-theme-transition='circle']::view-transition-new(root) {
   animation: circle-in 3.6s cubic-bezier(0.3, 0, 0.2, 1) forwards;
   z-index: 2;
 }
+
 @keyframes circle-in {
   0% {
     clip-path: circle(0px at var(--click-x, 50%) var(--click-y, 50%));
   }
+
   100% {
     clip-path: circle(150% at var(--click-x, 50%) var(--click-y, 50%));
   }
@@ -238,14 +243,17 @@
   animation: none;
   z-index: 1;
 }
+
 [data-theme-transition='wipe-right']::view-transition-new(root) {
   animation: wipe-right 2.7s cubic-bezier(0.3, 0, 0.2, 1) forwards;
   z-index: 2;
 }
+
 @keyframes wipe-right {
   0% {
     clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
   }
+
   100% {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
   }
@@ -256,14 +264,17 @@
   animation: none;
   z-index: 1;
 }
+
 [data-theme-transition='wipe-down']::view-transition-new(root) {
   animation: wipe-down 2.7s cubic-bezier(0.3, 0, 0.2, 1) forwards;
   z-index: 2;
 }
+
 @keyframes wipe-down {
   0% {
     clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
   }
+
   100% {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
   }

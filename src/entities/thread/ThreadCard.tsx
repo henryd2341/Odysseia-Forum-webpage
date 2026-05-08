@@ -1,13 +1,13 @@
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import {
-    BookOpen,
-    Calendar,
-    Clock3,
-    Eye,
-    Image as ImageIcon,
-    MessageCircle,
-    ThumbsUp,
+  BookOpen,
+  Calendar,
+  Clock3,
+  Eye,
+  Image as ImageIcon,
+  MessageCircle,
+  ThumbsUp,
 } from "lucide-react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -19,8 +19,8 @@ import { QuickAddToBooklistModal } from "@/features/booklists/components/QuickAd
 import { ThreadActions } from "@/features/threads/components/ThreadActions";
 import { subscribeThreadThumbnailRepair } from "@/features/threads/lib/thumbnailRepairQueue";
 import {
-    useCardSizeSetting,
-    useFontSizeSetting,
+  useCardSizeSetting,
+  useFontSizeSetting,
 } from "@/shared/hooks/useSettings";
 import { fontSizeMap } from "@/shared/lib/settings";
 import { DiscordMarkdownText } from "@/shared/ui/DiscordMarkdownText";
@@ -103,9 +103,9 @@ function ThreadCardImpl({
   });
   const lastActiveTime = thread.last_active_at
     ? formatDistanceToNow(new Date(thread.last_active_at), {
-        addSuffix: true,
-        locale: zhCN,
-      })
+      addSuffix: true,
+      locale: zhCN,
+    })
     : null;
   const virtualOnlyTags = (thread.virtual_tags || []).filter(
     (tag) => !thread.tags.includes(tag),
@@ -132,7 +132,7 @@ function ThreadCardImpl({
         : "aspect-3/4";
 
   return (
-<>
+    <>
       <article
         role="button"
         aria-label={ariaLabel}
@@ -215,9 +215,8 @@ function ThreadCardImpl({
                       ["--od-marquee-gap" as string]: "1.75rem",
                       ["--od-marquee-duration" as string]: `${Math.max(5, titleShift / 22)}s`,
                     }}
-                    className={`od-marquee-track inline-flex items-center font-extrabold leading-snug tracking-[-0.02em] ${
-                      shouldMarquee ? "od-marquee-active" : ""
-                    }`}
+                    className={`od-marquee-track inline-flex items-center font-extrabold leading-snug tracking-[-0.02em] ${shouldMarquee ? "od-marquee-active" : ""
+                      }`}
                   >
                     <span className="shrink-0">
                       <HighlightText

@@ -196,6 +196,11 @@ export function MePreferencesSection({
                 }}
                 className="min-h-[110px] w-full rounded-2xl border border-(--od-shell-line) bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] px-4 py-3 text-sm text-(--od-text-primary)"
               />
+              <p className="mt-2 text-[11px] leading-relaxed text-(--od-text-tertiary)">
+                支持多组关键词组合：使用逗号 <code className="px-1 text-(--od-accent)">,</code> 分隔表示“且”（AND），使用斜杠 <code className="px-1 text-(--od-accent)">/</code> 分隔表示“或”（OR）。
+                <br />
+                精确匹配请使用双引号包裹，例如 <code className="px-1 text-(--od-accent)">"原神"</code>。搜索不区分大小写。
+              </p>
             </label>
             <label className="block space-y-2">
               <span className="block text-sm font-medium text-(--od-text-secondary)">
@@ -211,6 +216,11 @@ export function MePreferencesSection({
                 }}
                 className="min-h-[110px] w-full rounded-2xl border border-(--od-shell-line) bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] px-4 py-3 text-sm text-(--od-text-primary)"
               />
+              <p className="mt-2 text-[11px] leading-relaxed text-(--od-text-tertiary)">
+                使用逗号、空格或斜杠分隔多个词。包含这些词的帖子将被隐藏。
+                <br />
+                特别地，若关键词附近带有“禁”或“🈲”标记，则会自动豁免，不会被屏蔽。
+              </p>
             </label>
           </div>
 
