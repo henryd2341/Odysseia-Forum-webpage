@@ -124,7 +124,7 @@ export function ThreadPreviewOverlay({
           }
         }}
         aria-labelledby="thread-preview-title"
-        className={`fixed inset-0 z-2000 m-auto flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[1.6rem] p-0 backdrop:bg-black/60 backdrop:backdrop-blur-xs transition-all duration-300 ${isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-95 opacity-0 backdrop:bg-black/0 backdrop:backdrop-blur-none"
+        className={`fixed inset-x-3 inset-y-3 z-2000 m-auto flex h-[calc(100vh-1.5rem)] min-h-0 w-[calc(100%-1.5rem)] max-w-2xl flex-col overflow-hidden rounded-[1.6rem] p-0 backdrop:bg-black/60 backdrop:backdrop-blur-xs transition-all duration-300 supports-[height:100dvh]:h-[calc(100dvh-1.5rem)] sm:inset-x-6 sm:inset-y-6 sm:h-[calc(100vh-3rem)] sm:w-[calc(100%-3rem)] sm:supports-[height:100dvh]:h-[calc(100dvh-3rem)] ${isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-95 opacity-0 backdrop:bg-black/0 backdrop:backdrop-blur-none"
           } od-floating-panel-solid`}
       >
         {/* Header */}
@@ -237,7 +237,7 @@ export function ThreadPreviewOverlay({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto bg-(--od-surface-floating) p-6 scrollbar-thin">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-(--od-surface-floating) p-6 scrollbar-thin">
           {/* Title */}
           <h2 id="thread-preview-title" className={`mb-4 font-bold leading-tight text-(--od-text-primary) ${fontSizes.title}`}>
             {thread.title}
