@@ -28,6 +28,10 @@ function escapeHtmlAttribute(value: string): string {
     .replace(/>/g, '&gt;');
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function buildSafeAnchor(label: string, rawUrl: string): string {
   const parsedUrl = parseHttpUrl(decodeHtmlEntities(rawUrl));
   if (!parsedUrl) {
@@ -52,10 +56,17 @@ function buildSafeAnchor(label: string, rawUrl: string): string {
 function parseMarkdown(text: string): string {
   if (!text) return '';
 
+  const codeBlocks: string[] = [];
   let html = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+
+  html = html.replace(/```[^\n`]*\n?([\s\S]*?)```/g, (_match, code: string) => {
+    const token = `ODCODEBLOCK${codeBlocks.length}TOKEN`;
+    codeBlocks.push(`<pre class="code-block"><code>${code.replace(/^\n|\n$/g, '')}</code></pre>`);
+    return token;
+  });
 
   html = html.replace(/\|\|(.+?)\|\|/g, '<span class="spoiler" data-spoiler="true">$1</span>');
   html = html.replace(/__(.*?)__/g, '<u>$1</u>');
@@ -81,6 +92,10 @@ function parseMarkdown(text: string): string {
 
   html = html.replace(/^> (.*)$/gim, '<blockquote class="discord-quote">$1</blockquote>');
   html = html.replace(/\n/g, '<br />');
+
+  for (const [index, block] of codeBlocks.entries()) {
+    html = html.replace(new RegExp(escapeRegExp(`ODCODEBLOCK${index}TOKEN`), 'g'), block);
+  }
 
   return html;
 }

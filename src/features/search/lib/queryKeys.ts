@@ -26,7 +26,8 @@ export const searchKeys = {
     ] as const,
   filterMeta: (channelId: string | null) =>
     [...searchKeys.all, "filter-meta", { channelId }] as const,
-  channelTagCatalog: () => [...searchKeys.all, "channel-tag-catalog"] as const,
+  channelTagCatalog: (channelId?: string | null) =>
+    [...searchKeys.all, "channel-tag-catalog", { channelId: channelId ?? null }] as const,
   suggestions: (params: {
     query: string;
     channel: string | null;

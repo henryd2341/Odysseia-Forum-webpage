@@ -121,6 +121,9 @@ export function useSearchURLParams() {
       const current = parseParams(searchParams);
       const merged = { ...current, ...updates };
       const newSP = serializeParams(merged);
+      if (updates.sortMethod === "last_active_desc") {
+        newSP.set("sort", "last_active_desc");
+      }
       const isQueryChange =
         updates.query !== undefined && updates.query !== current.query;
       setSearchParams(newSP, { replace: !isQueryChange });

@@ -47,20 +47,9 @@ export function useSearchAutocomplete({
     );
   }, [searchInput]);
 
-  const { data: filterMeta } = useQuery({
-    queryKey: searchKeys.filterMeta(params.channel),
-    queryFn: () =>
-      searchApi.search({
-        channel_ids: params.channel ? [params.channel] : undefined,
-        limit: 1,
-      }),
-    staleTime: 5 * 60 * 1000,
-  });
-
   const { data: channelTagCatalog = [] } = useQuery({
-    queryKey: searchKeys.channelTagCatalog(),
-    queryFn: () => searchApi.getChannelTagCatalog(),
-    enabled: !params.channel,
+    queryKey: searchKeys.channelTagCatalog(params.channel),
+    queryFn: () => searchApi.getChannelTagCatalog(params.channel),
     staleTime: 5 * 60 * 1000,
     retry: false,
   });
@@ -96,19 +85,11 @@ export function useSearchAutocomplete({
 
   const availableTags = useMemo(() => {
     return mergeUnique([
-      ...(filterMeta?.virtual_tags || []),
-      ...(filterMeta?.available_tags || []),
       ...globalAvailableTags,
       ...params.includeTags,
       ...params.excludeTags,
     ]);
-  }, [
-    filterMeta?.available_tags,
-    filterMeta?.virtual_tags,
-    globalAvailableTags,
-    params.includeTags,
-    params.excludeTags,
-  ]);
+  }, [globalAvailableTags, params.includeTags, params.excludeTags]);
 
   const discoveryPreferenceContext = useMemo(
     () => getDiscoveryPreferenceContext(preferences),

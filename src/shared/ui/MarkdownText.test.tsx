@@ -42,4 +42,18 @@ describe('MarkdownText', () => {
 
     expect(openSpy).toHaveBeenCalledWith('https://example.com/post', '_blank', 'noopener,noreferrer');
   });
+
+  it('分别渲染行内代码和围栏代码块', () => {
+    const { container } = render(<MarkdownText text={'`xx`\n```\nxxx\n```'} />);
+
+    expect(container.querySelector('code.inline-code')?.textContent).toBe('xx');
+    expect(container.querySelector('pre.code-block code')?.textContent).toBe('xxx');
+  });
+
+  it('围栏代码块内部的反引号不会被当作行内代码解析', () => {
+    const { container } = render(<MarkdownText text={'```\nconst x = `xx`;\n```'} />);
+
+    expect(container.querySelectorAll('code.inline-code')).toHaveLength(0);
+    expect(container.querySelector('pre.code-block code')?.textContent).toBe('const x = `xx`;');
+  });
 });
