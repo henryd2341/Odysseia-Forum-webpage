@@ -6,9 +6,11 @@ import {
 } from 'lucide-react';
 
 import type { UserSettings } from '@/shared/lib/settings';
-import defaultWinterBackground from '@/assets/images/background/winter.png';
 import defaultSpringBackground from '@/assets/images/background/spring.png';
 import defaultSpring2Background from '@/assets/images/background/spring2.png';
+import defaultSummer1Background from '@/assets/images/background/summer1.png';
+import defaultSummer2Background from '@/assets/images/background/summer2.png';
+import defaultSummer3Background from '@/assets/images/background/summer3.png';
 import defaultBannerBackground from '@/assets/images/banners/banner.png';
 
 type ThemeOption = {
@@ -104,10 +106,22 @@ export const themeOptions: ThemeOption[] = [
 
 export const backgroundPresets = [
   {
-    id: 'winter',
-    label: 'Winter',
-    description: '冷冽雪原',
-    previewUrl: defaultWinterBackground,
+    id: 'summer-1',
+    label: 'Summer 1',
+    description: '烟火大会1',
+    previewUrl: defaultSummer1Background,
+  },
+  {
+    id: 'summer-2',
+    label: 'Summer 2',
+    description: '烟火大会2',
+    previewUrl: defaultSummer2Background,
+  },
+  {
+    id: 'summer-3',
+    label: 'Summer 3',
+    description: '盛夏天台',
+    previewUrl: defaultSummer3Background,
   },
   {
     id: 'spring',

@@ -8,7 +8,7 @@ import forumIcon from '@/assets/images/icon/A90C044F8DDF1959B2E9078CB629C239.png
 import { showMascotToast } from '@/features/mascot/lib/mascotToast';
 import { notifySuccess } from '@/shared/lib/notify';
 import { WordLogoStatic } from '@/shared/ui/loaders/WordLogoStatic';
-import backgroundImage from '@/assets/images/background/spring2.png';
+import backgroundImage from '@/assets/images/background/summer2.png';
 import { WordLoader } from '@/shared/ui/loaders/WordLoader';
 
 export function LoginPage() {
