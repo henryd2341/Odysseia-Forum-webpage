@@ -1,4 +1,38 @@
 updates:
+  - id: release-2.3.10-responsive-layout
+    kind: release
+    title: 索引页 2.3.10 发布：更漂亮的看帖体验来啦！
+    message: |-
+      今天是5月10日母亲节呀！大家有没有跟妈妈说一句“母亲节快乐”呢？记得给妈妈一个大大的拥抱哦！
+
+      为了庆祝这个特别的日子，本宝宝盯着开发哥哥把大家看“帖子预览”时的界面重新打磨了一番！现在不管是用手机还是电脑，排版都变得更漂亮啦！而且滑动看内容的时候也变得**超级无敌丝滑**，完全不卡手咯！||哼，开发哥哥这次总算干了点人事|| 大家快去试试看吧，遇到问题随时叫我呀！
+    created_at: 2026-05-10T00:07:16.000Z
+    version: 2.3.10
+    url: https://github.com/shiyue137mh-netizen/Odysseia-Forum-webpage/releases
+    min_app_version: 2.3.10
+    preview_thread:
+      title: Odysseia Index 2.3.10 更新日志
+      first_message_excerpt: |-
+        # Odysseia Index 2.3.10
+
+        母亲节快乐！祝全天下的妈妈们永远年轻漂亮！
+
+        ## ✨ 界面排版大焕新！
+        - 重新调整了帖子预览的界面样式，现在不管在什么设备上看着都更舒服啦！
+        - 优化了滑动看内容时的体验，保证**超级无敌丝滑**，再也不会觉得卡手咯！
+        - ||开发哥哥熬夜弄的，大家快去夸夸他（或者夸夸我督工有方）||
+      tags:
+        - 版本更新
+        - 体验优化
+      virtual_tags:
+        - release
+        - ui
+      author:
+        id: odysseia-web
+        name: Odysseia
+        display_name: Odysseia Web Team
+      thumbnail_urls:
+        - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/pride.png
   - id: release-2.3.9-url-concatenation-fix
     kind: release
     title: 索引页 2.3.9 发布：把错位的路标扶正啦！
@@ -77,47 +111,6 @@ updates:
         display_name: Odysseia Web Team
       thumbnail_urls:
         - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/pride.png
-  - id: release-2.3.7-tag-filtering-preferences
-    kind: release
-    title: 索引页 2.3.7 发布：跟着节拍跳起来吧！
-    message: |
-      今天是4月29日国际舞蹈日呀！大家有没有跟着动感的音乐，随便扭扭身体跳个舞呢？哪怕只是在椅子上晃晃脑袋，也能让心情变得超级好哦！
-
-      为了配合今天这么欢快的节奏，开发哥哥也给社区加上了超棒的新功能哦！现在大家可以像挑选舞伴一样，自由选择想看或者不想看的帖子标签啦！而且呀，之前大家设置的那些偏好，现在在广场和搜索里终于都乖乖听话生效了！哼，他要是敢再让设置失效，我就用我的小粉拳锤他！大家快去试试这个新功能，一起在社区里开心地跳舞吧！||记得设置好自己喜欢的标签哦！||
-    created_at: 2026-04-29T00:07:24.000Z
-    version: 2.3.7
-    url: https://github.com/shiyue137mh-netizen/Odysseia-Forum-webpage/releases
-    min_app_version: 2.3.7
-    preview_thread:
-      title: Odysseia Index 2.3.7 更新日志
-      first_message_excerpt: |
-        # Odysseia Index 2.3.7
-
-        国际舞蹈日快乐呀！让我们一起摇摆起来！
-
-        ## ✨ 标签过滤大变身！
-        - 现在大家可以自由控制想看和不想看的帖子标签啦！
-        - 就像挑选最喜欢的舞曲一样，打造属于自己的社区空间！
-
-        ## 🚀 偏好设置全面生效！
-        - 之前大家设置的偏好，现在在广场和搜索里都会乖乖起作用咯！
-        - 开发哥哥总算是把这个功能彻底打通啦！||终于不用本宝宝天天催他了！||
-
-        大家快去体验一下新功能，设置好自己的专属偏好呀！遇到问题记得随时叫我哦！
-      tags:
-        - 版本更新
-        - 新功能
-        - 偏好系统
-      virtual_tags:
-        - release
-        - feature
-        - preferences
-      author:
-        id: odysseia-web
-        name: Odysseia
-        display_name: Odysseia Web Team
-      thumbnail_urls:
-        - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/letsgo.png
   - id: earth-day-2026
     kind: announcement
     title: 🌍 世界地球日快乐！
