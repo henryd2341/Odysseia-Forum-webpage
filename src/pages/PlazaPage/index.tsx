@@ -148,96 +148,100 @@ export function PlazaPage() {
   const collectMutation = useToggleBooklistCollection();
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-10 p-4 sm:p-6 lg:p-8">
-      <section className="relative min-h-88">
-        <div className="relative z-10 flex flex-col justify-between pt-6 sm:pt-8 lg:pt-10">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between mb-8">
-            <div className="max-w-3xl">
-              <div className="od-editorial-kicker mb-3 text-(--od-text-tertiary)">
-                <Compass className="h-3.5 w-3.5" />
-                Plaza Spotlight
-              </div>
-              <h1 className="od-hero-title max-w-2xl text-(--od-text-primary)">内容广场</h1>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 self-start lg:max-w-[24rem] lg:justify-end">
-              <button
-                type="button"
-                onClick={() => navigate('/draw')}
-                className="od-inline-action od-inline-action-primary"
-              >
-                <Dices className="h-4 w-4" />
-                进入随机抽卡
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/booklists')}
-                className="od-inline-action od-inline-action-ghost"
-              >
-                <Plus className="h-4 w-4" />
-                去书单页
-              </button>
-            </div>
-          </div>
-
-          <div className="w-full">
-            {bannersQuery.isLoading ? (
-              <div className="h-48 w-full animate-pulse rounded-[1.35rem] bg-(--od-surface-input) xl:h-64" />
-            ) : bannersQuery.data && bannersQuery.data.length > 0 ? (
-              <BannerCarousel
-                banners={bannersQuery.data.map((b) => ({
-                  id: b.thread_id,
-                  image: b.cover_image_url,
-                  title: b.title,
-                  description: b.author ? `作者：${b.author.display_name || b.author.global_name || b.author.name}` : '点击可以直接探索原帖',
-                  link: buildDiscordWebThreadUrl({
-                    guildId: b.guild_id || GUILD_ID,
-                    channelId: b.channel_id,
-                    threadId: b.thread_id,
-                  }),
-                }))}
-                onBannerClick={(banner) => {
-                  const url = banner.link || buildDiscordWebThreadUrl({
-                    guildId: GUILD_ID,
-                    channelId: banner.id,
-                    threadId: banner.id,
-                  });
-                  window.open(url, '_blank', 'noopener,noreferrer');
-                }}
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col min-h-screen">
+      {/* 顶部 Banner 区域：释放圆角约束，全宽展示 */}
+      <section className="w-full">
+        {bannersQuery.isLoading ? (
+          <div className="h-48 w-full animate-pulse bg-(--od-surface-input) xl:h-64" />
+        ) : bannersQuery.data && bannersQuery.data.length > 0 ? (
+          <BannerCarousel
+            fullWidth={true}
+            banners={bannersQuery.data!.map((b) => ({
+              id: b.thread_id,
+              image: b.cover_image_url,
+              title: b.title,
+              description: b.author ? `作者：${b.author.display_name || b.author.global_name || b.author.name}` : '点击可以直接探索原帖',
+              link: buildDiscordWebThreadUrl({
+                guildId: b.guild_id || GUILD_ID,
+                channelId: b.channel_id,
+                threadId: b.thread_id,
+              }),
+            }))}
+            onBannerClick={(banner) => {
+              const url = banner.link || buildDiscordWebThreadUrl({
+                guildId: GUILD_ID,
+                channelId: banner.id,
+                threadId: banner.id,
+              });
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }}
+          />
+        ) : (
+          <div className="group relative overflow-hidden">
+            <div className="relative aspect-video">
+              <img
+                src={defaultBannerImage}
+                alt="欢迎来到 Odysseia"
+                className="h-full w-full object-cover"
               />
-            ) : (
-              <div className="group relative overflow-hidden rounded-xl">
-                <div className="relative aspect-21/9">
-                  <img
-                    src={defaultBannerImage}
-                    alt="欢迎来到 Odysseia"
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <h2 className="mb-2 text-2xl font-bold text-white line-clamp-1">
-                      欢迎来到 类脑Odysseia
-                    </h2>
-                    <p className="text-sm text-gray-200 line-clamp-2">
-                      今天的头图位还空着呢，不过没关系，先往下逛逛看吧。
-                    </p>
-                    <div className="mt-4">
-                      <a
-                        href={WIKI_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center rounded-full border border-white/20 bg-black/30 px-4 py-2 text-xs font-semibold tracking-[0.12em] text-white transition-colors hover:bg-black/45"
-                      >
-                        类脑智识库 Wiki
-                      </a>
-                    </div>
-                  </div>
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6 md:px-10 lg:px-16">
+                <h2 className="mb-2 text-2xl font-bold text-white line-clamp-1">
+                  欢迎来到 类脑Odysseia
+                </h2>
+                <p className="text-sm text-gray-200 line-clamp-2">
+                  今天的头图位还空着呢，不过没关系，先往下逛逛看吧。
+                </p>
+                <div className="mt-4">
+                  <a
+                    href={WIKI_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center rounded-full border border-white/20 bg-black/30 px-4 py-2 text-xs font-semibold tracking-[0.12em] text-white transition-colors hover:bg-black/45"
+                  >
+                    类脑智识库 Wiki
+                  </a>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </section>
+
+      {/* 主体内容区域：保持原有的间距设计 */}
+      <div className="flex flex-col gap-10 p-4 sm:p-6 lg:p-8">
+        <section className="relative">
+          <div className="relative z-10 flex flex-col justify-between pt-2 sm:pt-4">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="od-editorial-kicker mb-3 text-(--od-text-tertiary)">
+                  <Compass className="h-3.5 w-3.5" />
+                  Plaza Spotlight
+                </div>
+                <h1 className="od-hero-title max-w-2xl text-(--od-text-primary)">内容广场</h1>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 self-start lg:max-w-[24rem] lg:justify-end">
+                <button
+                  type="button"
+                  onClick={() => navigate('/draw')}
+                  className="od-inline-action od-inline-action-primary"
+                >
+                  <Dices className="h-4 w-4" />
+                  进入随机抽卡
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/booklists')}
+                  className="od-inline-action od-inline-action-ghost"
+                >
+                  <Plus className="h-4 w-4" />
+                  去书单页
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
 
       <section className="px-1 py-2">
 
@@ -355,7 +359,7 @@ export function PlazaPage() {
           </div>
         ) : booklistsQuery.data && booklistsQuery.data.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {booklistsQuery.data.map((booklist: Booklist) => (
+            {booklistsQuery.data!.map((booklist: Booklist) => (
               <BooklistCard
                 key={booklist.id}
                 booklist={booklist}
@@ -384,6 +388,7 @@ export function PlazaPage() {
         </div>
       </div>
 
+      </div>
     </div>
   );
 }

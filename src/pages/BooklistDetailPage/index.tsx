@@ -53,6 +53,7 @@ function toThread(item: BooklistItem): Thread {
     virtual_tags: item.virtual_tags || [],
     thumbnail_urls: item.thumbnail_urls || [],
     collected_flag: item.collected_flag,
+    collection_count: item.collection_count || 0,
   };
 }
 

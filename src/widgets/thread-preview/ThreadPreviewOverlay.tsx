@@ -96,7 +96,7 @@ export function ThreadPreviewOverlay({
     })
     : null;
   const virtualOnlyTags = (thread.virtual_tags || []).filter(
-    (tag) => !thread.tags.includes(tag),
+    (tag) => !thread.tags?.includes(tag),
   );
 
   const searchableAuthorName =
@@ -247,7 +247,7 @@ export function ThreadPreviewOverlay({
           {/* Title */}
           <h2
             id="thread-preview-title"
-            className="mt-4 text-xl font-extrabold leading-snug tracking-[-0.02em] text-(--od-text-primary) break-words"
+            className="mt-4 text-xl font-extrabold leading-snug tracking-[-0.02em] text-(--od-text-primary) wrap-break-word"
           >
             {thread.title}
           </h2>
@@ -299,7 +299,7 @@ export function ThreadPreviewOverlay({
               <ImageCarousel
                 images={thread.thumbnail_urls}
                 alt={thread.title}
-                className="h-[300px] sm:h-[400px]"
+                className="h-75 sm:h-100"
               />
             </div>
           )}

@@ -18,9 +18,10 @@ interface BannerCarouselProps {
   banners: Banner[];
   autoPlayInterval?: number;
   onBannerClick?: (banner: Banner) => void;
+  fullWidth?: boolean;
 }
 
-export function BannerCarousel({ banners, autoPlayInterval = 5000, onBannerClick }: BannerCarouselProps) {
+export function BannerCarousel({ banners, autoPlayInterval = 5000, onBannerClick, fullWidth = false }: BannerCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
@@ -47,8 +48,8 @@ export function BannerCarousel({ banners, autoPlayInterval = 5000, onBannerClick
 
   if (banners.length === 0) {
     return (
-      <div className="group relative mb-4 overflow-hidden rounded-xl">
-        <div className="relative aspect-21/9">
+      <div className={`group relative overflow-hidden ${fullWidth ? '' : 'mb-4 rounded-xl'}`}>
+        <div className="relative aspect-video">
           <LazyImage
             src={defaultBannerImage}
             alt="欢迎来到 Odysseia"
@@ -83,13 +84,13 @@ export function BannerCarousel({ banners, autoPlayInterval = 5000, onBannerClick
 
   return (
     <div
-      className="group relative mb-4 overflow-hidden rounded-xl bg-[#2b2d31] cursor-pointer"
+      className={`group relative overflow-hidden bg-[#2b2d31] cursor-pointer ${fullWidth ? '' : 'mb-4 rounded-xl'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onBannerClick?.(currentBanner)}
     >
       {/* Banner 图片 */}
-      <div className="relative aspect-21/9">
+      <div className="relative aspect-video">
         <LazyImage
           src={currentBanner.image}
           alt={currentBanner.title}
