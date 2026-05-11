@@ -158,7 +158,7 @@ export function SearchPage() {
                       const colorClass = isNegative
                         ? "bg-rose-500/10 text-rose-500 border border-rose-500/20"
                         : "bg-[color-mix(in_srgb,var(--od-accent)_16%,transparent)] text-(--od-accent) border border-[color-mix(in_srgb,var(--od-accent)_26%,transparent)]";
-                      
+
                       const prefix =
                         token.type === "author"
                           ? "@"
@@ -335,10 +335,10 @@ export function SearchPage() {
                       Preference Filter Active
                     </div>
                     <p className="od-inline-notice-title mt-3">
-                      我先按你平时的口味帮你收了一下范围
+                      我先按你平时的偏好帮你收了一下范围
                     </p>
                     <p className="od-inline-notice-copy mt-2 max-w-3xl">
-                      这样翻起来会省心一点点，不容易一上来就撞见你根本不想看的内容哦。
+                      这样不容易一上来就撞见你根本不想看的内容哦。
                     </p>
                   </div>
 

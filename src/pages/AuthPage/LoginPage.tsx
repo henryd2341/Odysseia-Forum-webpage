@@ -52,6 +52,7 @@ export function LoginPage() {
 
   const handleLogin = async () => {
     setIsRedirecting(true);
+    setIsWakingUp(true); // 闭眼
 
     // 在 Mock 模式下，这将由 msw 拦截
     if (import.meta.env.MODE === 'development' && import.meta.env.VITE_USE_MOCK === 'true') {
@@ -74,12 +75,16 @@ export function LoginPage() {
             actionLabel: '重新登录',
             onAction: () => window.location.reload(),
             cancelLabel: '先停一下',
-            onCancel: () => setIsRedirecting(false),
+            onCancel: () => {
+              setIsRedirecting(false);
+              setIsWakingUp(false);
+            },
             duration: 7000,
           });
           setIsRedirecting(false);
+          setIsWakingUp(false);
         }
-      }, 1500); // 留出 1.5s 播放 SVG 动画
+      }, 3000); // 留出更多时间感受闭眼和加载过程
       return;
     }
 
@@ -87,21 +92,21 @@ export function LoginPage() {
     const loginPath = '/auth/login';
     const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://forum.shimmerday.top';
     const finalUrl = `${backendUrl}/v1${loginPath}`;
-      
+
     setTimeout(() => {
       window.location.href = finalUrl;
-    }, 1500); // 留出 1.5s 给动画绽放的时间
+    }, 3000); // 留出 3s 给闭眼动画和后续加载感
   };
 
   return (
     <div className="relative flex min-h-screen items-center overflow-hidden px-4">
-      {/* 苏醒遮罩：上眼睑 */}
+      {/* 苏醒遮罩：上眼睑 (z-100) */}
       <div
         className={`fixed inset-x-0 top-0 z-[100] h-1/2 bg-[#010103] transition-transform duration-1000 ease-in-out ${
           isWakingUp ? 'translate-y-0' : '-translate-y-full'
         }`}
       />
-      {/* 苏醒遮罩：下眼睑 */}
+      {/* 苏醒遮罩：下眼睑 (z-100) */}
       <div
         className={`fixed inset-x-0 bottom-0 z-[100] h-1/2 bg-[#010103] transition-transform duration-1000 ease-in-out ${
           isWakingUp ? 'translate-y-0' : 'translate-y-full'
@@ -125,7 +130,7 @@ export function LoginPage() {
         />
       </div>
 
-      {/* 背景压暗层 */}
+      {/* 背景压暗层 (z-10) */}
       <AnimatePresence>
         {isRedirecting && (
           <motion.div
@@ -138,12 +143,13 @@ export function LoginPage() {
       </AnimatePresence>
 
       <div
-        className={`relative z-20 mx-auto flex w-full max-w-7xl transition-all duration-1000 ${
-          isWakingUp || isSharpening ? 'opacity-0 translate-y-8 blur-sm' : 'opacity-100 translate-y-0 blur-0'
+        className={`relative mx-auto flex w-full max-w-7xl transition-all duration-1000 ${
+          isRedirecting ? 'z-[110] justify-center' : 'z-20 justify-center md:justify-start md:pl-[8%] lg:pl-[10%]'
         } ${
-          isRedirecting ? 'justify-center' : 'justify-center md:justify-start md:pl-[8%] lg:pl-[10%]'
+          !isRedirecting && (isWakingUp || isSharpening) ? 'opacity-0 translate-y-8 blur-sm' : 'opacity-100 translate-y-0 blur-0'
         }`}
       >
+
         <AnimatePresence mode="wait">
           {!isRedirecting ? (
             <motion.div
@@ -186,7 +192,7 @@ export function LoginPage() {
 
               {/* 说明文字 */}
               <p className="mt-8 text-sm text-(--od-text-tertiary)">
-                我们仅读取你的基本信息，不会发送任何消息
+                我们仅读取你是否在服务器内且拥有"已验证"身份组
               </p>
             </motion.div>
           ) : (
@@ -202,13 +208,13 @@ export function LoginPage() {
               <div className="flex scale-100 items-center justify-center sm:scale-110 md:scale-125 drop-shadow-[0_0_20px_rgba(255,255,255,0.25)]">
                 <WordLoader />
               </div>
-              <motion.p 
+              <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                className="mt-12 animate-pulse text-base font-semibold tracking-[0.2em] text-(--od-text-primary)"
+                className="mt-12 animate-pulse text-base font-medium tracking-wider text-(--od-text-primary)"
               >
-                INITIALIZING CONNECTION...
+                欢迎来到类脑! 我们是非盈利性的AIRP社区
               </motion.p>
             </motion.div>
           )}
