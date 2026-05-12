@@ -7,7 +7,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 import { Select } from "@/shared/ui/Select";
 
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -24,7 +24,6 @@ import { BooklistFormModal } from "@/features/booklists/components/BooklistFormM
 import { FluidDivider } from "@/shared/ui/FluidDivider";
 import { AnimatedPagination } from "@/shared/ui/AnimatedPagination";
 import { booklistsApi } from "@/features/booklists/api/booklistsApi";
-import { authorsApi } from "@/features/authors/api/authorsApi";
 import { useBooklistURLParams } from "@/features/booklists/hooks/useBooklistURLParams";
 
 type BooklistScope = "public" | "mine" | "collected";
@@ -89,37 +88,6 @@ export function BooklistsPage() {
     ],
     [scope],
   );
-
-  const ownerIds = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          normalizedResults
-            .map((item) => String(item.owner_id))
-            .filter(Boolean),
-        ),
-      ),
-    [normalizedResults],
-  );
-
-  const ownerProfilesQuery = useQuery({
-    queryKey: ["booklists", "owners", ownerIds],
-    enabled: ownerIds.length > 0,
-    queryFn: async () => {
-      const entries = await Promise.all(
-        ownerIds.map(async (ownerId) => {
-          try {
-            const profile = await authorsApi.getAuthorProfile(ownerId);
-            return [ownerId, profile] as const;
-          } catch {
-            return [ownerId, null] as const;
-          }
-        }),
-      );
-      return new Map(entries);
-    },
-    staleTime: 5 * 60 * 1000,
-  });
 
   const latestCoverQueries = useQueries({
     queries: normalizedResults.map((booklist) => ({
@@ -287,13 +255,12 @@ export function BooklistsPage() {
                 booklist={booklist}
                 canManage={String(booklist.owner_id) === String(user?.id)}
                 ownerName={
-                  ownerProfilesQuery.data?.get(String(booklist.owner_id))
-                    ?.display_name || undefined
+                  booklist.author?.display_name ||
+                  booklist.author?.global_name ||
+                  booklist.author?.name ||
+                  undefined
                 }
-                ownerAvatarUrl={
-                  ownerProfilesQuery.data?.get(String(booklist.owner_id))
-                    ?.avatar_url || null
-                }
+                ownerAvatarUrl={booklist.author?.avatar_url ?? null}
                 coverImageUrl={
                   booklist.cover_image_url ||
                   fallbackCoverMap.get(booklist.id) ||
