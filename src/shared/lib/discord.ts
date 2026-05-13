@@ -50,8 +50,3 @@ export function buildDiscordWebThreadUrl(options: DiscordThreadLinkOptions): str
     const { guildId, threadId } = resolveDiscordLinkSegments(options);
     return `${DISCORD_WEB_BASE}/channels/${guildId}/${threadId}`;
 }
-
-export function buildDiscordAppThreadUrl(options: DiscordThreadLinkOptions): string {
-    const { guildId, threadId } = resolveDiscordLinkSegments(options);
-    return `discord://-/channels/${guildId}/${threadId}`;
-}

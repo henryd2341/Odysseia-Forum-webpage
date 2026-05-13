@@ -63,6 +63,7 @@ const DEFAULT_FORM: PreferencesFormValue = {
   excludeKeywordsText: "",
   previewImageMode: "thumbnail",
   resultsPerPage: 24,
+  uiPageSize: 48,
   sortMethod: "last_active_desc",
 };
 

@@ -1,9 +1,8 @@
 import { Tooltip } from '@/shared/ui/Tooltip';
 import { DiscordIcon } from '@/shared/ui/icons/DiscordIcon';
-import { useOpenModeSetting } from '@/shared/hooks/useSettings';
 import { AnimatedIcon } from '@/shared/ui/animation/AnimatedIcon';
 import { useState } from 'react';
-import { buildDiscordAppThreadUrl, buildDiscordWebThreadUrl } from '@/shared/lib/discord';
+import { buildDiscordWebThreadUrl } from '@/shared/lib/discord';
 
 interface ThreadActionsProps {
     threadId: string;
@@ -24,29 +23,16 @@ interface ThreadActionsProps {
  *  - 'glass': 毛玻璃圆形按钮，用于卡片封面悬浮（与刷新按钮一致）
  */
 export function ThreadActions({ threadId, channelId, guildId, size = 'md', variant = 'default', alwaysVisible = false, className, externalUrlOverride }: ThreadActionsProps) {
-    const openMode = useOpenModeSetting();
     const [isHovered, setIsHovered] = useState(false);
-    const webTargetUrl = externalUrlOverride || buildDiscordWebThreadUrl({
+    const targetUrl = externalUrlOverride || buildDiscordWebThreadUrl({
         guildId,
         channelId,
         threadId,
     });
-    const appTargetUrl = externalUrlOverride || buildDiscordAppThreadUrl({
-        guildId,
-        channelId,
-        threadId,
-    });
-    const targetUrl = openMode === 'web' ? webTargetUrl : appTargetUrl;
-
-    const isWeb = openMode === 'web';
-    const tooltipContent = isWeb ? "在浏览器中打开" : "在 Discord App 中打开";
+    const tooltipContent = "打开 Discord 链接";
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.stopPropagation();
-        if (isWeb) return;
-
-        e.preventDefault();
-        window.location.href = appTargetUrl;
     };
 
     // 样式配置
@@ -67,8 +53,8 @@ export function ThreadActions({ threadId, channelId, guildId, size = 'md', varia
             <Tooltip content={tooltipContent} position="left">
                 <a
                     href={targetUrl}
-                    target={isWeb ? "_blank" : undefined}
-                    rel={isWeb ? "noopener noreferrer" : undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={handleClick}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
@@ -98,8 +84,8 @@ export function ThreadActions({ threadId, channelId, guildId, size = 'md', varia
             <Tooltip content={tooltipContent} position="left">
                 <a
                     href={targetUrl}
-                    target={isWeb ? "_blank" : undefined}
-                    rel={isWeb ? "noopener noreferrer" : undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={handleClick}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}

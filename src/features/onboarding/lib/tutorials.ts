@@ -29,8 +29,8 @@ export const INITIAL_SETUP_TUTORIAL: OnboardingTutorial = {
     {
       id: 'settings_hint',
       target: '[data-tour="sidebar-settings"]',
-      title: '最重要的配置',
-      content: '为了保证你能正常打开 Discord 帖子，请一定要配置好「跳转方式」。跟我去偏好设置页面看看吧？',
+      title: '个性化配置',
+      content: '偏好设置里可以调整阅读尺寸、布局、图片加载和主题氛围。跟我去看看，把社区调成你顺手的样子吧？',
       emotion: 'pride',
       placement: 'right',
     }
@@ -41,10 +41,10 @@ export const SETTINGS_GUIDE_TUTORIAL: OnboardingTutorial = {
   id: 'settings_guide',
   steps: [
     {
-      id: 'open_mode',
-      target: '[data-tour="open-mode-setting"]',
-      title: '选择你的打开方式',
-      content: '你可以设置点击帖子时是直接进入详情，还是开启侧边预览模式。找到最适合你的节奏！',
+      id: 'layout_images',
+      target: '[data-tour="layout-image-settings"]',
+      title: '调整浏览节奏',
+      content: '你可以选择网格或列表布局，也可以控制图片是否加载。找到最适合你的阅读节奏！',
       emotion: 'hi',
       placement: 'bottom',
     },

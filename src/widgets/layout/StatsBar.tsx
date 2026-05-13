@@ -18,7 +18,7 @@ export function StatsBar({
   onPerPageChange,
 }: StatsBarProps) {
   const { settings, updateSettings } = useSettings();
-  const { openMode, layoutMode } = settings;
+  const { layoutMode } = settings;
 
   return (
     <div className="mb-4 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
@@ -79,22 +79,6 @@ export function StatsBar({
               const num = Number(v);
               onPerPageChange(Number.isNaN(num) ? 24 : num);
             }}
-          />
-        </div>
-
-        {/* 跳转方式 */}
-        <div className="flex items-center gap-2">
-          <label htmlFor="openMode" className="text-xs text-(--od-text-secondary)">
-            跳转方式
-          </label>
-          <Select
-            id="openMode"
-            value={openMode}
-            options={[
-              { value: 'app', label: 'App' },
-              { value: 'web', label: '网页' },
-            ]}
-            onChange={(v) => updateSettings({ openMode: v as 'app' | 'web' })}
           />
         </div>
       </div>
