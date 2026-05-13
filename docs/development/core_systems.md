@@ -78,6 +78,13 @@ const ProfilePage = lazy(() => import("@/pages/UserProfilePage"));
 - **展示与忽略控制 (`ignoreDiscoveryPreferences`)**: 提供状态变量供 UI（如横幅提示）触发暂时忽略偏好的动作，以使用纯净参数重查数据。
 - **无缝滚动分页拉黑**: 在加载下一页数据时，前端的 `getNextPageParam` 会强制收集当前已获取的 `exclude_thread_ids` 列表发送给后端（数组元素可能为 Number 或 String），并且强制覆盖 `offset=0` 以适配后端游标逻辑。这种结合总余量（`total > 0`）判定下一页的实现彻底解决了传统的因为分页期间插入新帖导致的跳页或重复加载 Bug。
 
+### 5.4 智能建议与补全 (Autocomplete)
+
+前端抛弃了原有的前端伪随机或单独查标签的建议逻辑，现在通过 `useSearchAutocomplete` 钩子结合后端专用的 `/search/suggestions` 接口来提供全局统一的自动补全功能。
+
+- 一次请求能够分类拉取到相关的 **作者 (authors)**、**帖子 (threads)** 和 **书单 (booklists)**，并交由 `SearchSuggestions` 智能分类渲染。
+- 这些建议会基于用户的当前偏好 (`apply_preferences`) 进行筛选，并在输入框焦点激活时实时呈现给用户。
+
 ## 6. 交互式引导系统 (Onboarding Tour)
 
 由于系统功能日益复杂，为了降低新用户门槛，前端引入了全局式的交互引导系统（`src/features/onboarding/`），取代了以往通过个别页面（如 `SearchPage` 的独立弹窗）来实现的局域提示逻辑。
