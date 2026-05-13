@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { clearStoredAuthToken, getStoredAuthToken } from '@/shared/lib/authSession';
+import { clearStoredAuthToken } from '@/shared/lib/authSession';
 
 const DEFAULT_API_URL = 'http://localhost:10810/v1';
 const API_URL = import.meta.env.VITE_API_URL || DEFAULT_API_URL;
@@ -30,15 +30,6 @@ export const apiClient = axios.create({
       }
     },
   ],
-});
-
-// 请求拦截器
-apiClient.interceptors.request.use((config) => {
-  const token = getStoredAuthToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
 });
 
 // 响应拦截器
