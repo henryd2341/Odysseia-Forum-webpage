@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useRefreshAuth } from '@/features/auth/hooks/useAuth';
+import { authApi } from '@/features/auth/api/authApi';
 import { showMascotToast } from '@/features/mascot/lib/mascotToast';
 import { notifySuccess } from '@/shared/lib/notify';
 import { LOGIN_REDIRECT_STORAGE_KEY, sanitizeInternalRedirect } from '@/shared/lib/navigationSafety';
@@ -10,44 +11,77 @@ import { OmicronLoader } from '@/shared/ui/loaders/OmicronLoader';
 export function CallbackPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const refreshAuth = useRefreshAuth();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    const error = searchParams.get('error');
+    let cancelled = false;
 
-    if (error) {
-      showMascotToast({
-        id: 'auth-callback-error',
-        emotion: 'sad_apology',
-        eyebrow: 'Login Interrupted',
-        title: '这次登录没接上',
-        message: 'Discord 登录流程中断了。先回到登录页，我陪你重新试一次。',
-        actionLabel: '返回登录页',
-        onAction: () => navigate('/login', { replace: true }),
-        cancelLabel: '稍后再说',
-        duration: 7000,
+    const confirmAuthAndRedirect = async () => {
+      const error = searchParams.get('error');
+
+      if (error) {
+        showMascotToast({
+          id: 'auth-callback-error',
+          emotion: 'sad_apology',
+          eyebrow: 'Login Interrupted',
+          title: '这次登录没接上',
+          message: 'Discord 登录流程中断了。先回到登录页，我陪你重新试一次。',
+          actionLabel: '返回登录页',
+          onAction: () => navigate('/login', { replace: true }),
+          cancelLabel: '稍后再说',
+          duration: 7000,
+        });
+
+        navigate('/login', { replace: true });
+        return;
+      }
+
+      // Token is now extracted in App.tsx via hash
+      // Just handle redirect restoration here
+      const savedRedirect = sessionStorage.getItem(LOGIN_REDIRECT_STORAGE_KEY);
+      const queryRedirect = searchParams.get('redirect');
+
+      sessionStorage.removeItem(LOGIN_REDIRECT_STORAGE_KEY);
+
+      const redirectPath = sanitizeInternalRedirect(savedRedirect || queryRedirect || '/');
+
+      await new Promise((resolve) => setTimeout(resolve, 700));
+
+      if (cancelled) return;
+
+      const authState = await queryClient.fetchQuery({
+        queryKey: ['auth'],
+        queryFn: authApi.checkAuth,
+        staleTime: 0,
       });
 
+      if (cancelled) return;
+
+      if (authState.loggedIn) {
+        notifySuccess('登录成功，正在回到你刚刚的位置', { id: 'auth-callback-success' });
+        navigate(redirectPath, { replace: true });
+        return;
+      }
+
+      showMascotToast({
+        id: 'auth-callback-session-missing',
+        emotion: 'confused',
+        eyebrow: 'Session Missing',
+        title: '登录状态没有写入成功',
+        message: 'Discord 已完成授权，但浏览器没有确认到论坛登录状态。请稍后重新登录一次。',
+        actionLabel: '返回登录页',
+        onAction: () => navigate('/login', { replace: true }),
+        duration: 7000,
+      });
       navigate('/login', { replace: true });
-      return;
-    }
+    };
 
-    // Token is now extracted in App.tsx via hash
-    // Just handle redirect restoration here
-    const savedRedirect = sessionStorage.getItem(LOGIN_REDIRECT_STORAGE_KEY);
-    const queryRedirect = searchParams.get('redirect');
+    confirmAuthAndRedirect();
 
-    sessionStorage.removeItem(LOGIN_REDIRECT_STORAGE_KEY);
-
-    const redirectPath = sanitizeInternalRedirect(savedRedirect || queryRedirect || '/');
-
-    notifySuccess('登录成功，正在回到你刚刚的位置', { id: 'auth-callback-success' });
-
-    setTimeout(() => {
-      refreshAuth();
-      navigate(redirectPath, { replace: true });
-    }, 700);
-  }, [searchParams, navigate, refreshAuth]);
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams, navigate, queryClient]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-(--od-bg)">
