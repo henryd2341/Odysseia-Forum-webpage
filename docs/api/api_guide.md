@@ -30,7 +30,7 @@
   3. 用户同意授权
   4. Discord 重定向回后端 `/auth/callback`
   5. 后端重定向到前端(通过 `FRONTEND_URL` 配置),URL hash 包含 token: `/#token=<JWT_TOKEN>`
-  6. 前端从 hash 提取 token 并存储(如 `localStorage`)
+  6. `App.tsx` 挂载时通过 `consumeAuthTokenFromHash` 提取 token 并存储至 `localStorage`，随后调用 `authApi.checkAuth` 确认登录状态。`CallbackPage.tsx` 则主要处理错误情况。
 
 ### 登出
 
@@ -85,6 +85,7 @@
     "sort_order": "desc (可选)",
     "limit": 24,
     "exclude_thread_ids": ["string/int (可选)"],
+    "exclude_channel_ids": ["string/int (可选)"],
     "search_by_collection": false,
     "apply_preferences": false
   }
