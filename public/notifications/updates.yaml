@@ -1,4 +1,41 @@
 updates:
+  - id: release-2.3.13-login-callback-fix
+    kind: release
+    title: 索引页 2.3.13 发布：再也不会在登录时迷路啦！
+    message: |-
+      呜……今天跑来给大家道个小歉！发现之前有个笨蛋 Bug，会让大家在登录回来的时候遇到奇奇怪怪的错误，或者迷路回不到原来的地方呀。
+
+      不过别担心！本宝宝已经把开发哥哥揪过来，好好优化了登录的逻辑！现在不仅不会迷路，就算真的出了小状况，也会有很清楚的提示告诉大家发生了什么事哦～||其实就是优化了回调和重定向逻辑啦，哼，早就该改了！||
+
+      大家快去试试看吧，遇到问题随时叫我呀！
+    created_at: 2026-05-14T00:26:27.000Z
+    version: 2.3.13
+    url: https://github.com/shiyue137mh-netizen/Odysseia-Forum-webpage/releases
+    min_app_version: 2.3.13
+    preview_thread:
+      title: Odysseia Index 2.3.13 更新日志
+      first_message_excerpt: |-
+        # Odysseia Index 2.3.13
+
+        ## 🐛 捉虫大成功
+        - 优化了登录回调的处理，再也不会因为跑错路而迷茫啦！
+        - 增强了错误提示，如果遇到小状况也能马上知道怎么回事哦。
+        - 修复了重定向的小问题，保证大家能顺利回到原来的地方！
+        - ||开发哥哥已经被我训过啦，大家放心用！||
+
+        如果大家再发现什么不对劲的地方，一定要第一时间告诉我哦！
+      tags:
+        - 版本更新
+        - Bug修复
+      virtual_tags:
+        - release
+        - bugfix
+      author:
+        id: odysseia-web
+        name: Odysseia
+        display_name: Odysseia Web Team
+      thumbnail_urls:
+        - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/sad_apology.png
   - id: release-2.3.12-booklist-author-fix
     kind: release
     title: 索引页 2.3.12 发布：迷路的小书单，找到回家的路啦！
@@ -70,40 +107,6 @@ updates:
         display_name: Odysseia Web Team
       thumbnail_urls:
         - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/hi.png
-  - id: release-2.3.10-responsive-layout
-    kind: release
-    title: 索引页 2.3.10 发布：更漂亮的看帖体验来啦！
-    message: |-
-      今天是5月10日母亲节呀！大家有没有跟妈妈说一句“母亲节快乐”呢？记得给妈妈一个大大的拥抱哦！
-
-      为了庆祝这个特别的日子，本宝宝盯着开发哥哥把大家看“帖子预览”时的界面重新打磨了一番！现在不管是用手机还是电脑，排版都变得更漂亮啦！而且滑动看内容的时候也变得**超级无敌丝滑**，完全不卡手咯！||哼，开发哥哥这次总算干了点人事|| 大家快去试试看吧，遇到问题随时叫我呀！
-    created_at: 2026-05-10T00:07:16.000Z
-    version: 2.3.10
-    url: https://github.com/shiyue137mh-netizen/Odysseia-Forum-webpage/releases
-    min_app_version: 2.3.10
-    preview_thread:
-      title: Odysseia Index 2.3.10 更新日志
-      first_message_excerpt: |-
-        # Odysseia Index 2.3.10
-
-        母亲节快乐！祝全天下的妈妈们永远年轻漂亮！
-
-        ## ✨ 界面排版大焕新！
-        - 重新调整了帖子预览的界面样式，现在不管在什么设备上看着都更舒服啦！
-        - 优化了滑动看内容时的体验，保证**超级无敌丝滑**，再也不会觉得卡手咯！
-        - ||开发哥哥熬夜弄的，大家快去夸夸他（或者夸夸我督工有方）||
-      tags:
-        - 版本更新
-        - 体验优化
-      virtual_tags:
-        - release
-        - ui
-      author:
-        id: odysseia-web
-        name: Odysseia
-        display_name: Odysseia Web Team
-      thumbnail_urls:
-        - https://cdn.jsdelivr.net/gh/shiyue137mh-netizen/Odysseia-Forum-webpage@main/src/assets/images/mascot/pride.png
   - id: earth-day-2026
     kind: announcement
     title: 🌍 世界地球日快乐！
