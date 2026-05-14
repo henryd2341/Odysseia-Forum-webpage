@@ -29,7 +29,7 @@
 
 - `guild_id: Optional[int]`
   - 要搜索的服务器 ID，为空则不按服务器过滤。
-- `channel_ids: Optional[List[int]]`
+- `channel_ids: Optional[List[int | str]]`
   - 要搜索的频道 ID 列表，为空则搜索所有已索引频道。
 - `include_tags: List[str]`
   - 必须包含的标签名列表。
@@ -43,16 +43,18 @@
   - 要排除的关键词，使用逗号分隔。
 - `exclude_keyword_exemption_markers: Optional[List[str]]`
   - 关键词排除豁免标记，包含这些标记的反选关键词不会被排除。
-- `include_authors: Optional[List[int]]`
+- `include_authors: Optional[List[int | str]]`
   - 只看这些作者的帖子（作者 ID 列表）。
-- `exclude_authors: Optional[List[int]]`
+- `exclude_authors: Optional[List[int | str]]`
   - 屏蔽这些作者的帖子。
 - `author_name: Optional[str]`
   - 模糊搜索作者全局昵称或用户名。**(前端已弃用此字段，改用在 `keywords` 中拼接 `author:"name"` 的方式向后端传递)**
 - `search_by_collection: Optional[bool]`
   - 仅搜索当前用户收藏的帖子。
-- `exclude_thread_ids: Optional[List[int]]`
+- `exclude_thread_ids: Optional[List[int | str]]`
   - 排除已展示的帖子 ID 列表。**(注意：受限于 JS 64 位整数精度，前端在请求中统一以 `string[]` 格式传递，依赖后端 Pydantic 自动转换为整型)**
+- `exclude_channel_ids: Optional[List[int | str]]`
+  - 要排除的频道ID列表。
 - `apply_preferences: Optional[bool]`
   - 是否在搜索时应用当前登录用户的探索偏好（含过滤与降级），默认为 `false`。
 - `created_after / created_before: Optional[str]`
@@ -77,8 +79,10 @@
   - 排序顺序：`"asc"` 或 `"desc"`，默认 `"desc"`。
 - `limit: int`
   - 每页返回数量，范围 1–100，默认 10。
-- `exclude_thread_ids: Optional[List[int]]`
+- `exclude_thread_ids: Optional[List[int | str]]`
   - 已在前端展示的帖子 ID 列表，用于去重或无缝滚动。当使用此参数时，必须将 offset 设置为 0，防止后端在排除后的集合基础上产生跳页。
+- `exclude_channel_ids: Optional[List[int | str]]`
+  - 要排除的频道ID列表。
 - `search_by_collection: Optional[bool]`
   - 是否仅搜索当前用户已收藏的帖子。对应 Discord Bot 端的 `/查看收藏` 指令。
 - `offset: int`
@@ -181,7 +185,7 @@
 - 方法：`GET /v1/meta/channels`
 - 依赖：`get_current_user`（需要登录态）
 - 查询参数：
-  - `channel_ids: Optional[List[int]]`：可选的频道 ID 列表，缺省时返回所有已索引频道。
+  - `channel_ids: Optional[List[int | str]]`：可选的频道 ID 列表，缺省时返回所有已索引频道。
   - `guild_id: Optional[int]`：按服务器 ID 过滤频道。
 - 响应体：`List[ChannelDetail]`
 
@@ -226,8 +230,8 @@
 - 频道偏好：
   - `preferred_channels: Optional[List[int]]`：偏好频道 ID 列表。
 - 作者偏好：
-  - `include_authors: Optional[List[int]]`：只看这些作者。
-  - `exclude_authors: Optional[List[int]]`：屏蔽这些作者。
+  - `include_authors: Optional[List[int | str]]`：只看这些作者。
+  - `exclude_authors: Optional[List[int | str]]`：屏蔽这些作者。
 - 标签偏好：
   - `include_tags: Optional[List[str]]`：必须包含的标签名。
   - `exclude_tags: Optional[List[str]]`：必须排除的标签名。
@@ -285,7 +289,7 @@
 ### 6.1 TagStatsRequest
 
 - `guild_id: Optional[int]` — 服务器 ID（可选）
-- `channel_ids: Optional[List[int]]` — 指定频道 ID 列表（可选）
+- `channel_ids: Optional[List[int | str]]` — 指定频道 ID 列表（可选）
 - `include_virtual: bool` — 是否包含虚拟映射标签的统计（默认 `true`）
 
 ### 6.2 TagStatsResponse
@@ -337,7 +341,7 @@
 - 描述：根据指定范围随机抽取帖子
 - 查询参数：
   - `limit: int` — 抽取数量（1–50，默认 10）
-  - `channel_ids: Optional[List[int]]` — 频道筛选范围
+  - `channel_ids: Optional[List[int | str]]` — 频道筛选范围
   - `include_tags: Optional[List[str]]` — 包含的标签名
   - `exclude_tags: Optional[List[str]]` — 排除的标签名
   - `tag_logic: str` — 标签逻辑，`'and'` 或 `'or'`（默认 `'and'`）
