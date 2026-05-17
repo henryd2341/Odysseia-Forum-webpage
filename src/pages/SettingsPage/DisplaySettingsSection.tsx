@@ -9,13 +9,21 @@ import {
   Monitor,
   Scan,
   Type,
+<<<<<<< Updated upstream
+=======
+  ExternalLink,
+  AppWindow,
+  Moon,
+  Sun,
+>>>>>>> Stashed changes
 } from 'lucide-react';
 
 import { themes } from '@/shared/styles/themes';
 import type { UserSettings } from '@/shared/lib/settings';
 import { useTheme } from '@/shared/hooks/useTheme';
 
-import { themeOptions } from './config';
+import { darkThemeOptions, lightThemeOptions } from './config';
+import { SettingsToggle } from './SettingsToggle';
 import { SettingsPageSection } from './SettingsPageSection';
 
 type DisplaySettingsSectionProps = {
@@ -24,9 +32,15 @@ type DisplaySettingsSectionProps = {
 };
 
 export function DisplaySettingsSection({ settings, updateSettings }: DisplaySettingsSectionProps) {
-  const { setThemeWithTransition } = useTheme();
+  const {
+    currentMode,
+    setFollowSystemThemeWithTransition,
+    setThemeForModeWithTransition,
+  } = useTheme();
   const inlineChoiceClass = 'od-option-inline';
   const rowChoiceClass = 'od-setting-choice flex items-center gap-3 p-4 text-left';
+  const themeBadgeClass =
+    'rounded-full border border-(--od-shell-line) px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]';
 
   return (
     <SettingsPageSection dividerLabel="Display" kicker="Visual Hierarchy" title="显示设置" icon={Layout}>
@@ -216,38 +230,182 @@ export function DisplaySettingsSection({ settings, updateSettings }: DisplaySett
           <p className="mb-3 text-[0.82rem] leading-[1.55] text-(--od-text-secondary)">
             每套主题都是成组的色彩与字形方案，不只是单纯换个底色。
           </p>
-          <div className="space-y-2">
-            {themeOptions.map((option) => {
-              const isSelected = settings.theme === option.id;
-              const themeColors = option.themeKey ? themes[option.themeKey].colors : null;
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-4 rounded-[1.3rem] border border-(--od-shell-line) bg-[color-mix(in_srgb,var(--od-surface-input)_76%,transparent)] p-4">
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-(--od-text-primary)">跟随系统</div>
+                <div className="text-xs leading-[1.55] text-(--od-text-tertiary)">
+                  打开后按系统深浅色在日间与夜间槽位之间切换，不会覆盖你分别选好的主题。
+                </div>
+              </div>
+              <SettingsToggle
+                checked={settings.followSystemTheme}
+                onToggle={(e) => setFollowSystemThemeWithTransition(!settings.followSystemTheme, e)}
+                ariaLabel="切换是否跟随系统主题"
+              />
+            </div>
 
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={(e) => {
-                    setThemeWithTransition(option.id, 'circle', e);
-                  }}
-                  data-active={isSelected}
-                  className={`${rowChoiceClass} w-full justify-between`}
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <option.icon className={`od-choice-icon h-5 w-5 ${isSelected ? 'text-(--od-accent)' : 'text-(--od-text-secondary)'}`} />
-                    <div className="flex min-w-0 flex-col text-left">
-                      <span className="od-choice-title text-xs text-(--od-text-primary)">{option.label}</span>
-                      <span className="truncate text-[10px] text-(--od-text-tertiary)">{option.description}</span>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="rounded-[1.3rem] border border-(--od-shell-line) bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] p-3">
+                <div className="mb-3 flex items-start justify-between gap-3 px-1">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="mt-0.5 rounded-full bg-[color-mix(in_srgb,var(--od-accent)_12%,transparent)] p-2 text-(--od-accent)">
+                      <Sun className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-(--od-text-primary)">日间主题</div>
+                      <div className="text-xs leading-[1.55] text-(--od-text-tertiary)">
+                        亮底阅读、通透浏览，适合白天或高环境亮度场景。
+                      </div>
                     </div>
                   </div>
-                  {themeColors && (
-                    <div className="ml-3 flex shrink-0 gap-1.5">
-                      <span className="h-4 w-4 rounded-full border border-black/10" style={{ background: themeColors.background }} />
-                      <span className="h-4 w-4 rounded-full border border-black/10" style={{ background: themeColors.card }} />
-                      <span className="h-4 w-4 rounded-full border border-black/10" style={{ background: themeColors.accent }} />
+                  <span
+                    className={`${themeBadgeClass} ${
+                      currentMode === 'light'
+                        ? 'border-(--od-accent) text-(--od-accent)'
+                        : 'text-(--od-text-tertiary)'
+                    }`}
+                  >
+                    {currentMode === 'light'
+                      ? settings.followSystemTheme
+                        ? '系统当前使用'
+                        : '当前生效'
+                      : settings.followSystemTheme
+                        ? '系统待切换'
+                        : '手动待机'}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {lightThemeOptions.map((option) => {
+                    const isSelected = settings.lightTheme === option.id;
+                    const themeColors = themes[option.themeKey].colors;
+
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={(e) => {
+                          setThemeForModeWithTransition('light', option.id, e);
+                        }}
+                        data-active={isSelected}
+                        className={`${rowChoiceClass} w-full justify-between`}
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <option.icon
+                            className={`od-choice-icon h-5 w-5 ${
+                              isSelected ? 'text-(--od-accent)' : 'text-(--od-text-secondary)'
+                            }`}
+                          />
+                          <div className="flex min-w-0 flex-col text-left">
+                            <span className="od-choice-title text-xs text-(--od-text-primary)">
+                              {option.label}
+                            </span>
+                            <span className="truncate text-[10px] text-(--od-text-tertiary)">
+                              {option.description}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="ml-3 flex shrink-0 gap-1.5">
+                          <span
+                            className="h-4 w-4 rounded-full border border-black/10"
+                            style={{ background: themeColors.background }}
+                          />
+                          <span
+                            className="h-4 w-4 rounded-full border border-black/10"
+                            style={{ background: themeColors.card }}
+                          />
+                          <span
+                            className="h-4 w-4 rounded-full border border-black/10"
+                            style={{ background: themeColors.accent }}
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-[1.3rem] border border-(--od-shell-line) bg-[color-mix(in_srgb,var(--od-surface-input)_72%,transparent)] p-3">
+                <div className="mb-3 flex items-start justify-between gap-3 px-1">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="mt-0.5 rounded-full bg-[color-mix(in_srgb,var(--od-accent)_12%,transparent)] p-2 text-(--od-accent)">
+                      <Moon className="h-4 w-4" />
                     </div>
-                  )}
-                </button>
-              );
-            })}
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-(--od-text-primary)">夜间主题</div>
+                      <div className="text-xs leading-[1.55] text-(--od-text-tertiary)">
+                        深底沉浸、信息收束，适合夜间浏览和低光环境。
+                      </div>
+                    </div>
+                  </div>
+                  <span
+                    className={`${themeBadgeClass} ${
+                      currentMode === 'dark'
+                        ? 'border-(--od-accent) text-(--od-accent)'
+                        : 'text-(--od-text-tertiary)'
+                    }`}
+                  >
+                    {currentMode === 'dark'
+                      ? settings.followSystemTheme
+                        ? '系统当前使用'
+                        : '当前生效'
+                      : settings.followSystemTheme
+                        ? '系统待切换'
+                        : '手动待机'}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {darkThemeOptions.map((option) => {
+                    const isSelected = settings.darkTheme === option.id;
+                    const themeColors = themes[option.themeKey].colors;
+
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={(e) => {
+                          setThemeForModeWithTransition('dark', option.id, e);
+                        }}
+                        data-active={isSelected}
+                        className={`${rowChoiceClass} w-full justify-between`}
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <option.icon
+                            className={`od-choice-icon h-5 w-5 ${
+                              isSelected ? 'text-(--od-accent)' : 'text-(--od-text-secondary)'
+                            }`}
+                          />
+                          <div className="flex min-w-0 flex-col text-left">
+                            <span className="od-choice-title text-xs text-(--od-text-primary)">
+                              {option.label}
+                            </span>
+                            <span className="truncate text-[10px] text-(--od-text-tertiary)">
+                              {option.description}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="ml-3 flex shrink-0 gap-1.5">
+                          <span
+                            className="h-4 w-4 rounded-full border border-black/10"
+                            style={{ background: themeColors.background }}
+                          />
+                          <span
+                            className="h-4 w-4 rounded-full border border-black/10"
+                            style={{ background: themeColors.card }}
+                          />
+                          <span
+                            className="h-4 w-4 rounded-full border border-black/10"
+                            style={{ background: themeColors.accent }}
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

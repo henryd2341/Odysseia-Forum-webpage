@@ -58,7 +58,10 @@ export function useSidebarCollapsedSetting() {
 
 export function useThemeSettings() {
   return useSettingsStore(useShallow((state) => ({
-    theme: state.settings.theme,
+    lightTheme: state.settings.lightTheme,
+    darkTheme: state.settings.darkTheme,
+    themeMode: state.settings.themeMode,
+    followSystemTheme: state.settings.followSystemTheme,
     fontMode: state.settings.fontMode,
     glassBlur: state.settings.glassBlur,
     backgroundImageBase64: state.settings.backgroundImageBase64,

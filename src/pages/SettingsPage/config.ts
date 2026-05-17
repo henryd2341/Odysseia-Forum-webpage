@@ -1,11 +1,15 @@
 import {
-  Monitor,
   Moon,
   Sun,
   type LucideIcon,
 } from 'lucide-react';
 
+<<<<<<< Updated upstream
 import type { UserSettings } from '@/shared/lib/settings';
+=======
+import type { DarkThemeSetting, LightThemeSetting } from '@/shared/lib/settings';
+import defaultWinterBackground from '@/assets/images/background/winter.png';
+>>>>>>> Stashed changes
 import defaultSpringBackground from '@/assets/images/background/spring.png';
 import defaultSpring2Background from '@/assets/images/background/spring2.png';
 import defaultSummer1Background from '@/assets/images/background/summer1.png';
@@ -13,8 +17,8 @@ import defaultSummer2Background from '@/assets/images/background/summer2.png';
 import defaultSummer3Background from '@/assets/images/background/summer3.png';
 import defaultBannerBackground from '@/assets/images/banners/banner.png';
 
-type ThemeOption = {
-  id: UserSettings['theme'];
+export type ThemeOption<TTheme extends string> = {
+  id: TTheme;
   label: string;
   icon: LucideIcon;
   themeKey:
@@ -26,25 +30,34 @@ type ThemeOption = {
     | 'everforest'
     | 'sakuraDay'
     | 'yozakuraNight'
-    | 'tokyoNight'
-    | null;
+    | 'tokyoNight';
   description: string;
 };
 
-export const themeOptions: ThemeOption[] = [
+export const lightThemeOptions: ThemeOption<LightThemeSetting>[] = [
+  {
+    id: 'discord-light',
+    label: 'Discord 浅色',
+    icon: Sun,
+    themeKey: 'discordLight',
+    description: '明亮克制，适合日间浏览与清爽阅读',
+  },
+  {
+    id: 'sakura-day',
+    label: 'Sakura Day',
+    icon: Sun,
+    themeKey: 'sakuraDay',
+    description: '春樱明朝风，淡粉与叶绿',
+  },
+];
+
+export const darkThemeOptions: ThemeOption<DarkThemeSetting>[] = [
   {
     id: 'discord-dark',
     label: 'Discord 深色',
     icon: Moon,
     themeKey: 'discordDark',
     description: '经典 Discord 暗色风格',
-  },
-  {
-    id: 'discord-light',
-    label: 'Discord 浅色',
-    icon: Sun,
-    themeKey: 'discordLight',
-    description: '明亮的浅色主题',
   },
   {
     id: 'claude-dark',
@@ -75,13 +88,6 @@ export const themeOptions: ThemeOption[] = [
     description: '护眼森林调，适合长时阅读',
   },
   {
-    id: 'sakura-day',
-    label: 'Sakura Day',
-    icon: Sun,
-    themeKey: 'sakuraDay',
-    description: '春樱明朝风，淡粉与叶绿',
-  },
-  {
     id: 'yozakura-night',
     label: 'Yozakura Night',
     icon: Moon,
@@ -94,13 +100,6 @@ export const themeOptions: ThemeOption[] = [
     icon: Moon,
     themeKey: 'tokyoNight',
     description: '代码高亮感最强的夜色主题',
-  },
-  {
-    id: 'auto',
-    label: '跟随系统',
-    icon: Monitor,
-    themeKey: null,
-    description: '根据系统深浅色自动切换',
   },
 ];
 
